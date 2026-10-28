@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+.dev.vars
+public/app.js
+public/app.js.map
+photos/
+test-letters/renders/
+.DS_Store

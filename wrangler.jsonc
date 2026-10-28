@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "appealpath",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Static files in public/ are served before the Worker; only /api/* reaches src/worker.ts.
+  "assets": { "directory": "./public", "run_worker_first": ["/api/*"] },
+  // Workers AI on the free plan: 10,000 neurons a day, shared with every Worker on this account.
+  "ai": { "binding": "AI" },
+  // A public link that spends the account's shared neurons (SnapList uses the same 10,000 a day) needs a brake.
+  // About 6 reads a minute per visitor, counted per Cloudflare location, so it's approximate.
+  "ratelimits": [{ "name": "READ_LIMIT", "namespace_id": "4271", "simple": { "limit": 6, "period": 60 } }],
+  "observability": { "enabled": true }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "appealpath",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AppealPath: a photo of a health insurance denial letter in, one next step out (fix and resubmit, appeal, or urgent review). Prototype, not medical or legal advice. One Cloudflare Worker on the free plan with Workers AI; the app is static assets.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-client.mjs",
+    "dev": "node scripts/build-client.mjs && wrangler dev --port 8792",
+    "dev:watch": "node scripts/build-client.mjs --watch",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p src/client/tsconfig.json",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm run test",
+    "deploy": "npm run check && node scripts/build-client.mjs && wrangler deploy"
+  },
+  "dependencies": {
+    "preact": "10.29.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261023.1",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5",
+    "wrangler": "4.151.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

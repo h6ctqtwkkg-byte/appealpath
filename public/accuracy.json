@@ -1,0 +1,40 @@
+{
+  "measuredOn": "2026-10-28",
+  "images": "clean digital images of the printed pages, not phone photos",
+  "model": "google/gemma-4-26b-a4b-it",
+  "photos": 12,
+  "fields": [
+    {
+      "name": "Service",
+      "right": 12,
+      "empty": 0,
+      "wrong": 0
+    },
+    {
+      "name": "Reason",
+      "right": 11,
+      "empty": 0,
+      "wrong": 0
+    },
+    {
+      "name": "Deadline",
+      "right": 12,
+      "empty": 0,
+      "wrong": 0
+    },
+    {
+      "name": "Phone",
+      "right": 10,
+      "empty": 0,
+      "wrong": 2
+    }
+  ],
+  "results": {
+    "right": 12,
+    "total": 12
+  },
+  "misses": [
+    "L04.jpg: phone read as (479) 555-0178",
+    "L07.jpg: phone read as (479) 555-0178"
+  ]
+}
