@@ -107,10 +107,16 @@ Every result has, in order: the headline, one sentence on why, the steps, the **
 **No-deadline version:** We didn't find a deadline on your letter. Healthcare.gov says internal appeals must be filed within 180 days of receiving the denial notice. Call [appeal phone] to confirm yours.
 
 **Steps**
-1. Ask your doctor for a letter explaining why you need [service].
-2. Send the appeal below, with that letter, to [appeal address or fax from the letter].
+1. Depends on the reason:
+   - Not medically necessary (and unknown): Ask your doctor for a letter explaining why you need this care ([service]).
+   - Experimental: Ask your doctor for a letter explaining why this care ([service]) is right for you, with any studies or guidelines that support it.
+   - Not covered: Find the rule your plan used: the letter may name it, or check your plan documents. Then ask your doctor for a letter explaining why you need this care ([service]).
+   - Out of network: Write down why you went out of network: for example, no in-network provider offered this care, it was an emergency, or you were told the provider was in network. If your doctor sent you there, ask them for a letter saying why.
+   - Fix-type reason the office already resubmitted: Ask your doctor's office what they sent the plan and when, and get a copy. The plan still said no after the office tried to fix it.
+2. Send the appeal letter below, and anything from step 1, to [appeal address or fax from the letter].
 3. Keep copies. Write down the date and the name of everyone you talk to.
-4. If the plan still says no, you can ask for an independent external review. Healthcare.gov says to request it within 4 months of the final decision.
+4. Not medically necessary or experimental: If the plan still says no, you can ask for an independent external review. Healthcare.gov says to request it within 4 months after you get the final decision.
+   Any other reason: If the plan still says no, ask whether you can get an independent external review. Healthcare.gov says external review covers denials that involve medical judgment, like medical necessity, or experimental treatment, so it may not apply to this one.
 
 **Job plans only:** Ask HR whether your plan is "self-funded". It changes who handles an outside review.
 

@@ -36,16 +36,20 @@ From [Healthcare.gov, internal appeals](https://www.healthcare.gov/appeal-insura
 - **Internal appeal:** file within 180 days of receiving the denial notice.
 - **Plan's decision on a standard appeal:** within 30 days for care you haven't received, 60 days for care you already received.
 - **External review** (after a final internal denial): request it within 4 months of receiving the final decision. A standard review is decided within 45 days; an expedited one within 72 hours or less. The plan must accept the reviewer's decision.
+- **Which denials can go to external review** (checked Oct 29, 2026): ones that involve medical judgment, ones that call a treatment experimental or investigational, and cancelled coverage. So the Appeal result says "you can ask for an external review" only for *not medically necessary* and *experimental* (`EXTERNAL_REVIEW` in `src/shared/types.ts`). For other reasons it says to ask whether the denial qualifies.
+- **Urgent cases:** "you can ask for an external review at the same time as your internal appeal" (internal appeals page). The urgent result adds "if the denial involved medical judgment".
 
 Use these only when the letter prints no deadline, worded as: *"Healthcare.gov says… Call [phone] to confirm yours."*
 
-## Free-help directory (verified Oct 28, 2026)
+## Free-help directory (verified Oct 28–29, 2026)
 
 | Who | Contact | Source | Use it for |
 |---|---|---|---|
 | Arkansas Insurance Department, Consumer Services | 501-371-2640 · 1-800-852-5494 | [Consumer Services](https://insurance.arkansas.gov/consumer-assistance/consumer-services/), [Contact AID](https://insurance.arkansas.gov/contact/) | Help with job or Marketplace denials in Arkansas |
 | Arkansas Insurance Department, External Review | insurance.externalreview@arkansas.gov · fax 501-371-2734 (forms on the page, including a physician certification for expedited review) | [External Review](https://insurance.arkansas.gov/consumer-assistance/consumer-services/external-review/) | After a final internal denial; urgent cases |
 | Arkansas SHIIP (free Medicare counseling) | 501-371-2782 · 800-224-6330 | [Contact AID](https://insurance.arkansas.gov/contact/) | Guard card for Medicare |
+| Arkansas DHS, Office of Appeals and Hearings | DHS.Appeals@dhs.arkansas.gov · P.O. Box 1437, Slot S101, Little Rock, AR 72203-1437 (no phone on the page; the app shows none) | [DHS: File an Appeal](https://humanservices.arkansas.gov/contact-us/file-an-appeal/) | Guard card for Medicaid in Arkansas. Medicaid hearings go through DHS, not the insurance department. The page gives a 30-day window for some Medicaid decisions; the app doesn't quote it. |
+| Each state's Medicaid agency | Medicaid.gov's state list | [Where can people get help with Medicaid & CHIP?](https://www.medicaid.gov/about-us/where-can-people-get-help-medicaid-chip) | Guard card for Medicaid outside Arkansas |
 | U.S. Dept. of Labor, EBSA | (866) 444-3272 | [Ask EBSA](https://beta.dol.gov/about/agencies/ebsa/ask-ebsa) | Job-based plans, especially self-funded ones |
 | Outside Arkansas | Your state's Department of Insurance or Consumer Assistance Program, via the directory Healthcare.gov links to | [Healthcare.gov, external review](https://www.healthcare.gov/appeal-insurance-company-decision/external-review/) | L04-type cases (Missouri member) |
 

@@ -26,6 +26,8 @@ const SOURCE_LINKS = [
   "https://www.healthcare.gov/appeal-insurance-company-decision/external-review/",
   "https://insurance.arkansas.gov/consumer-assistance/consumer-services/external-review/",
   "https://beta.dol.gov/about/agencies/ebsa/ask-ebsa",
+  "https://humanservices.arkansas.gov/contact-us/file-an-appeal/",
+  "https://www.medicaid.gov/about-us/where-can-people-get-help-medicaid-chip",
 ];
 
 function RunTable({ run }: { run: Run }) {

@@ -45,7 +45,7 @@ That's an access problem, not a diagnosis problem. So AppealPath doesn't diagnos
    - **Appeal** for "not medically necessary", "not covered", "out of network" or "experimental", or for a paperwork problem the office already tried to fix.
    - Anything else, like a letter with no clear reason, gets **"call the number on your letter"** instead of a guess.
 
-Every result gives the next step and free help: Arkansas contacts for now, plus the U.S. Department of Labor for job-based plans. Fix and urgent results add a call script. Appeal adds a printable appeal letter filled in with the letter's own words. Fix, appeal and urgent results show the deadline as printed, and offer a calendar reminder when it's an actual date. On Fix, the app warns that resubmitting may not pause that deadline. Most results explain the denial reason in plain language. The app works in English and Spanish. Quotes from the letter aren't translated, so you can check them against the paper.
+Every result gives the next step and free help: Arkansas contacts for now, the state Medicaid agency for Medicaid, and the U.S. Department of Labor for job-based plans. Fix and urgent results add a call script. Appeal adds a printable appeal letter filled in with the letter's own words, and its first step depends on the reason: a doctor's letter for medical necessity, the plan's rule for an exclusion, why you went out of network for a network denial. It only promises an external review for the kinds of denial Healthcare.gov says qualify. Fix, appeal and urgent results show the deadline as printed, and offer a calendar reminder when it's an actual date. On Fix, the app warns that resubmitting may not pause that deadline. Most results explain the denial reason in plain language. The app works in English and Spanish. Quotes from the letter aren't translated, so you can check them against the paper.
 
 Because it's a prototype, the photo picker asks people to use a sample or a made-up letter. It won't contact your insurer, file anything, predict whether an appeal will win, diagnose, give legal advice, or store your photo or answers. **It's a prototype, not medical or legal advice, and every letter in it is fictional.**
 
@@ -58,7 +58,7 @@ Try all five outcomes without uploading anything, one fictional letter per rule:
 - **The second reader** is Tesseract.js, running in the browser and served by the app itself. OCR on a phone photo misreads letters and splits words, so it matches the AI's quotes word by word with some tolerance instead of exactly. For phone numbers, it rebuilds numbers split across words, requires every digit to match, area code included, and checks whether the word "fax" is printed just before.
 - **The rules** are one small function (`src/shared/rules.ts`), checked in order, first match wins. Each rule cites Healthcare.gov, the Arkansas Insurance Department or the U.S. Department of Labor, or is labeled as a design choice (`prep/ROUTING.md`).
 - **The app** is Preact and TypeScript, bundled with esbuild. Almost all of its wording lives in one file, in English and Spanish. The plain-language reason notes have a file of their own, and the appeal letter's wording sits in the results screen.
-- **Checks:** 45 automated tests, including the rules run on all 12 test letters, the reader's output check, the second reader's matching and the date reading. The app was also checked against WCAG 2.1 AA, and 7 issues were found and fixed: contrast in light and dark mode, focus visibility, tap targets, focus moving to each new screen, and language tags for Spanish.
+- **Checks:** 55 automated tests, including the rules run on all 18 test letters, the reader's output check, the second reader's matching and the date reading. The app was also checked against WCAG 2.1 AA, and 7 issues were found and fixed: contrast in light and dark mode, focus visibility, tap targets, focus moving to each new screen, and language tags for Spanish.
 
 I used Claude Code, an AI coding assistant, for most of the code, which DSH's rules allow. [[One true sentence on what you did yourself: the decisions you made, what you tested, what you changed.]]
 
@@ -147,7 +147,7 @@ git -C /Users/nbrew/AppealPath archive --format=zip -o AppealPath-source.zip HEA
 | 19% of in-network claims denied, fewer than 1% appealed (HealthCare.gov insurers, 2024) | [KFF, "Claims Denials and Appeals in ACA Marketplace Plans in 2024", published Mar 24, 2026](https://www.kff.org/patient-consumer-protections/claims-denials-and-appeals-in-aca-marketplace-plans-in-2024/), checked Oct 29, 2026 |
 | 12/12, 14/14, second-reader counts, the misses | `public/accuracy.json` |
 | Gemma vs Scout: 4/4 vs 3/4, about 16 vs 94 neurons, confidence 1.0, the missing word | `prep/READER-TEST.md` |
-| 45 tests | `npm test`, Oct 29, 2026 |
+| 55 tests | `npm test`, Oct 29, 2026 |
 | 10 of 12 test letters give a relative deadline | `test-letters/ANSWER-KEY.md` |
 | Which rules win in which order | `src/shared/rules.ts` |
 | What each result includes | `src/client/Result.tsx` |

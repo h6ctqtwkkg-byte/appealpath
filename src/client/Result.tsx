@@ -1,7 +1,7 @@
 // Screen 3: one next step. Wording in i18n.ts; the outcome comes from src/shared/rules.ts.
 import type { JSX } from "preact";
 import { deadlineEvent, printedDate } from "../shared/dates";
-import type { Answers, Decision, Reading } from "../shared/types";
+import { EXTERNAL_REVIEW, type Answers, type Decision, type Reading } from "../shared/types";
 import { helpFor } from "./help";
 import { STRINGS, useLang, useT } from "./i18n";
 import { REASON_INFO } from "./reasons";
@@ -242,7 +242,7 @@ export function Result(props: {
       headline = t.appeal.headline;
       why = t.appeal.why;
       steps = [
-        <li key="1">{t.appeal.step1(service)}</li>,
+        <li key="1">{t.appeal.step1(r.category, service)}</li>,
         <li key="2">
           {t.appeal.step2}{" "}
           {r.appealAddress ? (
@@ -255,7 +255,7 @@ export function Result(props: {
           .
         </li>,
         <li key="3">{t.appeal.step3}</li>,
-        <li key="4">{t.appeal.step4}</li>,
+        <li key="4">{EXTERNAL_REVIEW.includes(r.category) ? t.appeal.step4 : t.appeal.step4Ask}</li>,
       ];
       break;
     case "urgent":

@@ -19,6 +19,8 @@ export type Category = (typeof CATEGORIES)[number];
 export const FIX_TYPE: readonly Category[] = ["prior_auth_missing", "missing_info", "billing_error"];
 /** Reasons the plan decided on the merits, which only an appeal can change. */
 export const APPEAL_TYPE: readonly Category[] = ["not_medically_necessary", "not_covered", "out_of_network", "experimental"];
+/** Healthcare.gov (external review): denials that involve medical judgment, or call a treatment experimental, can go to external review. */
+export const EXTERNAL_REVIEW: readonly Category[] = ["not_medically_necessary", "experimental"];
 
 /** The five questions on the form. */
 export interface Answers {

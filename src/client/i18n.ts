@@ -200,11 +200,29 @@ const en = {
     appeal: {
       headline: "Next step: file an appeal",
       why: "You have the right to ask your plan to look at this again.",
-      step1: (service: string | null) => `Ask your doctor for a letter explaining why you need ${service ?? "this care"}.`,
-      step2: "Send the appeal below, with that letter, to",
+      // What to gather first depends on the reason (Healthcare.gov: internal appeals).
+      step1: (category: Category, service: string | null) => {
+        const care = service ? `this care (${service})` : "this care";
+        switch (category) {
+          case "out_of_network":
+            return "Write down why you went out of network: for example, no in-network provider offered this care, it was an emergency, or you were told the provider was in network. If your doctor sent you there, ask them for a letter saying why.";
+          case "not_covered":
+            return `Find the rule your plan used: the letter may name it, or check your plan documents. Then ask your doctor for a letter explaining why you need ${care}.`;
+          case "experimental":
+            return `Ask your doctor for a letter explaining why ${care} is right for you, with any studies or guidelines that support it.`;
+          case "prior_auth_missing":
+          case "missing_info":
+          case "billing_error":
+            return "Ask your doctor's office what they sent the plan and when, and get a copy. The plan still said no after the office tried to fix it.";
+          default:
+            return `Ask your doctor for a letter explaining why you need ${care}.`;
+        }
+      },
+      step2: "Send the appeal letter below, and anything from step 1, to",
       step2Fallback: "the address or fax on your letter",
       step3: "Keep copies. Write down the date and the name of everyone you talk to.",
-      step4: "If the plan still says no, you can ask for an independent external review. Healthcare.gov says to request it within 4 months of the final decision.",
+      step4: "If the plan still says no, you can ask for an independent external review. Healthcare.gov says to request it within 4 months after you get the final decision.",
+      step4Ask: "If the plan still says no, ask whether you can get an independent external review. Healthcare.gov says external review covers denials that involve medical judgment, like medical necessity, or experimental treatment, so it may not apply to this one.",
       hr: 'Job plans: ask HR whether your plan is "self-funded". It changes who handles an outside review.',
       letterTitle: "Your appeal letter",
       letterNote: "Filled in from your letter. Add your own words in the blank lines, then sign and send it.",
@@ -214,7 +232,7 @@ const en = {
     },
     urgent: {
       headline: "Next step: ask for an urgent review today",
-      why: "The care hasn't happened yet and your doctor says waiting could seriously harm your health, so you can ask for a fast (expedited) appeal now. You can also ask for an outside review at the same time.",
+      why: "The care hasn't happened yet and your doctor says waiting could seriously harm your health, so you can ask for a fast (expedited) appeal now. If the denial involved medical judgment, like medical necessity, you can also ask for an outside review at the same time.",
       call: "Today, call",
       callExpedited: "Today, call the urgent-appeals number on your letter,",
       callAppeals: "Today, call the appeals number on your letter,",
@@ -264,12 +282,22 @@ const en = {
     aidConsumer: { who: "Arkansas Insurance Department, Consumer Services", what: "Free help with health insurance denials and appeals.", link: "Consumer Services" },
     aidExternal: {
       who: "Arkansas external review",
-      what: "If your plan still says no after the appeal, an independent reviewer can look at it. The forms are on this page.",
+      what: "If your plan still says no after the appeal, and the denial involved medical judgment or experimental treatment, an independent reviewer can look at it. The forms are on this page.",
       link: "External review forms",
     },
     shiip: { who: "Arkansas SHIIP", what: "Free, one-on-one Medicare counseling.", link: "Arkansas Insurance Department contacts" },
     ship: { who: "Your state's SHIP (State Health Insurance Assistance Program)", what: "Every state has one. It gives free Medicare counseling." },
     ebsa: { who: "U.S. Department of Labor (EBSA)", what: "Help with job-based health plans, especially self-funded ones.", link: "Ask EBSA" },
+    arMedicaid: {
+      who: "Arkansas DHS, Office of Appeals and Hearings",
+      what: "Medicaid appeals in Arkansas go to the Department of Human Services, not the insurance department. Its page explains how to ask for a hearing, and county DHS staff can help with the form.",
+      link: "DHS: File an appeal",
+    },
+    medicaidAgency: {
+      who: "Your state's Medicaid agency",
+      what: "Your state's Medicaid agency, not the insurance department, handles Medicaid questions and hearings. Medicaid.gov lists every state's contact.",
+      link: "Medicaid.gov: find your state",
+    },
     otherState: {
       who: "Your state's Department of Insurance or Consumer Assistance Program",
       what: "Healthcare.gov links to every state's office from its external review page.",
@@ -316,7 +344,7 @@ const en = {
     limits:
       'This version covers job and Marketplace plans only. Medicare and Medicaid have their own appeal rules, so they get "call the number on your letter" instead of a guess. Free-help contacts are for Arkansas; other states get a link to their insurance department.',
     sourcesTitle: "Sources",
-    sources: ["Healthcare.gov: internal appeals", "Healthcare.gov: external review", "Arkansas Insurance Department: external review", "U.S. Department of Labor: Ask EBSA"],
+    sources: ["Healthcare.gov: internal appeals", "Healthcare.gov: external review", "Arkansas Insurance Department: external review", "U.S. Department of Labor: Ask EBSA", "Arkansas DHS: File an appeal", "Medicaid.gov: where to get help"],
     back: "Back to AppealPath",
   },
 };
@@ -512,11 +540,28 @@ const es: Strings = {
     appeal: {
       headline: "Siguiente paso: presente una apelación",
       why: "Tiene derecho a pedirle a su plan que lo revise otra vez.",
-      step1: (service: string | null) => `Pídale a su médico una carta que explique por qué necesita ${service ? `«${service}»` : "esta atención"}.`,
-      step2: "Envíe la apelación de abajo, con esa carta, a",
+      step1: (category: Category, service: string | null) => {
+        const care = service ? `esta atención («${service}»)` : "esta atención";
+        switch (category) {
+          case "out_of_network":
+            return "Anote por qué fue fuera de la red: por ejemplo, ningún proveedor de la red ofrecía esta atención, fue una emergencia o le dijeron que el proveedor era de la red. Si fue por indicación de su médico, pídale una carta que explique por qué.";
+          case "not_covered":
+            return `Busque la regla que usó su plan: la carta puede nombrarla, o revise los documentos de su plan. Luego pídale a su médico una carta que explique por qué necesita ${care}.`;
+          case "experimental":
+            return `Pídale a su médico una carta que explique por qué ${care} es adecuada para usted, con los estudios o las guías que la respalden.`;
+          case "prior_auth_missing":
+          case "missing_info":
+          case "billing_error":
+            return "Pregúntele al consultorio de su médico qué le envió al plan y cuándo, y pida una copia. El plan siguió diciendo que no después de que el consultorio intentó corregirlo.";
+          default:
+            return `Pídale a su médico una carta que explique por qué necesita ${care}.`;
+        }
+      },
+      step2: "Envíe la carta de apelación de abajo, con lo que reunió en el paso 1, a",
       step2Fallback: "la dirección o el fax de su carta",
       step3: "Guarde copias. Anote la fecha y el nombre de cada persona con la que hable.",
-      step4: "Si el plan sigue diciendo que no, puede pedir una revisión externa independiente. Healthcare.gov dice que la pida dentro de los 4 meses siguientes a la decisión final.",
+      step4: "Si el plan sigue diciendo que no, puede pedir una revisión externa independiente. Healthcare.gov dice que la pida dentro de los 4 meses siguientes a recibir la decisión final.",
+      step4Ask: "Si el plan sigue diciendo que no, pregunte si puede pedir una revisión externa independiente. Según Healthcare.gov, la revisión externa cubre denegaciones que dependen de un criterio médico, como la necesidad médica, o de un tratamiento experimental, así que puede que no se aplique a esta.",
       hr: 'Planes de trabajo: pregunte en Recursos Humanos si su plan es "autofinanciado" (self-funded). Eso cambia quién hace la revisión externa.',
       letterTitle: "Su carta de apelación",
       letterNote: "Se llenó con los datos de su carta. Escriba sus propias palabras en las líneas en blanco, fírmela y envíela.",
@@ -526,7 +571,7 @@ const es: Strings = {
     },
     urgent: {
       headline: "Siguiente paso: pida una revisión urgente hoy",
-      why: "Todavía no recibió la atención y su médico dice que esperar podría dañar gravemente su salud, así que puede pedir una apelación rápida (acelerada) ahora. También puede pedir una revisión externa al mismo tiempo.",
+      why: "Todavía no recibió la atención y su médico dice que esperar podría dañar gravemente su salud, así que puede pedir una apelación rápida (acelerada) ahora. Si la denegación dependió de un criterio médico, como la necesidad médica, también puede pedir una revisión externa al mismo tiempo.",
       call: "Hoy, llame al",
       callExpedited: "Hoy, llame al número para apelaciones urgentes de su carta,",
       callAppeals: "Hoy, llame al número para apelaciones de su carta,",
@@ -580,12 +625,22 @@ const es: Strings = {
     },
     aidExternal: {
       who: "Revisión externa en Arkansas",
-      what: "Si su plan sigue diciendo que no después de la apelación, un revisor independiente puede revisarlo. Los formularios están en esta página.",
+      what: "Si su plan sigue diciendo que no después de la apelación, y la denegación dependió de un criterio médico o de un tratamiento experimental, un revisor independiente puede revisarlo. Los formularios están en esta página.",
       link: "Formularios de revisión externa (en inglés)",
     },
     shiip: { who: "SHIIP de Arkansas", what: "Asesoría gratuita y personalizada sobre Medicare.", link: "Contactos del Departamento de Seguros de Arkansas (en inglés)" },
     ship: { who: "El SHIP de su estado (Programa Estatal de Asistencia sobre Seguros de Salud)", what: "Todos los estados tienen uno. Da asesoría gratuita sobre Medicare." },
     ebsa: { who: "Departamento de Trabajo de EE. UU. (EBSA)", what: "Ayuda con planes de salud de trabajo, sobre todo los autofinanciados.", link: "Ask EBSA (en inglés)" },
+    arMedicaid: {
+      who: "DHS de Arkansas, Oficina de Apelaciones y Audiencias",
+      what: "En Arkansas, las apelaciones de Medicaid van al Departamento de Servicios Humanos, no al departamento de seguros. Su página explica cómo pedir una audiencia, y el personal del DHS en cada condado puede ayudarle con el formulario.",
+      link: "DHS: File an appeal (en inglés)",
+    },
+    medicaidAgency: {
+      who: "La agencia de Medicaid de su estado",
+      what: "La agencia de Medicaid de su estado, no el departamento de seguros, atiende las preguntas y audiencias de Medicaid. Medicaid.gov tiene el contacto de cada estado.",
+      link: "Medicaid.gov: busque su estado",
+    },
     otherState: {
       who: "El Departamento de Seguros o el Programa de Asistencia al Consumidor de su estado",
       what: "Healthcare.gov tiene enlaces a la oficina de cada estado en su página de revisión externa.",
@@ -632,7 +687,7 @@ const es: Strings = {
     limits:
       'Esta versión es solo para planes de trabajo y del Mercado de Seguros. Medicare y Medicaid tienen sus propias reglas de apelación, así que reciben "llame al número de su carta" en vez de una suposición. Los contactos de ayuda gratis son de Arkansas; los demás estados reciben un enlace a su departamento de seguros.',
     sourcesTitle: "Fuentes (en inglés)",
-    sources: ["Healthcare.gov: apelaciones internas", "Healthcare.gov: revisión externa", "Departamento de Seguros de Arkansas: revisión externa", "Departamento de Trabajo de EE. UU.: Ask EBSA"],
+    sources: ["Healthcare.gov: apelaciones internas", "Healthcare.gov: revisión externa", "Departamento de Seguros de Arkansas: revisión externa", "Departamento de Trabajo de EE. UU.: Ask EBSA", "DHS de Arkansas: File an appeal", "Medicaid.gov: dónde obtener ayuda"],
     back: "Volver a AppealPath",
   },
 };
