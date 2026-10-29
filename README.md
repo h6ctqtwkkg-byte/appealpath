@@ -53,7 +53,7 @@ Checked against WCAG 2.1 AA (`prep/ACCESSIBILITY.md`): 7 issues found and fixed.
 | Typecheck (Worker + app) | `npm run typecheck` |
 | Tests (rules on all 12 letters, reader output, second-reader matching, printed dates) | `npm test` |
 | Deploy to workers.dev (typecheck, tests, build, then `wrangler deploy`) | `npm run deploy` |
-| Re-capture the 3 sample readings (dev server running; about 45 neurons) | `node scripts/capture-samples.mjs` |
+| Re-capture the 5 sample readings (dev server running; about 80 neurons) | `node scripts/capture-samples.mjs` |
 | Make the phone-like test images (macOS) | `bash scripts/phone-like.sh` |
 | Measure a folder of images (dev server running; about 14 neurons each) | `node scripts/measure.mjs photos "phone photos"` |
 | Build the draft demo video (live site; about 14 neurons) → `demo/` | `node scripts/demo/record.mjs` |
@@ -70,9 +70,9 @@ Local dev uses real Workers AI on your account, so reads count against the free 
 | `src/read.ts` | The letter reader: schema, instructions, Gemma then Scout, strict output check |
 | `src/worker.ts` | `POST /api/read` with the rate limit; everything else is static files in `public/` |
 | `src/client/` | The Preact app; all text in `i18n.ts` (English and Spanish) |
-| `public/samples/` | The 3 demo letters and their readings, captured ahead of time from the real model |
+| `public/samples/` | The 5 demo letters (one per rule) and their readings, captured ahead of time from the real model |
 | `test-letters/` | 12 fictional letters (PDF) and the answer key (Markdown + JSON) |
-| `prep/` | Routing sources, screen wording, demo script, one-pager, reader test, accessibility audit |
+| `prep/` | Routing sources, screen wording, demo script, one-pager, Devpost write-up, reader test, accessibility audit |
 
 ## Still to do (Noah)
 
