@@ -4,7 +4,9 @@
 
 *Prototype, not medical or legal advice.* Built solo for DSH Hacks V2 (AI × Healthcare). All test letters are fictional.
 
-**Try it:** https://appealpath.7zhvt4rjzh.workers.dev · Jump straight to a sample: [check screen](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02) · [appeal result](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02&result) · [urgent result](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L03&result) · [how it decides](https://appealpath.7zhvt4rjzh.workers.dev/#how)
+**Try it:** https://appealpath.7zhvt4rjzh.workers.dev · Five fictional samples, one per rule: [Fix & resubmit](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L01&result) · [Appeal](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02&result) · [Urgent review](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L03&result) · [Medicare: call your plan](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L09&result) · [No clear reason](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L12&result) · [check screen with the second reader](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02) · [how it decides](https://appealpath.7zhvt4rjzh.workers.dev/#how)
+
+**DSH theme fit:** Faster care. A denial stops care the doctor already ordered, and AppealPath gets it moving again. It doesn't diagnose anything.
 
 | Your letter | Check what we read | Second reader | Next step |
 |---|---|---|---|
@@ -27,7 +29,7 @@ flowchart LR
 - **The AI reads; the rules decide.** The model only copies text into fields. Five fixed rules, each with a source or labeled as a design choice (`prep/ROUTING.md`), pick the next step.
 - **Two readers, and the user checks.** The model rated itself 100% sure on a sentence it copied with a word missing, so its confidence is never trusted. A second, independent reader runs on the device and looks for the AI's exact words on the photo. It can highlight where they're printed, and it flags anything it can't find, including fax numbers picked as phone numbers. The user always checks the deadline and the reason before seeing a result.
 - **Never a made-up deadline.** The app quotes the deadline printed on the letter. If the letter prints a date, the user can add it to their calendar. If no deadline is printed, the app says so.
-- **Nothing stored.** No accounts, no database. The photo goes to Workers AI to be read and is then dropped. Reads are limited to about 6 a minute per visitor.
+- **Built to store nothing.** No accounts, no database. The Worker sends the photo to Workers AI to be read and keeps nothing (see `src/worker.ts`); that's how the code is written, not something an outside test has checked. Reads are limited to about 6 a minute per visitor.
 
 ## How well it works
 

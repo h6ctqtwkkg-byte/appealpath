@@ -68,5 +68,51 @@
     },
     "model": "@cf/google/gemma-4-26b-a4b-it",
     "capturedAt": "2026-10-28"
+  },
+  "L09": {
+    "reading": {
+      "isDenial": true,
+      "planName": "Sample Senior Advantage",
+      "memberName": "Pat Example",
+      "memberId": "SSA-71-00921",
+      "letterDate": "October 20, 2026",
+      "reference": null,
+      "deniedServices": [
+        "continued stay at Example Skilled Nursing Center after October 25, 2026"
+      ],
+      "service": "continued stay at Example Skilled Nursing Center",
+      "reasonQuote": "Based on our review, your condition no longer requires daily skilled nursing care.",
+      "category": "not_medically_necessary",
+      "deadlineQuote": "If you want to appeal, you must ask within 65 days of the date of this notice.",
+      "appealPhone": "(479) 555-0188",
+      "expeditedPhone": null,
+      "appealAddress": "Sample Senior Advantage Appeals, PO Box 0003, Example City, AR 00000",
+      "provider": "Example Skilled Nursing Center"
+    },
+    "model": "@cf/google/gemma-4-26b-a4b-it",
+    "capturedAt": "2026-10-29"
+  },
+  "L12": {
+    "reading": {
+      "isDenial": true,
+      "planName": "Sample Health Plan",
+      "memberName": "Reese Sample",
+      "memberId": "SHP-000-0312",
+      "letterDate": "October 5, 2026",
+      "reference": "26-EOB-770312",
+      "deniedServices": [
+        "Office visit"
+      ],
+      "service": "Office visit",
+      "reasonQuote": "R-88: Claim denied. See plan documents.",
+      "category": "unclear",
+      "deadlineQuote": "You may file an appeal within 180 days of the date of this statement.",
+      "appealPhone": "(479) 555-0142",
+      "expeditedPhone": null,
+      "appealAddress": null,
+      "provider": "Example Family Clinic"
+    },
+    "model": "@cf/google/gemma-4-26b-a4b-it",
+    "capturedAt": "2026-10-29"
   }
 }

@@ -12,6 +12,8 @@ export const SAMPLES: Sample[] = [
   { id: "L01", answers: { plan: "job", careHappened: false, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" } },
   { id: "L02", answers: { plan: "marketplace", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" } },
   { id: "L03", answers: { plan: "job", careHappened: false, doctorSaysHarm: "yes", officeResubmitted: "no", state: "AR" } },
+  { id: "L09", answers: { plan: "medicare", careHappened: false, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" } },
+  { id: "L12", answers: { plan: "job", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "dont_know", state: "AR" } },
 ];
 
 export interface CapturedReading {

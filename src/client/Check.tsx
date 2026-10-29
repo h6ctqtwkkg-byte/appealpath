@@ -3,10 +3,12 @@
 // prep/READER-TEST.md: the model rated itself 100% sure on a quote it got wrong, so nothing here is skipped on confidence.
 import { useRef, useState } from "preact/hooks";
 import { FOUND, findPhone, findQuote, type Box } from "../shared/match";
-import { CATEGORIES, type Category, type Reading } from "../shared/types";
+import { distinctServices } from "../shared/services";
+import { CATEGORIES, type Answers, type Category, type Reading } from "../shared/types";
 import { useT } from "./i18n";
 import type { Photo } from "./image";
 import type { OcrResult } from "./ocr";
+import { STATES } from "./states";
 import { Choice, LetterImage } from "./ui";
 
 type Source = "ai" | "sample" | "manual";
@@ -83,6 +85,7 @@ export function Check(props: {
   setReading: (r: Reading) => void;
   photo: Photo | null;
   ocr: OcrState;
+  answers: Partial<Answers>;
   source: Source;
   capturedAt?: string;
   onConfirm: () => void;
@@ -93,23 +96,44 @@ export function Check(props: {
   const { reading: r, setReading, ocr } = props;
   const set = <K extends keyof Reading>(k: K, v: Reading[K]) => setReading({ ...r, [k]: v });
   const manual = props.source === "manual";
-  const several = r.deniedServices.length > 1;
+  const services = distinctServices(r.deniedServices);
+  const several = services.length > 1;
+  const a = props.answers;
+  const parts = t.answerParts;
+  const answersLine =
+    a.plan && a.careHappened !== undefined && a.doctorSaysHarm && a.officeResubmitted && a.state
+      ? [
+          parts.plan[a.plan],
+          parts.care[a.careHappened ? "yes" : "no"],
+          parts.harm[a.doctorSaysHarm],
+          parts.resubmitted[a.officeResubmitted],
+          STATES.find(([code]) => code === a.state)?.[1] ?? a.state,
+        ].join(" · ")
+      : null;
   // Decided once, so typing a deadline into the "not found" box doesn't swap the box out from under the cursor.
   const [deadlineFound] = useState(r.deadlineQuote !== null);
   const [highlight, setHighlight] = useState<{ field: string; boxes: Box[] } | null>(null);
   const [letterOpen, setLetterOpen] = useState(typeof window !== "undefined" && window.innerWidth >= 760);
   const letterRef = useRef<HTMLDetailsElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [zoomBoxes, setZoomBoxes] = useState<Box[]>([]);
+  const ocrSize = ocr.status === "done" ? { width: ocr.result.width, height: ocr.result.height } : {};
+
+  /** The whole letter at full width, with the highlight scrolled into view. */
+  function openFull(boxes: Box[]) {
+    setZoomBoxes(boxes);
+    dialogRef.current?.showModal();
+    requestAnimationFrame(() => dialogRef.current?.querySelector(".hl")?.scrollIntoView({ block: "center" }));
+  }
 
   const deadlineCheck = quoteVerdict(r.deadlineQuote, ocr);
   const reasonCheck = quoteVerdict(r.reasonQuote, ocr);
   const phoneCheck = phoneVerdict(r.appealPhone, ocr);
 
   function show(field: string, boxes: Box[]) {
-    if (highlight?.field === field) return setHighlight(null);
     setHighlight({ field, boxes });
     setLetterOpen(true);
-    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    requestAnimationFrame(() => letterRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" }));
+    openFull(boxes);
   }
 
   const second = (field: string, result: { verdict: Verdict; boxes: Box[] } | null) => (
@@ -121,6 +145,14 @@ export function Check(props: {
       <h1>{manual ? t.titleManual : t.titleAi}</h1>
       <p class="lede">{manual ? t.ledeManual : t.ledeAi}</p>
       {props.source === "sample" && <p class="sample-tag">{t.sampleTag(props.capturedAt)}</p>}
+      {answersLine && (
+        <p class="answers-line">
+          <strong>{t.answersLabel}</strong> {answersLine}{" "}
+          <button class="linkish" type="button" onClick={props.onBack}>
+            {t.answersChange}
+          </button>
+        </p>
+      )}
       {!r.isDenial && !manual && (
         <div class="notice" role="alert">
           <p>{t.notDenial}</p>
@@ -140,16 +172,28 @@ export function Check(props: {
         {props.photo && (
           <details class="letter-view" open={letterOpen} ref={letterRef} onToggle={(e) => setLetterOpen((e.currentTarget as HTMLDetailsElement).open)}>
             <summary>{t.showLetter}</summary>
-            <a href={props.photo.preview} target="_blank" rel="noopener" aria-label={t.openFull}>
-              <LetterImage
-                src={props.photo.preview}
-                alt=""
-                boxes={highlight?.boxes}
-                width={ocr.status === "done" ? ocr.result.width : undefined}
-                height={ocr.status === "done" ? ocr.result.height : undefined}
-              />
-            </a>
+            <button class="letter-open" type="button" aria-label={t.openFull} onClick={() => openFull(highlight?.boxes ?? [])}>
+              <LetterImage src={props.photo.preview} alt="" boxes={highlight?.boxes} {...ocrSize} />
+            </button>
           </details>
+        )}
+        {props.photo && (
+          <dialog
+            class="letter-dialog"
+            ref={dialogRef}
+            aria-label={t.fullTitle}
+            onClick={(e) => e.target === dialogRef.current && dialogRef.current?.close()}
+          >
+            <div class="dialog-bar">
+              <strong>{t.fullTitle}</strong>
+              <button class="btn secondary" type="button" onClick={() => dialogRef.current?.close()}>
+                {t.close}
+              </button>
+            </div>
+            <div class="dialog-body">
+              <LetterImage src={props.photo.preview} alt={t.fullTitle} boxes={zoomBoxes} {...ocrSize} />
+            </div>
+          </dialog>
         )}
 
         <div>
@@ -217,7 +261,7 @@ export function Check(props: {
                 legend={t.severalLegend}
                 value={r.service ?? undefined}
                 onChange={(v) => set("service", v)}
-                options={r.deniedServices.map((s) => ({ value: s, label: s }))}
+                options={services.map((s) => ({ value: s, label: s }))}
               />
             </div>
           ) : (

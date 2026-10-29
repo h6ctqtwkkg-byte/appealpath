@@ -1,42 +1,57 @@
 {
-  "_about": "The draft demo video, scene by scene. scripts/demo/record.mjs speaks each line with the macOS voice, records the live app doing the matching steps, and builds demo/AppealPath-demo.mp4. Replace the voice with your own by recording over demo/AppealPath-demo-silent.mp4.",
+  "_about": "The draft demo video, scene by scene. scripts/demo/record.mjs speaks each line with the macOS voice, records the live app doing the matching steps, and builds demo/AppealPath-demo.mp4. The live read decides which 'correct' line plays: correctMissing if the reader found no deadline, correctFax if the second reader flags the phone as a fax number, correctOk if everything matches. Replace the voice with your own by recording over demo/AppealPath-demo-silent.mp4.",
   "voice": "Samantha",
-  "rate": 178,
+  "rate": 180,
   "scenes": [
     {
       "id": "intro",
       "label": "AppealPath",
-      "text": "This is AppealPath. When health insurance denies care, you get a letter full of codes and fine print. AppealPath turns that letter into one clear next step. Every letter in this video is fictional, written for testing."
+      "text": "This is AppealPath. When health insurance denies care, you get a letter full of codes and fine print, and a deadline that's easy to miss. AppealPath turns that letter into one clear next step. Every letter in this video is fictional."
     },
     {
       "id": "upload",
       "label": "1 · Your letter",
-      "text": "Take a photo of the letter and answer five quick questions: what kind of plan, whether the care has happened, what your doctor said, whether the office resubmitted, and your state."
+      "text": "Here's a phone photo of a denial letter. I add the photo and answer five quick questions: a Marketplace plan, the care already happened, and I live in Missouri."
     },
     {
       "id": "check",
       "label": "2 · Check what we read",
-      "text": "The AI copies what's printed: what was denied, why, and the deadline. Then a second reader, running right on your phone, checks those exact words against your photo."
+      "text": "The AI reads the letter live and copies what's printed: what was denied, why, the deadline, and who to call. Then a second reader, running on the phone, checks those exact words against the photo."
     },
     {
-      "id": "fix",
-      "label": "3 · Fix and resubmit",
-      "text": "This MRI was denied because the doctor's office never sent the prior authorization. That's paperwork, not a no on the care. So the next step is to ask the office to resubmit, with a script for the call."
+      "id": "correctFax",
+      "label": "2 · Fix what's wrong",
+      "text": "And it caught a real mistake: the AI picked the fax number as the phone number. In testing, the AI even said it was one hundred percent sure of a sentence it had copied wrong, so AppealPath never trusts its confidence. The highlight shows where the number is printed, and I fix it before going on."
+    },
+    {
+      "id": "correctMissing",
+      "label": "2 · Fix what's missing",
+      "text": "On this photo the AI couldn't find the deadline, and it won't make one up. So I type it exactly as it's printed on the letter, and AppealPath uses my words."
+    },
+    {
+      "id": "correctOk",
+      "label": "2 · Check it against the photo",
+      "text": "Everything matches the photo this time, and Show me opens the whole letter with those words highlighted, so checking takes a second. AppealPath never trusts the AI's own confidence: in testing, it said it was one hundred percent sure of a sentence it had copied wrong."
     },
     {
       "id": "appeal",
-      "label": "Appeal",
-      "text": "Physical therapy, denied as not medically necessary. That's an appeal. The deadline is quoted word for word from the letter, never calculated, and there's a printable appeal letter filled in from the letter's own words."
+      "label": "3 · Appeal",
+      "text": "The cardiology visit was denied as out of network, so the next step is an appeal. The deadline is quoted from the letter, never calculated, and there's an appeal letter filled in from the letter's own words."
+    },
+    {
+      "id": "fix",
+      "label": "A different letter",
+      "text": "A different letter gets a different next step. This MRI was denied because the office never sent the prior authorization. That's paperwork, so the next step is fix and resubmit, with a script for the call."
     },
     {
       "id": "urgent",
-      "label": "Urgent review today",
-      "text": "A rehab stay after a stroke, where the doctor says waiting could cause harm. Now the next step is an urgent review today, and you can ask for an outside review at the same time."
+      "label": "Same reason, different answers",
+      "text": "This rehab stay was denied for the same reason as an appeal. But the care is still ahead and the doctor says waiting could cause harm, so the rules move it to an urgent review today."
     },
     {
-      "id": "second",
-      "label": "The second reader",
-      "text": "Here's why the second reader matters. In testing, the AI said it was one hundred percent sure about a sentence it had copied with a word missing. So AppealPath never trusts the AI's confidence. The second reader finds the words on your photo, shows you where they're printed, and flags anything it can't find."
+      "id": "guard",
+      "label": "No guessing",
+      "text": "Medicare letters, and letters with no clear reason, get: call the number on your letter, instead of a guess."
     },
     {
       "id": "how",
@@ -51,7 +66,7 @@
     {
       "id": "end",
       "label": "AppealPath",
-      "text": "AppealPath is a prototype, not medical or legal advice, and it doesn't save your photo. It's built to get people from a confusing letter to the right phone call."
+      "text": "AppealPath is a prototype, not medical or legal advice, and it's built to store nothing. It gets people from a confusing letter to the right phone call."
     }
   ]
 }

@@ -1,11 +1,12 @@
-// Reads the three demo letters (public/samples/L01–L03.jpg) through a running dev server and saves the real model
-// answers to public/samples/readings.json, so the sample buttons never spend neurons. Run `npm run dev` first.
-//   node scripts/capture-samples.mjs [http://127.0.0.1:8792]
+// Reads demo letters (public/samples/<id>.jpg) through a running dev server and saves the real model answers in
+// public/samples/readings.json, so the sample buttons never spend neurons. Readings for other ids are kept. Run `npm run dev` first.
+//   node scripts/capture-samples.mjs [L01 L02 …]   (default: every sample)   BASE=http://127.0.0.1:8792
 import { readFile, writeFile } from "node:fs/promises";
 
-const base = process.argv[2] ?? "http://127.0.0.1:8792";
-const out = {};
-for (const id of ["L01", "L02", "L03"]) {
+const base = process.env.BASE ?? "http://127.0.0.1:8792";
+const ids = process.argv.slice(2).length ? process.argv.slice(2) : ["L01", "L02", "L03", "L09", "L12"];
+const out = JSON.parse(await readFile("public/samples/readings.json", "utf8").catch(() => "{}"));
+for (const id of ids) {
   const image = (await readFile(`public/samples/${id}.jpg`)).toString("base64");
   const res = await fetch(`${base}/api/read`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ image }) });
   const body = await res.json();

@@ -272,9 +272,8 @@ footer.foot p { margin-bottom: 6px; }
 @media print {
   .banner, .top, .steps, footer.foot { display: none; }
   body { background: #fff; color: #000; }
-  body.print-letter * { visibility: hidden; }
-  body.print-letter .appeal-letter, body.print-letter .appeal-letter * { visibility: visible; }
-  body.print-letter .appeal-letter { position: absolute; left: 0; top: 0; width: 100%; border: 0; padding: 0.6in; }
+  body.print-letter > *:not(#print-root) { display: none !important; }
+  #print-root .appeal-letter { border: 0; border-radius: 0; padding: 0.6in; margin: 0; }
 }
 
 /* Language, judge shortcut, skip link */
@@ -327,3 +326,19 @@ label.btn:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
 h1[tabindex="-1"]:focus { outline: none; }
 h1[tabindex="-1"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* Judging review fixes */
+.answers-line { font-size: 15px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 8px 12px; margin: 0 0 16px; }
+.answers-line strong { color: var(--ink); }
+.answers-line .linkish { font-size: 15px; min-height: 32px; }
+.letter-open { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; margin-top: 8px; }
+.letter-open img { margin-top: 0; }
+.letter-dialog { width: min(920px, 96vw); max-height: 92vh; padding: 0; border: 0; border-radius: 12px; background: var(--surface); color: var(--ink); overflow: auto; }
+.letter-dialog::backdrop { background: rgba(10, 15, 25, .6); }
+.letter-dialog .dialog-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--rule); }
+.letter-dialog .dialog-bar .btn { min-height: 44px; padding: 6px 16px; }
+/* Padding sits outside the frame so the highlight boxes line up with the image. */
+.letter-dialog .dialog-body { padding: 12px; }
+.letter-dialog .letter-frame img { border: 1px solid var(--rule); background: #fff; }
+
+@media screen { #print-root { display: none; } }

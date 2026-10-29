@@ -169,12 +169,17 @@ export function Form(props: {
         </div>
       )}
 
+      {missing.length > 0 && !tried && (
+        <p class="small muted" id="answer-first">
+          {f.answerFirst}
+        </p>
+      )}
       <div class="actions">
-        <button class="btn block" type="button" onClick={() => go("read")}>
+        <button class="btn block" type="button" aria-describedby={missing.length > 0 ? "answer-first" : undefined} onClick={() => go("read")}>
           {f.read}
         </button>
         <div class="alt">
-          <button class="linkish" type="button" onClick={() => go("manual")}>
+          <button class="linkish" type="button" aria-describedby={missing.length > 0 ? "answer-first" : undefined} onClick={() => go("manual")}>
             {f.manual}
           </button>
         </div>

@@ -66,6 +66,14 @@ function Facts({ r }: { r: Reading }) {
             </dd>
           </div>
         )}
+        {r.expeditedPhone && r.expeditedPhone !== r.appealPhone && (
+          <div class="row">
+            <dt>{t.facts.urgentCall}</dt>
+            <dd>
+              <Phone number={r.expeditedPhone} />
+            </dd>
+          </div>
+        )}
         {r.reference && (
           <div class="row">
             <dt>{t.facts.reference}</dt>
@@ -80,7 +88,7 @@ function Facts({ r }: { r: Reading }) {
 function Calendar({ quote }: { quote: string }) {
   const t = useT().calendar;
   const date = printedDate(quote);
-  if (!date) return null;
+  if (!date) return <p class="small muted calendar">{t.relative}</p>;
   function download() {
     const ics = deadlineEvent(date!, t.summary, `"${quote}" (AppealPath prototype: check your letter)`, t.alarm);
     const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
@@ -163,16 +171,24 @@ function AppealLetter({ r }: { r: Reading }) {
         <br />
         {blank(r.memberName)}
         <br />
-        Phone: __________
+        Your phone number: __________
       </p>
     </div>
   );
 }
 
+/** Prints only the letter: a standalone copy at the top of the page, so the hidden rest of the app takes no space. */
 function printLetter() {
+  const letter = document.getElementById("appeal-letter");
+  if (!letter) return;
+  const root = document.createElement("div");
+  root.id = "print-root";
+  root.appendChild(letter.cloneNode(true));
+  document.body.appendChild(root);
   document.body.classList.add("print-letter");
   const done = () => {
     document.body.classList.remove("print-letter");
+    root.remove();
     window.removeEventListener("afterprint", done);
   };
   window.addEventListener("afterprint", done);
@@ -238,7 +254,9 @@ export function Result(props: { decision: Decision; reading: Reading; answers: A
       why = t.urgent.why;
       steps = [
         <li key="1">
-          {t.urgent.call} <CallLine phone={r.expeditedPhone ?? r.appealPhone} fallback={t.numberOnLetter} /> {t.urgent.andSay}
+          {r.expeditedPhone ? t.urgent.callExpedited : r.appealPhone ? t.urgent.callAppeals : t.urgent.call}{" "}
+          <CallLine phone={r.expeditedPhone ?? r.appealPhone} fallback={t.numberOnLetter} />
+          {r.expeditedPhone || r.appealPhone ? "," : ""} {t.urgent.andSay}
           <Script es={t.urgent.script(service, r.memberName, r.reference)} en={en.urgent.script(service, r.memberName, r.reference)} />
         </li>,
         <li key="2">
@@ -317,7 +335,7 @@ export function Result(props: { decision: Decision; reading: Reading; answers: A
         <>
           <h2>{t.appeal.letterTitle}</h2>
           <p class="muted small">
-            {t.appeal.letterNote} {t.appeal.letterLanguage}
+            {t.appeal.letterNote} {t.appeal.letterDated(r.letterDate)} {t.appeal.letterLanguage}
           </p>
           <AppealLetter r={r} />
           <div class="row-actions">

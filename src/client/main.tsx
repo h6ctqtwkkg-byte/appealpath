@@ -95,18 +95,30 @@ function App() {
   }, [photo]);
 
   // Direct links for judges and the README: ?sample=L02 opens a sample on the check screen; add &result to skip ahead.
+  const urlReady = useRef(!new URLSearchParams(location.search).has("sample"));
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const id = params.get("sample")?.toUpperCase();
     const sample = SAMPLES.find((s) => s.id === id);
-    if (!sample) return;
+    if (!sample) {
+      urlReady.current = true;
+      return;
+    }
     openSample(sample.id, sample.answers).then((reading) => {
+      urlReady.current = true;
       if (reading && params.has("result")) {
         setDecision(decide(sample.answers, reading));
         setScreen("result");
       }
     });
   }, []);
+  // Keep the address in step with the sample on screen, so a copied link opens the same thing.
+  useEffect(() => {
+    if (!urlReady.current) return;
+    const id = source === "sample" ? photo?.sampleId : undefined;
+    const want = id ? (screen === "result" ? `?sample=${id}&result` : `?sample=${id}`) : "";
+    if (location.search !== want) history.replaceState(null, "", location.pathname + want + location.hash);
+  }, [screen, source, photo]);
 
   function setLang(l: Lang) {
     setLangState(l);
@@ -238,6 +250,7 @@ function App() {
           setReading={setReading}
           photo={photo}
           ocr={ocr}
+          answers={draft}
           source={source}
           capturedAt={capturedAt}
           onConfirm={confirm}

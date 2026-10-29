@@ -1,6 +1,7 @@
 // Reads a denial letter photo with Workers AI. Gemma 4 first (about 16 neurons a read in prep/READER-TEST.md);
 // Llama 4 Scout once if Gemma's answer won't parse. The model only copies what is printed; src/shared/rules.ts decides.
 // Network time is free on the Workers plan; the only CPU spent here is building the request and checking the answer.
+import { distinctServices } from "./shared/services";
 import { CATEGORIES, type Category, type Reading } from "./shared/types";
 
 export const GEMMA = "@cf/google/gemma-4-26b-a4b-it";
@@ -162,7 +163,8 @@ export function normalize(content: unknown): Reading | null {
     .filter((s): s is string => s !== null)
     .slice(0, MAX_SERVICES);
   const service = clean(d.service_denied) ?? deniedServices[0] ?? null;
-  if (service && !deniedServices.includes(service)) deniedServices.unshift(service);
+  if (service) deniedServices.unshift(service);
+  const services = distinctServices(deniedServices);
 
   return {
     isDenial: d.is_denial,
@@ -171,7 +173,7 @@ export function normalize(content: unknown): Reading | null {
     memberId: clean(d.member_id),
     letterDate: clean(d.letter_date),
     reference: clean(d.reference_number),
-    deniedServices,
+    deniedServices: services,
     service,
     reasonQuote: clean(d.reason_quote),
     category,

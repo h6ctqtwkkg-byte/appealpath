@@ -33,7 +33,7 @@
 <body>
   <h1>AppealPath</h1>
   <p class="tag"><strong>From a confusing health insurance denial letter to the right next step.</strong></p>
-  <p class="meta">DSH Hacks V2 · AI × Healthcare · built solo by Noah · English and Spanish</p>
+  <p class="meta">DSH Hacks V2 · AI × Healthcare · <strong>Faster care</strong>: gets denied care moving again · built solo by Noah · English and Spanish</p>
   <div class="banner"><strong>Prototype.</strong> Not medical or legal advice. All letters shown or tested are fictional; no real patient data was used.</div>
 
   <div class="cols">
@@ -54,7 +54,7 @@
         <div class="appeal"><b>Appeal</b>Not medically necessary, not covered, out of network</div>
         <div class="urgent"><b>Urgent review today</b>Care is still ahead and waiting could cause harm</div>
       </div>
-      <p>Each result gives a phone script, a printable appeal letter filled with the letter's own words, free help (Arkansas contacts), and a calendar reminder when a date is printed. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess.</p>
+      <p>Each result gives a phone script, a printable appeal letter filled with the letter's own words, free help (Arkansas contacts), and a calendar reminder when a date is printed. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess. Five sample letters, one for each rule, open from direct links (<code>?sample=L01</code> … <code>L12</code>).</p>
     </div>
     <div>
       <h2>What makes it different</h2>
@@ -62,7 +62,7 @@
         <li><strong>The AI reads; it never decides.</strong> Every next step traces to a rule and a source (Healthcare.gov) or is labeled as a design choice.</li>
         <li><strong>It doesn't trust AI confidence.</strong> In testing, the model rated itself 100% sure about a sentence it had copied with a word missing. So two independent readers have to agree, and the user checks before anything is decided.</li>
         <li><strong>It never makes up a deadline.</strong> It quotes the one printed on the letter, or says there isn't one.</li>
-        <li><strong>Nothing is stored:</strong> no accounts, no database; the photo is read and then dropped.</li>
+        <li><strong>Built to store nothing:</strong> there are no accounts and no database; the Worker sends the photo to Workers AI to be read and keeps nothing (src/worker.ts).</li>
       </ul>
       <h2>How well it works</h2>
       <table>

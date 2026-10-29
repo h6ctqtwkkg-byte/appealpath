@@ -2,19 +2,24 @@
 // app doing the matching steps inside a phone frame (scripts/demo/stage.html), and mixes them with ffmpeg.
 //   node scripts/demo/record.mjs            → demo/AppealPath-demo.mp4 and demo/AppealPath-demo-silent.mp4
 //   APP_URL=http://localhost:8792 HEADED=1 node scripts/demo/record.mjs
-// One scene uploads a simulated phone photo for a real read (about 14 neurons); the rest use the sample letters.
+// One scene uploads a simulated phone photo for a real read (about 14 neurons) and fixes what the second reader flags;
+// the rest use the sample letters.
 import { execFileSync } from "node:child_process";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { chromium } from "playwright-core";
 
 const BASE = process.env.APP_URL ?? "https://appealpath.7zhvt4rjzh.workers.dev";
 const OUT = "demo";
-const PHOTO = "test-letters/phone-like/L01.jpg";
+const PHOTO = "test-letters/phone-like/L04.jpg"; // Marketplace, out of network, Missouri member
 const { voice, rate, scenes } = JSON.parse(await readFile("scripts/demo/narration.json", "utf8"));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // 1. Speak every line and measure it, so each scene lasts at least as long as its narration.
-await rm(OUT, { recursive: true, force: true });
+// Keep the last take: a live read can come out differently each time.
+await rm(`${OUT}/previous`, { recursive: true, force: true });
+await mkdir(`${OUT}/previous`, { recursive: true });
+for (const f of ["AppealPath-demo.mp4", "AppealPath-demo-silent.mp4"]) await rename(`${OUT}/${f}`, `${OUT}/previous/${f}`).catch(() => {});
+for (const d of ["audio", "frames"]) await rm(`${OUT}/${d}`, { recursive: true, force: true });
 await mkdir(`${OUT}/audio`, { recursive: true });
 for (const s of scenes) {
   const file = `${OUT}/audio/${s.id}.aiff`;
@@ -104,47 +109,80 @@ await scene("upload", async () => {
   await point(app.locator("label.btn").first());
   await app.locator('input[type="file"]').setInputFiles(PHOTO);
   await wait(700);
-  for (const [name, value] of [["plan", "job"], ["care", "no"], ["harm", "no"], ["resubmitted", "no"]]) {
+  for (const [name, value] of [["plan", "marketplace"], ["care", "yes"], ["harm", "no"], ["resubmitted", "no"]]) {
     await tap(app.locator(`input[name="${name}"][value="${value}"]`).locator("xpath=.."));
   }
   await smoothTo(app.locator("#state"), "center");
   await point(app.locator("#state"));
-  await app.locator("#state").selectOption("AR");
+  await app.locator("#state").selectOption("MO");
   await wait(400);
   await tap(app.getByRole("button", { name: "Read my letter" }));
 });
 await scene("check", async () => {
-  const shown = await app.getByRole("heading", { name: "Check what we read" }).waitFor({ timeout: 45_000 }).then(() => true, () => false);
-  if (!shown) await open("/?sample=L01"); // the live reader was busy: fall back to the captured sample
+  await app.getByRole("heading", { name: "Check what we read" }).waitFor({ timeout: 45_000 });
   await secondReaderDone();
-  await smoothTo(app.locator("#deadline"), "start");
+  // "#deadline-typed" is the box shown when the reader found no deadline on the letter.
+  await smoothTo(app.locator("#deadline, #deadline-typed").first(), "start");
+  console.log("live read: deadline", JSON.stringify(await app.locator("#deadline, #deadline-typed").first().inputValue()), "phone", JSON.stringify(await app.locator("#phone").inputValue()));
   await wait(1200);
   await smoothTo(app.locator("#reason"), "start");
 });
-await scene("fix", async () => {
-  await tap(app.getByRole("button", { name: "Looks right, show my next step" }));
-  await wait(1800);
-  await smoothTo(app.locator(".script").first(), "center");
+// The live read decides the next line: type a deadline the reader couldn't find, fix a fax number the second reader
+// flagged, or show the check itself when everything matched.
+const missing = (await app.locator("#deadline-typed").count()) > 0;
+const phoneFlag = ((await app.locator("#phone-check").textContent().catch(() => "")) ?? "").toLowerCase();
+const flagged = !missing && phoneFlag.includes("fax");
+console.log(missing ? "reader found no deadline" : flagged ? "second reader flagged the phone as a fax number" : `phone check: ${phoneFlag || "none"}`);
+await scene(missing ? "correctMissing" : flagged ? "correctFax" : "correctOk", async () => {
+  if (missing) {
+    await smoothTo(app.locator("#deadline-typed"), "center");
+    await point(app.locator("#deadline-typed"));
+    await app.locator("#deadline-typed").click();
+    await app.locator("#deadline-typed").pressSequentially("You have 180 days from the date you receive this notice to ask for an appeal.", { delay: 45 });
+    await wait(900);
+    return;
+  }
+  await smoothTo(app.locator("#phone"), "center");
+  await wait(800);
+  if (flagged) {
+    await tap(app.locator("p.second:has(#phone-check) .linkish"));
+    await wait(3500);
+    await tap(app.getByRole("button", { name: "Close" }));
+    await app.locator("#phone").click({ clickCount: 3 });
+    await app.locator("#phone").pressSequentially("(479) 555-0177", { delay: 90 });
+    await wait(800);
+  } else {
+    // Nothing to fix: show the check itself, the deadline highlighted on the full letter.
+    await smoothTo(app.locator("#deadline, #deadline-typed").first(), "center");
+    await tap(app.locator("p.second:has(#deadline-check) .linkish"));
+    await wait(4000);
+    await tap(app.getByRole("button", { name: "Close" }));
+    await smoothTo(app.locator("#phone"), "center");
+    await point(app.locator("#phone"));
+  }
 });
 await scene("appeal", async () => {
-  await open("/?sample=L02&result");
-  await wait(1500);
+  await tap(app.getByRole("button", { name: "Looks right, show my next step" }));
+  await wait(2000);
   await smoothTo(app.locator(".deadline"), "start");
   await wait(2200);
   await smoothTo(app.locator(".appeal-letter"), "start");
 });
+await scene("fix", async () => {
+  await open("/?sample=L01&result");
+  await wait(1800);
+  await smoothTo(app.locator(".script").first(), "center");
+});
 await scene("urgent", async () => {
   await open("/?sample=L03&result");
   await wait(2500);
-  await smoothTo(app.locator(".script").first(), "center");
+  await smoothTo(app.locator(".deadline"), "start");
 });
-await scene("second", async () => {
-  await open("/?sample=L02");
-  await secondReaderDone();
-  await smoothTo(app.locator("#deadline"), "center");
-  await wait(1500);
-  await tap(app.locator(".second .linkish").first());
-  await wait(1500);
+await scene("guard", async () => {
+  await open("/?sample=L09&result");
+  await wait(2600);
+  await open("/?sample=L12&result");
+  await wait(1200);
 });
 await scene("how", async () => {
   await open("/#how");
