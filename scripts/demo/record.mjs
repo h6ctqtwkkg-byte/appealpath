@@ -45,7 +45,8 @@ const cursor = () => {
 };
 
 // 2. Record.
-const browser = await chromium.launch({ channel: "chrome", headless: !process.env.HEADED });
+// Without an explicit window size, headless Chrome captures a 1920×993 window, which came out stretched in the video.
+const browser = await chromium.launch({ channel: "chrome", headless: !process.env.HEADED, args: ["--window-size=1920,1080"] });
 const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: "en-US" });
 await context.addInitScript(cursor);
 const page = await context.newPage();
@@ -179,8 +180,16 @@ await scene("urgent", async () => {
   await smoothTo(app.locator(".deadline"), "start");
 });
 await scene("guard", async () => {
-  await open("/?sample=L09&result");
-  await wait(2600);
+  // Picking Medicare shows the notice right away; "See who to call" goes to the result without reading anything.
+  await open("/");
+  await tap(app.locator('input[name="plan"][value="medicare"]').locator("xpath=.."));
+  await wait(1600);
+  await smoothTo(app.locator("#state"), "center");
+  await point(app.locator("#state"));
+  await app.locator("#state").selectOption("AR");
+  await wait(300);
+  await tap(app.getByRole("button", { name: "See who to call" }));
+  await wait(2200);
   await open("/?sample=L12&result");
   await wait(1200);
 });
@@ -205,6 +214,11 @@ await scene("end", async () => {
 await wait(1200);
 await cdp.send("Page.stopScreencast");
 const ended = Date.now();
+// The narrated copy says the voice is a computer's; the silent copy stays neutral for a voice recorded over it.
+const credit = page.locator("#credit");
+const creditBox = await credit.boundingBox();
+await credit.evaluate((el) => (el.textContent = "Narration: computer voice (macOS). Built for DSH Hacks V2 · AI × Healthcare."));
+await credit.screenshot({ path: `${OUT}/credit-voice.png` });
 await context.close();
 await browser.close();
 
@@ -224,9 +238,11 @@ starts.forEach((s, i) => {
   const ms = Math.max(0, Math.round((s.at - offset) * 1000 + 400));
   filters.push(`[${i + 1}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay=${ms}|${ms}[a${i}]`);
 });
-const mix = `${filters.join(";")};${starts.map((_, i) => `[a${i}]`).join("")}amix=inputs=${starts.length}:normalize=0[a]`;
+inputs.push("-i", `${OUT}/credit-voice.png`);
+const creditAt = `${Math.round(creditBox.x)}:${Math.round(creditBox.y)}`;
+const mix = `${filters.join(";")};${starts.map((_, i) => `[a${i}]`).join("")}amix=inputs=${starts.length}:normalize=0[a];[0:v][${starts.length + 1}:v]overlay=${creditAt}[v]`;
 const video264 = ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", "30", "-movflags", "+faststart"];
-execFileSync("ffmpeg", ["-y", "-v", "error", ...inputs, "-filter_complex", mix, "-map", "0:v", "-map", "[a]", ...video264, "-c:a", "aac", "-b:a", "160k", `${OUT}/AppealPath-demo.mp4`]);
+execFileSync("ffmpeg", ["-y", "-v", "error", ...inputs, "-filter_complex", mix, "-map", "[v]", "-map", "[a]", ...video264, "-c:a", "aac", "-b:a", "160k", `${OUT}/AppealPath-demo.mp4`]);
 execFileSync("ffmpeg", ["-y", "-v", "error", "-i", raw, ...video264, "-an", `${OUT}/AppealPath-demo-silent.mp4`]);
 
 const length = Number(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "default=nw=1:nk=1", `${OUT}/AppealPath-demo.mp4`]).toString());

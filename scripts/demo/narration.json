@@ -11,7 +11,7 @@
     {
       "id": "upload",
       "label": "1 · Your letter",
-      "text": "Here's a phone photo of a denial letter. I add the photo and answer five quick questions: a Marketplace plan, the care already happened, and I live in Missouri."
+      "text": "Here's a simulated phone photo of a fictional denial letter. I add the photo and answer five quick questions: a Marketplace plan, the care already happened, and I live in Missouri."
     },
     {
       "id": "check",
@@ -40,18 +40,18 @@
     },
     {
       "id": "fix",
-      "label": "A different letter",
-      "text": "A different letter gets a different next step. This MRI was denied because the office never sent the prior authorization. That's paperwork, so the next step is fix and resubmit, with a script for the call."
+      "label": "Sample letters",
+      "text": "The built-in sample letters, read ahead of time, show the other next steps. This MRI was denied because the office never sent the prior authorization. That's paperwork, so the next step is fix and resubmit, with a script for the call."
     },
     {
       "id": "urgent",
-      "label": "Same reason, different answers",
-      "text": "This rehab stay was denied for the same reason as an appeal. But the care is still ahead and the doctor says waiting could cause harm, so the rules move it to an urgent review today."
+      "label": "Care still ahead",
+      "text": "This rehab stay was denied as not medically necessary, a reason that usually leads to an appeal. But the care is still ahead and the doctor says waiting could cause harm, so the rules move it to an urgent review today."
     },
     {
       "id": "guard",
       "label": "No guessing",
-      "text": "Medicare letters, and letters with no clear reason, get: call the number on your letter, instead of a guess."
+      "text": "Medicare and Medicaid have their own appeal rules, so AppealPath says so the moment you pick one, and doesn't read the letter. A letter with no clear reason gets: call and ask, instead of a guess."
     },
     {
       "id": "how",
