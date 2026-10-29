@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AppealPath demo stage</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #f6f4ef; color: #1a2332; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .phone { position: absolute; left: 170px; top: 50px; width: 474px; height: 980px; border-radius: 52px; background: #1a2332; padding: 18px; box-shadow: 0 30px 70px rgba(26, 35, 50, .28); }
+  .phone iframe { width: 438px; height: 944px; border: 0; border-radius: 36px; background: #fff; display: block; }
+  .side { position: absolute; left: 760px; top: 64px; width: 1000px; height: 880px; display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand b { font-size: 44px; letter-spacing: -0.01em; }
+  .tag { font-size: 26px; color: #4b5567; margin: 10px 0 0; }
+  .label { margin-top: 70px; display: inline-block; align-self: flex-start; font: 700 22px/1 inherit; letter-spacing: .08em; text-transform: uppercase; color: #1f3f6e; border-top: 4px solid #1f3f6e; padding-top: 14px; }
+  .caption { font-size: 40px; line-height: 1.38; margin-top: 26px; font-weight: 500; }
+  .foot { margin-top: auto; font-size: 20px; color: #4b5567; border-top: 2px solid #dcd7cb; padding-top: 18px; line-height: 1.5; }
+  .foot strong { color: #1a2332; }
+  .fade { transition: opacity .35s ease; }
+  .hidden { opacity: 0; }
+</style>
+</head>
+<body>
+  <div class="phone"><iframe id="app" title="AppealPath" allow="clipboard-write"></iframe></div>
+  <div class="side">
+    <div class="brand">
+      <svg width="58" height="58" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1f3f6e"/><path d="M9 8h10l4 4v12H9z" fill="#fff"/><path d="M12 18h6m-2.5-3 3 3-3 3" stroke="#1f3f6e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>AppealPath</b>
+    </div>
+    <p class="tag">From a confusing health insurance denial letter to the right next step.</p>
+    <div id="label" class="label fade"></div>
+    <div id="caption" class="caption fade"></div>
+    <div class="foot">
+      <strong>Prototype. Not medical or legal advice.</strong> Every letter shown is fictional; no real patient data.<br>
+      appealpath.7zhvt4rjzh.workers.dev · github.com/h6ctqtwkkg-byte/appealpath<br>
+      Narration: computer voice (macOS). Built for DSH Hacks V2 · AI × Healthcare.
+    </div>
+  </div>
+  <script>
+    window.setScene = (label, text) => {
+      const l = document.getElementById("label"), c = document.getElementById("caption");
+      l.classList.add("hidden"); c.classList.add("hidden");
+      setTimeout(() => { l.textContent = label; c.textContent = text; l.classList.remove("hidden"); c.classList.remove("hidden"); }, 250);
+    };
+  </script>
+</body>
+</html>

@@ -73,7 +73,7 @@ export const REASON_INFO: Record<Lang, Record<Category, ReasonInfo>> = {
       helps: "Su médico puede explicar por qué es la mejor opción para usted y enviar estudios que lo respalden.",
     },
     unclear: {
-      means: "Su carta no dice claramente por qué se negó.",
+      means: "Su carta no dice claramente por qué se denegó.",
       helps: "Pídale al plan que le dé el motivo específico por escrito.",
     },
   },

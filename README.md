@@ -54,6 +54,7 @@ Checked against WCAG 2.1 AA (`prep/ACCESSIBILITY.md`): 7 issues found and fixed.
 | Re-capture the 3 sample readings (dev server running; about 45 neurons) | `node scripts/capture-samples.mjs` |
 | Make the phone-like test images (macOS) | `bash scripts/phone-like.sh` |
 | Measure a folder of images (dev server running; about 14 neurons each) | `node scripts/measure.mjs photos "phone photos"` |
+| Build the draft demo video (live site; about 14 neurons) → `demo/` | `node scripts/demo/record.mjs` |
 
 Local dev uses real Workers AI on your account, so reads count against the free 10,000 neurons a day, which SnapList shares.
 
@@ -76,9 +77,9 @@ Local dev uses real Workers AI on your account, so reads count against the free 
 - [ ] Post the DSH questions on Discord (video limit, zip requirement, the stale Nov 8 date, prize delivery for minors).
 - [ ] Print `test-letters/letters.pdf`, take the 14 photos into `photos/`, and run `node scripts/measure.mjs photos "phone photos"`.
 - [ ] Show it to 2–3 real people and write down what they say, word for word.
-- [ ] Have a native Spanish speaker review `src/client/i18n.ts` (the app says the translation hasn't been reviewed yet).
-- [ ] Do a 5-minute VoiceOver pass on an iPhone.
-- [ ] Record the demo (`prep/DEMO-SCRIPT.md`) and add its link to the one-pager.
+- [ ] Have a native Spanish speaker review `src/client/i18n.ts`. It's been proofread once ("denegación", grammar), but not by a native speaker, and the app says so.
+- [ ] Do a 5-minute VoiceOver pass on an iPhone. The accessibility tree has been checked; a person listening hasn't.
+- [ ] Watch the draft demo (`demo/AppealPath-demo.mp4`, computer voice) and record your own voice over `demo/AppealPath-demo-silent.mp4` if you can. Upload it and add the link to the one-pager.
 
 ## Rules for this project
 

@@ -60,6 +60,16 @@
 | Question groups | 7+ | Arrow keys move within a group | Native radios |
 | Read my letter / enter by hand | After the questions | Runs it | Missing answers are announced |
 
+### Screen-reader walkthrough (Oct 28, via the accessibility tree)
+Playwright's ARIA snapshot (the same names and roles a screen reader gets) on the form, check and result screens:
+- **Right:**
+  - Radios read by their label ("Through a job"); each question is a group named by the question; the state picker is named "5. What state do you live in?"
+  - Text boxes are named by their labels; focus moves to the new heading on every screen change.
+  - Result steps, the phone script and phone links all read in order.
+- **Fixed:**
+  - The second reader's result appeared silently. Now one spoken status ("Second check finished: 3 of 3 match your photo") plays, and each field is described by its own result ("Matches your photo").
+  - The "What this means" box was named with its whole paragraph instead of its heading.
+
 ### Not tested
-- **A real screen reader** (VoiceOver or NVDA). The structure is checked in code, but nobody has listened to it yet. Do a 5-minute VoiceOver pass on an iPhone before demo day.
+- **Real VoiceOver or NVDA by a person.** The accessibility tree is right, but nobody has listened to it yet. Do a 5-minute VoiceOver pass on an iPhone before demo day.
 - **200% browser zoom** was covered only by the 320px layout check, not tested on its own.

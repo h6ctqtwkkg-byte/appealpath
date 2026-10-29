@@ -30,11 +30,11 @@ function phoneVerdict(text: string | null, ocr: OcrState): { verdict: Verdict; b
   return { verdict: m.fax ? "fax" : "exact", boxes: m.boxes };
 }
 
-function SecondCheck(props: { ocr: OcrState; result: { verdict: Verdict; boxes: Box[] } | null; onShow: (boxes: Box[]) => void; active: boolean }) {
+function SecondCheck(props: { id: string; ocr: OcrState; result: { verdict: Verdict; boxes: Box[] } | null; onShow: (boxes: Box[]) => void; active: boolean }) {
   const t = useT().second;
   if (props.ocr.status === "none") return null;
-  if (props.ocr.status === "running") return <p class="second running">{t.running}</p>;
-  if (props.ocr.status === "failed") return <p class="second warn">{t.failed}</p>;
+  if (props.ocr.status === "running") return <p class="second running" id={props.id}>{t.running}</p>;
+  if (props.ocr.status === "failed") return <p class="second warn" id={props.id}>{t.failed}</p>;
   if (!props.result) return null;
   const { verdict, boxes } = props.result;
   const ok = verdict === "exact";
@@ -43,7 +43,7 @@ function SecondCheck(props: { ocr: OcrState; result: { verdict: Verdict; boxes: 
       <span class="mark" aria-hidden="true">
         {ok ? "✓" : "!"}
       </span>
-      <span>{t[verdict]}</span>
+      <span id={props.id}>{t[verdict]}</span>
       {boxes.length > 0 && (
         <button class="linkish" type="button" aria-pressed={props.active} onClick={() => props.onShow(boxes)}>
           {props.active ? t.shown : t.show}
@@ -53,9 +53,9 @@ function SecondCheck(props: { ocr: OcrState; result: { verdict: Verdict; boxes: 
   );
 }
 
-function TextField(props: { id: string; label: string; value: string | null; onInput: (v: string | null) => void; help?: string; quote?: boolean }) {
+function TextField(props: { id: string; label: string; value: string | null; onInput: (v: string | null) => void; help?: string; quote?: boolean; checkedBy?: string }) {
   const Tag = props.quote ? "textarea" : "input";
-  const helpId = props.help ? `${props.id}-help` : undefined;
+  const helpId = [props.help ? `${props.id}-help` : "", props.checkedBy ?? ""].filter(Boolean).join(" ") || undefined;
   return (
     <div class={props.value ? "field" : "field missing"}>
       <label for={props.id}>{props.label}</label>
@@ -70,7 +70,7 @@ function TextField(props: { id: string; label: string; value: string | null; onI
         onInput={(e: Event) => props.onInput((e.currentTarget as HTMLInputElement).value || null)}
       />
       {props.help && (
-        <p class="help" id={helpId}>
+        <p class="help" id={`${props.id}-help`}>
           {props.help}
         </p>
       )}
@@ -113,7 +113,7 @@ export function Check(props: {
   }
 
   const second = (field: string, result: { verdict: Verdict; boxes: Box[] } | null) => (
-    <SecondCheck ocr={ocr} result={result} active={highlight?.field === field} onShow={(boxes) => show(field, boxes)} />
+    <SecondCheck id={`${field}-check`} ocr={ocr} result={result} active={highlight?.field === field} onShow={(boxes) => show(field, boxes)} />
   );
 
   return (
@@ -127,6 +127,14 @@ export function Check(props: {
         </div>
       )}
       {ocr.status !== "none" && <p class="small muted">{all.second.about}</p>}
+      <p class="visually-hidden" role="status">
+        {ocr.status === "done"
+          ? (() => {
+              const results = [deadlineCheck, reasonCheck, phoneCheck].filter((x) => x !== null);
+              return all.second.summary(results.filter((x) => x!.verdict === "exact").length, results.length);
+            })()
+          : ""}
+      </p>
 
       <div class={props.photo ? "check-layout with-photo" : "check-layout"}>
         {props.photo && (
@@ -154,6 +162,7 @@ export function Check(props: {
                 onInput={(v) => set("deadlineQuote", v)}
                 quote
                 help={manual ? t.deadlineHelpManual : t.deadlineHelpAi}
+                checkedBy={ocr.status !== "none" ? "deadline-check" : undefined}
               />
               {second("deadline", deadlineCheck)}
             </>
@@ -181,11 +190,16 @@ export function Check(props: {
               class="quote-input"
               lang="en"
               rows={rowsFor(r.reasonQuote)}
+              aria-describedby={[!manual && r.reasonQuote ? "reason-help" : "", ocr.status !== "none" ? "reason-check" : ""].filter(Boolean).join(" ") || undefined}
               placeholder={manual ? t.reasonPlaceholderManual : t.reasonPlaceholderAi}
               value={r.reasonQuote ?? ""}
               onInput={(e) => set("reasonQuote", (e.currentTarget as HTMLTextAreaElement).value || null)}
             />
-            {!manual && r.reasonQuote && <p class="help">{t.reasonHelpAi}</p>}
+            {!manual && r.reasonQuote && (
+              <p class="help" id="reason-help">
+                {t.reasonHelpAi}
+              </p>
+            )}
             {second("reason", reasonCheck)}
             <Choice<Category>
               name="category"
@@ -216,6 +230,7 @@ export function Check(props: {
             value={r.appealPhone}
             onInput={(v) => set("appealPhone", v)}
             help={r.appealPhone ? undefined : t.phoneMissing}
+            checkedBy={ocr.status !== "none" ? "phone-check" : undefined}
           />
           {second("phone", phoneCheck)}
 

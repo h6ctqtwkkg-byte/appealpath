@@ -1,0 +1,57 @@
+{
+  "_about": "The draft demo video, scene by scene. scripts/demo/record.mjs speaks each line with the macOS voice, records the live app doing the matching steps, and builds demo/AppealPath-demo.mp4. Replace the voice with your own by recording over demo/AppealPath-demo-silent.mp4.",
+  "voice": "Samantha",
+  "rate": 178,
+  "scenes": [
+    {
+      "id": "intro",
+      "label": "AppealPath",
+      "text": "This is AppealPath. When health insurance denies care, you get a letter full of codes and fine print. AppealPath turns that letter into one clear next step. Every letter in this video is fictional, written for testing."
+    },
+    {
+      "id": "upload",
+      "label": "1 · Your letter",
+      "text": "Take a photo of the letter and answer five quick questions: what kind of plan, whether the care has happened, what your doctor said, whether the office resubmitted, and your state."
+    },
+    {
+      "id": "check",
+      "label": "2 · Check what we read",
+      "text": "The AI copies what's printed: what was denied, why, and the deadline. Then a second reader, running right on your phone, checks those exact words against your photo."
+    },
+    {
+      "id": "fix",
+      "label": "3 · Fix and resubmit",
+      "text": "This MRI was denied because the doctor's office never sent the prior authorization. That's paperwork, not a no on the care. So the next step is to ask the office to resubmit, with a script for the call."
+    },
+    {
+      "id": "appeal",
+      "label": "Appeal",
+      "text": "Physical therapy, denied as not medically necessary. That's an appeal. The deadline is quoted word for word from the letter, never calculated, and there's a printable appeal letter filled in from the letter's own words."
+    },
+    {
+      "id": "urgent",
+      "label": "Urgent review today",
+      "text": "A rehab stay after a stroke, where the doctor says waiting could cause harm. Now the next step is an urgent review today, and you can ask for an outside review at the same time."
+    },
+    {
+      "id": "second",
+      "label": "The second reader",
+      "text": "Here's why the second reader matters. In testing, the AI said it was one hundred percent sure about a sentence it had copied with a word missing. So AppealPath never trusts the AI's confidence. The second reader finds the words on your photo, shows you where they're printed, and flags anything it can't find."
+    },
+    {
+      "id": "how",
+      "label": "How it decides",
+      "text": "Fixed rules pick the next step, each with a source. On twelve clean and fourteen simulated phone photos of the test letters, it chose the right step every time, and the second reader caught every wrong phone number. They're fictional letters, so that's a best case."
+    },
+    {
+      "id": "spanish",
+      "label": "En español",
+      "text": "It also works in Spanish, while the letter's own words stay exactly as printed."
+    },
+    {
+      "id": "end",
+      "label": "AppealPath",
+      "text": "AppealPath is a prototype, not medical or legal advice, and it doesn't save your photo. It's built to get people from a confusing letter to the right phone call."
+    }
+  ]
+}

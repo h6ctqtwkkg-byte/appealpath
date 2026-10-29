@@ -8,3 +8,4 @@ test-letters/renders/
 .DS_Store
 public/ocr/
 test-letters/phone-like/
+/demo/

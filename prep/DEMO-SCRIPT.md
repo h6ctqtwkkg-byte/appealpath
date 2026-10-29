@@ -1,5 +1,7 @@
 # AppealPath demo video script
 
+> **A draft video already exists:** `demo/AppealPath-demo.mp4` (2:16, 1080p). It records the live app in a phone frame, with captions and a computer voice. Make it with `node scripts/demo/record.mjs`; the narration is in `scripts/demo/narration.json`. Using your own voice is better: either record over `demo/AppealPath-demo-silent.mp4` (same video, no sound) in iMovie or QuickTime, or edit the narration lines and re-run the script. The `demo/` folder isn't in git; upload the video to YouTube (unlisted) or Devpost.
+
 **Length:** about 2:00. DSH hasn't published a limit (still asked on Discord); if they set one shorter, cut the "How it decides" section first.
 **Recording:** phone screen recording (or Chrome's phone view at phone width), plus your voice. Show your hands holding the printed letter for the first shot only.
 **Rule:** every letter on screen is one of the fictional samples, and you say so out loud.

@@ -301,8 +301,8 @@ export function Result(props: { decision: Decision; reading: Reading; answers: A
       <ol class="next">{steps}</ol>
 
       {d.outcome !== "guard_plan" && (
-        <section class="reason-info" aria-label={info.means}>
-          <h3>{all.reason.means}</h3>
+        <section class="reason-info" aria-labelledby="reason-means-h">
+          <h3 id="reason-means-h">{all.reason.means}</h3>
           <p>{info.means}</p>
           <h3>{all.reason.helps}</h3>
           <p>{info.helps}</p>
