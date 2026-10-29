@@ -3,6 +3,7 @@
 // prep/READER-TEST.md: the model rated itself 100% sure on a quote it got wrong, so nothing here is skipped on confidence.
 import { useRef, useState } from "preact/hooks";
 import { FOUND, findPhone, findQuote, type Box } from "../shared/match";
+import { GUARD_PLANS } from "../shared/rules";
 import { distinctServices } from "../shared/services";
 import { CATEGORIES, type Answers, type Category, type Reading } from "../shared/types";
 import { useT } from "./i18n";
@@ -132,6 +133,9 @@ export function Check(props: {
   const deadlineCheck = quoteVerdict(r.deadlineQuote, ocr);
   const reasonCheck = quoteVerdict(r.reasonQuote, ocr);
   const phoneCheck = phoneVerdict(r.appealPhone, ocr);
+  // The urgent result calls this number first, so when the answers point to urgent it sits by the main phone and is checked too.
+  const urgentLikely = a.careHappened === false && a.doctorSaysHarm === "yes" && !(a.plan && GUARD_PLANS.includes(a.plan));
+  const expeditedCheck = urgentLikely ? phoneVerdict(r.expeditedPhone, ocr) : null;
 
   function kindSettled() {
     setKindStale(false);
@@ -181,7 +185,7 @@ export function Check(props: {
       <p class="visually-hidden" role="status">
         {ocr.status === "done"
           ? (() => {
-              const results = [deadlineCheck, reasonCheck, phoneCheck].filter((x) => x !== null);
+              const results = [deadlineCheck, reasonCheck, phoneCheck, expeditedCheck].filter((x) => x !== null);
               return all.second.summary(results.filter((x) => x!.verdict === "exact").length, results.length);
             })()
           : ""}
@@ -296,6 +300,7 @@ export function Check(props: {
                 onChange={(v) => set("service", v)}
                 options={services.map((s) => ({ value: s, label: s }))}
               />
+              <p class="help">{t.severalNote}</p>
             </div>
           ) : (
             <TextField id="service" label={t.serviceLabel} value={r.service} onInput={(v) => set("service", v)} help={r.service ? undefined : t.serviceMissing} />
@@ -310,6 +315,19 @@ export function Check(props: {
             checkedBy={ocr.status !== "none" ? "phone-check" : undefined}
           />
           {second("phone", phoneCheck)}
+          {urgentLikely && (
+            <>
+              <TextField
+                id="expedited"
+                label={t.fields.expedited}
+                value={r.expeditedPhone}
+                onInput={(v) => set("expeditedPhone", v)}
+                help={r.expeditedPhone ? t.expeditedHelp : t.expeditedMissing}
+                checkedBy={ocr.status !== "none" ? "expedited-check" : undefined}
+              />
+              {second("expedited", expeditedCheck)}
+            </>
+          )}
 
           <details class="more">
             <summary>{t.more}</summary>
@@ -320,7 +338,7 @@ export function Check(props: {
             <TextField id="date" label={t.fields.date} value={r.letterDate} onInput={(v) => set("letterDate", v)} />
             <TextField id="address" label={t.fields.address} value={r.appealAddress} onInput={(v) => set("appealAddress", v)} />
             <TextField id="provider" label={t.fields.provider} value={r.provider} onInput={(v) => set("provider", v)} />
-            <TextField id="expedited" label={t.fields.expedited} value={r.expeditedPhone} onInput={(v) => set("expeditedPhone", v)} />
+            {!urgentLikely && <TextField id="expedited" label={t.fields.expedited} value={r.expeditedPhone} onInput={(v) => set("expeditedPhone", v)} />}
           </details>
 
           {kindNudge && kindStale && (

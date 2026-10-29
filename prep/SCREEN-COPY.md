@@ -71,6 +71,10 @@ Reason picker (shown if the reason is unclear): Prior authorization missing · M
 
 **After editing the reason** (AI or sample readings): "You changed the reason. Does the kind of reason below still fit? It decides your next step." with a **Yes, it still fits** button. Continue is held until the user picks a kind or presses that button.
 
+**When the answers point to urgent** (care still ahead, doctor says waiting could harm, a job or Marketplace plan): the urgent-appeals phone moves up under the main phone, with the second reader's check. Help: "Your next step will be to call this number today, so check it against your letter." If none was found: "Not found. Your next step will use the appeals number above. If your letter has a number for urgent appeals, type it here."
+
+**Several denied services:** under the chooser: "AppealPath keeps one reason and one deadline for the whole letter. If these services were denied for different reasons, make sure the reason above is the one for the service you pick." The result repeats it: "Your letter denied more than one service. This next step is for [service]. For another one, tap "Change what we read", pick it, and check that the reason matches it."
+
 ## 3. Results
 
 Every result has, in order: the headline, one sentence on why, the steps, the **facts card**, and the footer.
@@ -199,7 +203,7 @@ Every result has, in order: the headline, one sentence on why, the steps, the **
 
 **Headline:** How AppealPath decides
 
-1. **The AI reads; the rules decide.** An AI model reads your letter: what was denied, why, the deadline, and who to call. It copies text word for word. Fixed rules, not the AI, pick your next step from what it read and your 5 answers.
+1. **The AI reads; the rules decide.** An AI model reads your letter: what was denied, why, the deadline, and who to call. It's told to copy text exactly as printed, and you can fix anything it gets wrong. Fixed rules, not the AI, pick your next step from what it read and your 5 answers.
 2. **You check before it decides.** You always check the deadline and the reason against your letter before you get a next step. AI readers can sound sure and still be wrong: in our tests, the model said it was 100% sure about a sentence it had copied with a word missing.
 3. **It never makes up a deadline.** It shows the one printed on your letter. If there isn't one, it says so.
 4. **The rules** *(table from ROUTING.md, with sources).*

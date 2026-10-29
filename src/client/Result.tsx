@@ -1,6 +1,7 @@
 // Screen 3: one next step. Wording in i18n.ts; the outcome comes from src/shared/rules.ts.
 import type { JSX } from "preact";
 import { deadlineEvent, printedDate } from "../shared/dates";
+import { distinctServices } from "../shared/services";
 import { EXTERNAL_REVIEW, type Answers, type Decision, type Reading } from "../shared/types";
 import { helpFor } from "./help";
 import { STRINGS, useLang, useT } from "./i18n";
@@ -317,6 +318,11 @@ export function Result(props: {
       </section>
 
       {d.outcome === "urgent" && <p class="emergency">{t.urgent.emergency}</p>}
+      {distinctServices(r.deniedServices).length > 1 && (
+        <div class="notice">
+          <p>{t.several(service)}</p>
+        </div>
+      )}
       {d.askDoctor && d.outcome !== "guard_plan" && (
         <div class="notice">
           <p>{t.askDoctor}</p>
