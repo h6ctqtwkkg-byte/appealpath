@@ -1,9 +1,11 @@
 // Reads every test image in a folder through a running dev server, scores it against test-letters/answer-key.json,
 // runs the rules and the second reader (Tesseract, here in Node), and saves the run in public/accuracy.json for the
-// "How it decides" page. A run with the same label replaces the old one. Run `npm run dev` first.
+// "How it decides" page. A run with the same label replaces the old one. Held-out letters (L13–L18) are saved as their
+// own run, and every reading goes to test-letters/runs/ so a run can be checked case by case. Run `npm run dev` first.
 //   node scripts/measure.mjs <folder> "<what the images are>" [http://127.0.0.1:8792]
 // Files are matched to letters by name: L02.jpg and L02-blurry.jpg both score as L02.
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import * as esbuild from "esbuild";
 import { createWorker } from "tesseract.js";
@@ -48,12 +50,24 @@ async function readWithRetry(image) {
 
 const norm = (s) => (s ?? "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").trim().replace(/^"|"$/g, "").toLowerCase();
 const digits = (s) => (s ?? "").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
-const tally = { Service: { right: 0, empty: 0, wrong: 0 }, Reason: { right: 0, empty: 0, wrong: 0 }, Deadline: { right: 0, empty: 0, wrong: 0 }, Phone: { right: 0, empty: 0, wrong: 0 } };
-// The second reader on the two fields it checks against a known answer: confirmed = right and matched exactly,
-// caught = wrong and flagged. "correct" and "wrong" count the AI's right and wrong values it looked at.
-const second = { confirmed: 0, correct: 0, caught: 0, wrong: 0 };
-const misses = [];
-let resultsRight = 0;
+// One run per group, so the held-out letters (L13–L18, ANSWER-KEY.md) never mix into the numbers for L01–L12.
+const groups = new Map();
+function group(heldOut) {
+  if (!groups.has(heldOut)) {
+    groups.set(heldOut, {
+      tally: { Service: { right: 0, empty: 0, wrong: 0 }, Reason: { right: 0, empty: 0, wrong: 0 }, Deadline: { right: 0, empty: 0, wrong: 0 }, Phone: { right: 0, empty: 0, wrong: 0 } },
+      // The second reader on the two fields it checks against a known answer: confirmed = right and matched exactly,
+      // caught = wrong and flagged. "correct" and "wrong" count the AI's right and wrong values it looked at.
+      second: { confirmed: 0, correct: 0, caught: 0, wrong: 0 },
+      misses: [],
+      right: 0,
+      total: 0,
+    });
+  }
+  return groups.get(heldOut);
+}
+// Every reading, kept so a run can be checked case by case later (test-letters/runs/).
+const cases = [];
 let neurons = 0;
 let model = "";
 
@@ -61,11 +75,14 @@ for (const file of files) {
   const id = file.slice(0, 3).toUpperCase();
   const want = key[id];
   if (!want) continue;
+  const g = group(!!want.heldOut);
+  g.total++;
   const path = join(dir, file);
   const image = (await readFile(path)).toString("base64");
   const body = await readWithRetry(image);
   if (!body.ok) {
-    misses.push(`${file}: the reader failed (${body.error})`);
+    g.misses.push(`${file}: the reader failed (${body.error})`);
+    cases.push({ file, letter: id, heldOut: !!want.heldOut, error: body.error });
     console.log(file, "FAILED", body.error);
     continue;
   }
@@ -74,13 +91,15 @@ for (const file of files) {
   model = body.model;
   const words = wordsFromBlocks((await ocr.recognize(path, {}, { blocks: true, text: false })).data.blocks);
 
+  const scores = {};
   const score = (field, ok, empty, note) => {
-    const t = tally[field];
+    const t = g.tally[field];
+    scores[field] = ok ? "right" : empty ? "empty" : "wrong";
     if (ok) t.right++;
     else if (empty) t.empty++;
     else {
       t.wrong++;
-      misses.push(`${file}: ${note}`);
+      g.misses.push(`${file}: ${note}`);
     }
   };
   score("Service", norm(r.service).includes(want.service), !r.service, `denied service read as "${r.service}"`);
@@ -95,49 +114,70 @@ for (const file of files) {
   const phoneRight = want.phones.includes(digits(r.appealPhone));
   score("Phone", phoneRight, !r.appealPhone, `picked ${r.appealPhone} as the phone number, which isn't the letter's number to call`);
 
+  const checks = {};
   if (r.deadlineQuote) {
     const m = findQuote(r.deadlineQuote, words);
     const exact = !!m && m.score >= FOUND && m.exact;
+    checks.deadline = exact ? "confirmed" : "flagged";
     if (deadlineRight) {
-      second.correct++;
-      if (exact) second.confirmed++;
+      g.second.correct++;
+      if (exact) g.second.confirmed++;
     } else {
-      second.wrong++;
-      if (!exact) second.caught++;
+      g.second.wrong++;
+      if (!exact) g.second.caught++;
     }
   }
   if (r.appealPhone) {
     const p = findPhone(r.appealPhone, words);
     const ok = !!p && !p.fax;
+    checks.phone = ok ? "confirmed" : p?.fax ? "flagged as fax" : "flagged";
     if (phoneRight) {
-      second.correct++;
-      if (ok) second.confirmed++;
+      g.second.correct++;
+      if (ok) g.second.confirmed++;
     } else {
-      second.wrong++;
-      if (!ok) second.caught++;
+      g.second.wrong++;
+      if (!ok) g.second.caught++;
     }
   }
 
   const outcome = decide(want.answers, r).outcome;
-  if (outcome === want.outcome) resultsRight++;
-  else misses.push(`${file}: next step would be ${outcome} without fixes (should be ${want.outcome})`);
+  if (outcome === want.outcome) g.right++;
+  else g.misses.push(`${file}: next step would be ${outcome} without fixes (should be ${want.outcome})`);
+  cases.push({ file, letter: id, heldOut: !!want.heldOut, model: body.model, neurons: body.neurons, ms: body.ms, ocrWords: words.length, reading: r, scores, secondReader: checks, outcome, expected: want.outcome });
   console.log(file.padEnd(16), outcome === want.outcome ? "ok  " : "MISS", outcome.padEnd(14), `${body.neurons?.toFixed(1)} neurons`, `${body.ms} ms`, `${words.length} OCR words`);
 }
 await ocr.terminate();
 
-const run = {
-  measuredOn: new Date().toISOString().slice(0, 10),
-  images: label,
+const measuredOn = new Date().toISOString().slice(0, 10);
+const newRuns = [...groups].map(([heldOut, g]) => ({
+  measuredOn,
+  images: heldOut ? `${label} (held-out letters)` : label,
   model: model.replace("@cf/", ""),
-  photos: files.length,
-  fields: Object.entries(tally).map(([name, t]) => ({ name, ...t })),
-  results: { right: resultsRight, total: files.length },
-  secondReader: second,
-  misses,
-};
+  photos: g.total,
+  fields: Object.entries(g.tally).map(([name, t]) => ({ name, ...t })),
+  results: { right: g.right, total: g.total },
+  secondReader: g.second,
+  misses: g.misses,
+}));
 const previous = JSON.parse(await readFile("public/accuracy.json", "utf8").catch(() => "null"));
-const runs = (previous?.runs ?? (previous ? [previous] : [])).filter((x) => x.images !== label);
-await writeFile("public/accuracy.json", JSON.stringify({ runs: [...runs, run] }, null, 2) + "\n");
-console.log(`\nright next step: ${resultsRight}/${files.length}  ·  ${neurons.toFixed(0)} neurons used  ·  saved "${label}" in public/accuracy.json`);
-console.log(`second reader: confirmed ${second.confirmed}/${second.correct} right values, caught ${second.caught}/${second.wrong} wrong ones`);
-for (const m of misses) console.log(" -", m);
+const labels = new Set(newRuns.map((x) => x.images));
+const runs = (previous?.runs ?? (previous ? [previous] : [])).filter((x) => !labels.has(x.images));
+await writeFile("public/accuracy.json", JSON.stringify({ runs: [...runs, ...newRuns] }, null, 2) + "\n");
+
+let readerCommit = "unknown";
+try {
+  readerCommit = execFileSync("git", ["log", "-1", "--format=%h", "--", "src/read.ts"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim() || "unknown";
+} catch {
+  // Not in a git checkout; the run still saves.
+}
+const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const casesFile = `test-letters/runs/${measuredOn}-${slug}.json`;
+await mkdir("test-letters/runs", { recursive: true });
+await writeFile(casesFile, JSON.stringify({ measuredOn, images: label, readerInstructions: `src/read.ts at ${readerCommit}`, neurons: Math.round(neurons), cases }, null, 2) + "\n");
+
+console.log(`\n${neurons.toFixed(0)} neurons used · every reading saved in ${casesFile}`);
+for (const run of newRuns) {
+  console.log(`\n${run.images}: right next step ${run.results.right}/${run.results.total} · saved in public/accuracy.json`);
+  console.log(`second reader: confirmed ${run.secondReader.confirmed}/${run.secondReader.correct} right values, caught ${run.secondReader.caught}/${run.secondReader.wrong} wrong ones`);
+  for (const m of run.misses) console.log(" -", m);
+}

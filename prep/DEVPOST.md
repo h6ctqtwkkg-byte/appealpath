@@ -3,7 +3,7 @@
 Paste each section below into the matching box on the Devpost submission form. Drafted Oct 29, 2026. Every number comes from the sources table at the bottom.
 
 **Before you paste**
-- Fill the two `[[ ]]` spots: the video link, and one sentence on what you did yourself.
+- Fill the `[[ ]]` spots: the video link, one sentence on what you did yourself, and the held-out results once you measure them.
 - If you measure real phone photos first, add that row to the results table here and on the one-pager.
 - If the form asks which prizes to enter, also pick **Best Research-Oriented Project (YRI)**. "How I tested it" is written for that prize. Unverified: the Devpost page doesn't say how that prize is judged.
 - Read it out loud once and change anything that doesn't sound like you. Judges can ask about any line, so cut the ones you can't explain.
@@ -79,7 +79,7 @@ The question behind the whole design: **can you trust what the AI read, and how 
 
 All 4 wrong values it was scored on were the same mistake, a fax number picked as the phone number, and the second reader flagged every one. On the phone photos it also missed 2 values that were actually right: false alarms, which the user clears by looking at the highlight. Separately, on one phone photo the reason was read as "not covered" instead of "out of network". Both lead to Appeal, so the next step was still right.
 
-**Limits, plainly:** it's a small sample of fictional letters. The reading instructions were tuned on these same letters, so these are best-case numbers. The phone photos are simulated, and real phone photos haven't been measured yet. The model comparison ran in a throwaway script that isn't in the repo, and the measurement saves totals, not every reading. That's why every uploaded letter goes through the check screen, however sure the AI is.
+**Limits, plainly:** it's a small sample of fictional letters. The reading instructions were tuned on these same letters, so these are best-case numbers. To test that, 6 more letters (L13–L18) were written afterward, with new insurers, layouts and traps such as nurse-line and language-line phone numbers, and they're never used for tuning. [[Add their real-photo results here once measured, or delete this sentence.]] The phone photos are simulated, and real phone photos haven't been measured yet. The model comparison ran in a throwaway script that isn't in the repo, and the measurement saves totals, not every reading. That's why every uploaded letter goes through the check screen, however sure the AI is.
 
 ### Challenges I ran into
 

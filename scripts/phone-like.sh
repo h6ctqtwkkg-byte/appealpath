@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Makes "phone-like" test images from the 12 letters: tilted, a little blurred, shadowed, on a dark table, and heavily
+# Makes "phone-like" test images from every letter in test-letters/letters.html: tilted, a little blurred, shadowed, on a dark table, and heavily
 # compressed, so accuracy can be measured before real phone photos exist. macOS only (Chrome + sips).
-#   bash scripts/phone-like.sh            → test-letters/phone-like/L01.jpg … L12.jpg, L02-blurry.jpg, L08-angled.jpg
+#   bash scripts/phone-like.sh            → test-letters/phone-like/L01.jpg … L18.jpg, L02-blurry.jpg, L08-angled.jpg
 set -euo pipefail
 cd "$(dirname "$0")/.."
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
@@ -9,6 +9,7 @@ OUT=test-letters/phone-like
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$OUT"
+pages=$(grep -c '<section class="page' test-letters/letters.html)
 
 render() { # name, page number, tilt X (deg), turn Z (deg), blur (px), shade opacity
   local name=$1 n=$2 rx=$3 rz=$4 blur=$5 shade=$6
@@ -20,7 +21,7 @@ render() { # name, page number, tilt X (deg), turn Z (deg), blur (px), shade opa
   sips -s format jpeg -s formatOptions 55 "$TMP/$name.png" --out "$OUT/$name.jpg" >/dev/null
 }
 
-for n in $(seq 1 12); do
+for n in $(seq 1 "$pages"); do
   id=$(printf "L%02d" "$n")
   sign=$(( n % 2 == 0 ? 1 : -1 ))
   render "$id" "$n" $(( 5 + n % 4 )) "$(( sign * (1 + n % 3) )).5" "0.$(( 5 + n % 4 ))" 0.22

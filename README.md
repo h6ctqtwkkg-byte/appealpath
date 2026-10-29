@@ -51,11 +51,12 @@ Checked against WCAG 2.1 AA (`prep/ACCESSIBILITY.md`): 7 issues found and fixed.
 | Local dev (builds the app, then `wrangler dev` on :8792) | `npm run dev` |
 | Rebuild the app on change | `npm run dev:watch` |
 | Typecheck (Worker + app) | `npm run typecheck` |
-| Tests (rules on all 12 letters, reader output, second-reader matching, printed dates) | `npm test` |
+| Tests (rules on all 18 letters, reader output, second-reader matching, printed dates) | `npm test` |
 | Deploy to workers.dev (typecheck, tests, build, then `wrangler deploy`) | `npm run deploy` |
 | Re-capture the 5 sample readings (dev server running; about 80 neurons) | `node scripts/capture-samples.mjs` |
+| Make the clean test images (macOS) | `bash scripts/render-letters.sh` |
 | Make the phone-like test images (macOS) | `bash scripts/phone-like.sh` |
-| Measure a folder of images (dev server running; about 14 neurons each) | `node scripts/measure.mjs photos "phone photos"` |
+| Measure a folder of images (dev server running; about 14 neurons each). Held-out letters become their own run; every reading is saved in `test-letters/runs/` | `node scripts/measure.mjs photos "phone photos"` |
 | Build the draft demo video (live site; about 14 neurons) → `demo/` | `node scripts/demo/record.mjs` |
 
 Local dev uses real Workers AI on your account, so reads count against the free 10,000 neurons a day, which SnapList shares.
@@ -71,13 +72,13 @@ Local dev uses real Workers AI on your account, so reads count against the free 
 | `src/worker.ts` | `POST /api/read` with the rate limit; everything else is static files in `public/` |
 | `src/client/` | The Preact app; all text in `i18n.ts` (English and Spanish) |
 | `public/samples/` | The 5 demo letters (one per rule) and their readings, captured ahead of time from the real model |
-| `test-letters/` | 12 fictional letters (PDF) and the answer key (Markdown + JSON) |
+| `test-letters/` | 18 fictional letters (PDF): L01–L12 used while building, L13–L18 held out. The answer key (Markdown + JSON) and saved runs |
 | `prep/` | Routing sources, screen wording, demo script, one-pager, Devpost write-up, reader test, accessibility audit |
 
 ## Still to do (Noah)
 
 - [ ] Post the DSH questions on Discord (video limit, zip requirement, the stale Nov 8 date, prize delivery for minors).
-- [ ] Print `test-letters/letters.pdf`, take the 14 photos into `photos/`, and run `node scripts/measure.mjs photos "phone photos"`.
+- [ ] Print `test-letters/letters.pdf` (18 pages), take the 20 photos into `photos/` (steps in `test-letters/ANSWER-KEY.md`), and run `node scripts/measure.mjs photos "phone photos"`. The held-out letters L13–L18 come out as their own run. Don't change the reading instructions because of them.
 - [ ] Show it to 2–3 real people and write down what they say, word for word.
 - [ ] Have a native Spanish speaker review `src/client/i18n.ts`. It's been proofread once ("denegación", grammar), but not by a native speaker, and the app says so.
 - [ ] Do a 5-minute VoiceOver pass on an iPhone. The accessibility tree has been checked; a person listening hasn't.

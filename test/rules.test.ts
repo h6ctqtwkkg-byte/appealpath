@@ -1,4 +1,4 @@
-// The 12 fictional test letters from test-letters/ANSWER-KEY.md (Tables 1 and 2), through the rules.
+// The 18 fictional test letters from test-letters/ANSWER-KEY.md (Tables 1 and 2), through the rules.
 import { describe, expect, it } from "vitest";
 import { decide } from "../src/shared/rules";
 import type { Answers, Category, Outcome } from "../src/shared/types";
@@ -44,6 +44,24 @@ describe("answer key", () => {
       counts[outcome] = (counts[outcome] ?? 0) + 1;
     }
     expect(counts).toEqual({ fix: 2, appeal: 6, urgent: 2, guard_plan: 1, guard_unclear: 1 });
+  });
+});
+
+// L13–L18, written after the reading instructions were finished (ANSWER-KEY.md, "The held-out set").
+const HELD_OUT: Case[] = [
+  ["L13", "prior_auth_missing", "You must file your appeal no later than 180 calendar days after the date you receive this letter.", a("marketplace", false, "no", "no"), "fix", 3],
+  ["L14", "not_medically_necessary", "Your appeal must be postmarked by March 31, 2027.", a("job", true, "no", "no"), "appeal", 4],
+  ["L15", "experimental", "You have 180 days from the date of this notice to request an internal appeal.", a("marketplace", false, "no", "no", "MO"), "appeal", 4],
+  ["L16", "not_medically_necessary", "You may request an appeal within 180 days after you get this letter.", a("job", false, "yes", "no"), "urgent", 2],
+  ["L17", "missing_info", "Appeals must be filed within 180 days of the statement date shown above.", a("job", true, "no", "dont_know"), "fix", 3],
+  ["L18", "billing_error", "To appeal, contact us within 180 days of the date of this notice.", a("marketplace", true, "not_asked", "yes"), "appeal", 4],
+];
+
+describe("held-out answer key", () => {
+  it.each(HELD_OUT)("%s → %s", (_letter, category, deadline, answers, outcome, rule) => {
+    const d = decide(answers, { category, deadlineQuote: deadline });
+    expect(d.outcome).toBe(outcome);
+    expect(d.rule).toBe(rule);
   });
 });
 
