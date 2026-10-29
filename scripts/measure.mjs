@@ -1,7 +1,8 @@
 // Reads every test image in a folder through a running dev server, scores it against test-letters/answer-key.json,
 // runs the rules and the second reader (Tesseract, here in Node), and saves the run in public/accuracy.json for the
 // "How it decides" page. A run with the same label replaces the old one. Held-out letters (L13–L18) are saved as their
-// own run, and every reading goes to test-letters/runs/ so a run can be checked case by case. Run `npm run dev` first.
+// own run, labeled "held-out letters L13–L18, …", and every reading goes to test-letters/runs/ so a run can be checked
+// case by case. Run `npm run dev` first.
 //   node scripts/measure.mjs <folder> "<what the images are>" [http://127.0.0.1:8792]
 // Files are matched to letters by name: L02.jpg and L02-blurry.jpg both score as L02.
 import { execFileSync } from "node:child_process";
@@ -151,7 +152,7 @@ await ocr.terminate();
 const measuredOn = new Date().toISOString().slice(0, 10);
 const newRuns = [...groups].map(([heldOut, g]) => ({
   measuredOn,
-  images: heldOut ? `${label} (held-out letters)` : label,
+  images: heldOut ? `held-out letters L13–L18, ${label}` : label,
   model: model.replace("@cf/", ""),
   photos: g.total,
   fields: Object.entries(g.tally).map(([name, t]) => ({ name, ...t })),

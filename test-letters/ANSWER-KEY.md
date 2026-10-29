@@ -66,7 +66,7 @@ Totals: L01–L12: Fix & resubmit 2, Appeal 6, Urgent 2, Guard 2. Held out (L13�
 
 - **Written Oct 29, 2026, after the last change to the reading instructions** (`src/read.ts`, commit 79021a8) **and to the second reader's matching** (`src/shared/match.ts`, commit 9245184). They were never used to tune either one.
 - **New on purpose:** six new insurers and layouts, area codes other than 479, 1-800-style numbers, a fax number in its own table row, a separate 24-hour urgent line, a nurse line and a language-help line that are the wrong numbers to pick, the first "experimental" denial, and a two-line EOB.
-- **Reported on their own.** `scripts/measure.mjs` saves them as a separate run, labeled "(held-out letters)", so they never mix into the L01–L12 numbers.
+- **Reported on their own.** `scripts/measure.mjs` saves them as a separate run, labeled "held-out letters L13–L18, …", so they never mix into the L01–L12 numbers.
 - **Keep them held out.** Don't change `src/read.ts` or `src/shared/match.ts` because of their results. If you do, say so wherever the numbers appear, because after that they no longer count as held out. Report the misses as they are.
 
 ## Taking the photos

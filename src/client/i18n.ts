@@ -337,7 +337,7 @@ const en = {
       `Second reader: confirmed ${confirmed} of ${correct} correctly read deadlines and phone numbers${wrong ? `, and flagged ${caught} of ${wrong} wrong ones` : ""}.`,
     misses: "What it got wrong",
     caveat:
-      "These test letters are cleaner than real mail, and the reading instructions were adjusted after earlier runs on these same letters, so these numbers are a best case. Real-world accuracy will be lower, which is why you always check the deadline and the reason.",
+      "These test letters are cleaner than real mail. The reading instructions were adjusted after earlier runs on letters L01–L12, so those numbers are a best case. The held-out letters (L13–L18) were written after the instructions were finished and never used to adjust them, but they come from the same author as the instructions, and none of these are real phone photos yet. Real-world accuracy will be lower, which is why every letter you upload goes to the check screen.",
     wontTitle: "What it won't do",
     wont: "Contact your insurer, file anything, predict whether you'll win, give medical or legal advice, or save your photo or answers.",
     limitsTitle: "Limits",
@@ -680,7 +680,7 @@ const es: Strings = {
       `Segundo lector: confirmó ${confirmed} de ${correct} fechas límite y teléfonos bien leídos${wrong ? ` y señaló ${caught} de ${wrong} mal leídos` : ""}.`,
     misses: "En qué se equivocó",
     caveat:
-      "Estas cartas de prueba son más limpias que el correo real, y las instrucciones de lectura se ajustaron después de pruebas anteriores con estas mismas cartas, así que estos números son el mejor caso. En la vida real la precisión será menor; por eso usted siempre revisa la fecha límite y el motivo.",
+      "Estas cartas de prueba son más limpias que el correo real. Las instrucciones de lectura se ajustaron después de pruebas anteriores con las cartas L01–L12, así que esos números son el mejor caso. Las cartas reservadas (L13–L18) se escribieron después de terminar las instrucciones y nunca se usaron para ajustarlas, pero vienen del mismo autor que las instrucciones, y ninguna es todavía una foto real de teléfono. En la vida real la precisión será menor; por eso toda carta que usted sube pasa por la pantalla de revisión.",
     wontTitle: "Lo que no hace",
     wont: "Comunicarse con su aseguradora, presentar nada, predecir si va a ganar, dar consejo médico o legal, ni guardar su foto o sus respuestas.",
     limitsTitle: "Límites",

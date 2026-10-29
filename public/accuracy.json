@@ -92,6 +92,94 @@
         "L04.jpg: picked (479) 555-0178 as the phone number, which isn't the letter's number to call",
         "L07.jpg: picked (479) 555-0178 as the phone number, which isn't the letter's number to call"
       ]
+    },
+    {
+      "measuredOn": "2026-10-29",
+      "images": "held-out letters L13–L18, clean digital images of the printed pages, not phone photos",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 6,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Deadline",
+          "right": 5,
+          "empty": 0,
+          "wrong": 1
+        },
+        {
+          "name": "Phone",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        }
+      ],
+      "results": {
+        "right": 6,
+        "total": 6
+      },
+      "secondReader": {
+        "confirmed": 10,
+        "correct": 11,
+        "caught": 0,
+        "wrong": 1
+      },
+      "misses": [
+        "L13.jpg: deadline read as \"You can ask us to look at this decision again. This is called an appeal. You must file your appeal no later than 180 calendar days after the date you receive this letter.\""
+      ]
+    },
+    {
+      "measuredOn": "2026-10-29",
+      "images": "held-out letters L13–L18, simulated phone-like images: tilted, slightly blurred, shadowed and heavily compressed",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 6,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Deadline",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Phone",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        }
+      ],
+      "results": {
+        "right": 6,
+        "total": 6
+      },
+      "secondReader": {
+        "confirmed": 10,
+        "correct": 12,
+        "caught": 0,
+        "wrong": 0
+      },
+      "misses": []
     }
   ]
 }

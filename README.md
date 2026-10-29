@@ -37,8 +37,10 @@ flowchart LR
 |---|---|---|
 | 12 clean digital images of the letters | **12 / 12** | Confirmed 21 of 21 correct values; flagged 2 of 2 wrong ones |
 | 14 simulated phone-like images (tilted, blurred, shadowed, heavily compressed) | **14 / 14** | Confirmed 22 of 24 correct values; flagged 2 of 2 wrong ones |
+| 6 held-out letters (L13–L18, never used for tuning), clean images | **6 / 6** | Confirmed 10 of 11 correct values; 1 wrong value (an over-long deadline quote) not flagged |
+| 6 held-out letters, simulated phone-like images | **6 / 6** | Confirmed 10 of 12 correct values; no wrong values |
 
-Known misses: on 2–3 letters the AI picked the fax number as the phone, and the second reader flagged every one. On one letter it read "out of network" as "not covered", which leads to the same next step. The reading instructions were tuned on these same fictional letters, so treat these numbers as a best case; real phone photos haven't been measured yet. Details: `public/accuracy.json`, `prep/READER-TEST.md`.
+Known misses: on 2–3 letters the AI picked the fax number as the phone, and the second reader flagged every one. On one letter it read "out of network" as "not covered", which leads to the same next step. The reading instructions were tuned on L01–L12, so treat those numbers as a best case. The held-out letters were written afterward and never used for tuning, but they come from the same author, and there are only 6. The second reader can't yet join a phone number that wraps onto a second line (L18). Real phone photos haven't been measured yet. Details: `public/accuracy.json`, `prep/READER-TEST.md`.
 
 ## Accessibility
 

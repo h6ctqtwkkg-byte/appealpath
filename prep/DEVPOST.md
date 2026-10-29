@@ -3,7 +3,7 @@
 Paste each section below into the matching box on the Devpost submission form. Drafted Oct 29, 2026. Every number comes from the sources table at the bottom.
 
 **Before you paste**
-- Fill the `[[ ]]` spots: the video link, one sentence on what you did yourself, and the held-out results once you measure them.
+- Fill the `[[ ]]` spots: the video link, one sentence on what you did yourself, and the real-photo results once you measure them.
 - If you measure real phone photos first, add that row to the results table here and on the one-pager.
 - If the form asks which prizes to enter, also pick **Best Research-Oriented Project (YRI)**. "How I tested it" is written for that prize. Unverified: the Devpost page doesn't say how that prize is judged.
 - Read it out loud once and change anything that doesn't sound like you. Judges can ask about any line, so cut the ones you can't explain.
@@ -79,7 +79,16 @@ The question behind the whole design: **can you trust what the AI read, and how 
 
 All 4 wrong values it was scored on were the same mistake, a fax number picked as the phone number, and the second reader flagged every one. On the phone photos it also missed 2 values that were actually right: false alarms, which the user clears by looking at the highlight. Separately, on one phone photo the reason was read as "not covered" instead of "out of network". Both lead to Appeal, so the next step was still right.
 
-**Limits, plainly:** it's a small sample of fictional letters. The reading instructions were tuned on these same letters, so these are best-case numbers. To test that, 6 more letters (L13–L18) were written afterward, with new insurers, layouts and traps such as nurse-line and language-line phone numbers, and they're never used for tuning. [[Add their real-photo results here once measured, or delete this sentence.]] The phone photos are simulated, and real phone photos haven't been measured yet. The model comparison ran in a throwaway script that isn't in the repo, and the measurement saves totals, not every reading. That's why every uploaded letter goes through the check screen, however sure the AI is.
+**4. Does it hold up on letters it was never tuned on?** Six more letters (L13–L18) were written after the reading instructions were finished. They have new insurers and layouts, and new traps: 1-800 numbers and other area codes, a fax number in its own table row, a separate 24-hour urgent line, a nurse line and a language-help line, the first "experimental" denial, and a statement where only one of two lines was denied. Each image was read once, and nothing was changed afterward.
+
+| Held-out images | Right next step | Fields read right | Second reader (deadline and phone) |
+|---|---|---|---|
+| 6 clean digital images | 6 / 6 | 23 of 24 | Confirmed 10 of 11 correct values; flagged 0 of 1 wrong ones |
+| 6 simulated phone photos | 6 / 6 | 24 of 24 | Confirmed 10 of 12 correct values; no wrong ones to flag |
+
+The AI never picked a fax, nurse-line, language-line or member-services number, and it kept the urgent line separate. The one wrong value: on the clean L13, it copied the deadline sentence plus the two sentences before it. The right deadline was in there, but it counts as a miss. The second reader didn't flag it, because every copied word is on the page: it checks that words were copied right, not that it's the right sentence. Two of the three false alarms came from L18's phone number wrapping onto a second line, which the second reader can't join yet. That stays unfixed until after the real-photo test, so these numbers keep meaning what they say.
+
+**Limits, plainly:** it's a small sample of fictional letters. The reading instructions were tuned on these same letters, so these are best-case numbers. The held-out letters help, but there are only 6, and they come from the same author as the instructions. The phone photos are simulated, and real phone photos haven't been measured yet. [[Add the real-photo results here once measured.]] The model comparison ran in a throwaway script that isn't in the repo. The first runs saved only totals; from the held-out runs on, every reading is saved (`test-letters/runs/`). That's why every uploaded letter goes through the check screen, however sure the AI is.
 
 ### Challenges I ran into
 
@@ -92,7 +101,7 @@ All 4 wrong values it was scored on were the same mistake, a fax number picked a
 
 ### Accomplishments that I'm proud of
 
-- The right next step on every test image: 12 of 12 clean images and 14 of 14 simulated phone photos, with every wrong phone number flagged.
+- The right next step on every test image: 12 of 12 clean images, 14 of 14 simulated phone photos, and 12 of 12 images of held-out letters it was never tuned on, with every wrong phone number flagged.
 - The AI reads and suggests, but never picks the next step. Every result traces to a written rule, and every rule has a source or is marked as a design choice.
 - It runs on Cloudflare's free allowance, with no paid API keys and no accounts, and it doesn't save photos or answers.
 - It works in English and Spanish, and a WCAG 2.1 AA check found 7 issues, all fixed.
@@ -153,6 +162,7 @@ git -C /Users/nbrew/AppealPath archive --format=zip -o AppealPath-source.zip HEA
 | What each result includes | `src/client/Result.tsx` |
 | What's saved and logged | `src/worker.ts`, `saveLang` in `src/client/i18n.ts` |
 | Second reader scored on deadline and phone only | `scripts/measure.mjs` |
+| Held-out results: 6/6 and 6/6, fields, second-reader counts, the L13 and L18 details | `public/accuracy.json`, `test-letters/runs/2026-10-29-*.json` |
 | WCAG 2.1 AA, 7 issues | `prep/ACCESSIBILITY.md` |
 | Rules and their sources | `prep/ROUTING.md`, `src/shared/rules.ts` |
 | 1,600 px, 15-second timeout, about 6 reads a minute | `src/client/image.ts`, `src/read.ts`, `wrangler.jsonc` |
