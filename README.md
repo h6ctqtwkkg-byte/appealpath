@@ -26,14 +26,14 @@ flowchart LR
   R --> N[One next step<br/>script, appeal letter, free help]
 ```
 
-- **The AI reads; the rules decide.** The model only copies text into fields. Five fixed rules, each with a source or labeled as a design choice (`prep/ROUTING.md`), pick the next step.
-- **Two readers, and the user checks.** The model rated itself 100% sure on a sentence it copied with a word missing, so its confidence is never trusted. A second, independent reader runs on the device and looks for the AI's exact words on the photo. It can highlight where they're printed, and it flags anything it can't find, including fax numbers picked as phone numbers. The user always checks the deadline and the reason before seeing a result.
+- **The AI reads; the rules decide.** The model copies text into fields and suggests the kind of reason, which the user can change. Five fixed rules, each with a source or labeled as a design choice (`prep/ROUTING.md`), pick the next step.
+- **Two readers, and the user checks.** The model rated itself 100% sure on a sentence it copied with a word missing, so its confidence is never trusted. A second, independent reader runs on the device and looks for the deadline, the reason and the phone number on the photo, allowing for small OCR slips. It can highlight where they're printed, and it flags any it can't find, including fax numbers picked as phone numbers. Every uploaded letter goes through a check screen with the deadline and the reason first.
 - **Never a made-up deadline.** The app quotes the deadline printed on the letter. If the letter prints a date, the user can add it to their calendar. If no deadline is printed, the app says so.
-- **Built to store nothing.** No accounts, no database. The Worker sends the photo to Workers AI to be read and keeps nothing (see `src/worker.ts`); that's how the code is written, not something an outside test has checked. Reads are limited to about 6 a minute per visitor.
+- **Saves no photos or answers.** No accounts, no database. The Worker sends the photo to Workers AI to be read, keeps nothing, and logs only the model, cost and timing (see `src/worker.ts`). The browser remembers only your language choice; that's how the code is written, not something an outside test has checked. Reads are limited to about 6 a minute per visitor.
 
 ## How well it works
 
-| Images | Right next step, no fixes | Second reader |
+| Images | Right next step, no fixes | Second reader (deadline and phone) |
 |---|---|---|
 | 12 clean digital images of the letters | **12 / 12** | Confirmed 21 of 21 correct values; flagged 2 of 2 wrong ones |
 | 14 simulated phone-like images (tilted, blurred, shadowed, heavily compressed) | **14 / 14** | Confirmed 22 of 24 correct values; flagged 2 of 2 wrong ones |

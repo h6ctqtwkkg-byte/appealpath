@@ -2,7 +2,9 @@
 // they stay exactly as printed. The Spanish was written with AI help and still needs a native speaker's review.
 import { createContext } from "preact";
 import { useContext } from "preact/hooks";
-import type { Category, Outcome } from "../shared/types";
+import type { Category, Outcome, PlanType } from "../shared/types";
+
+export type GuardPlan = Extract<PlanType, "medicare" | "medicaid" | "not_sure">;
 
 export type Lang = "en" | "es";
 export const LangContext = createContext<Lang>("en");
@@ -39,6 +41,7 @@ const en = {
     photoTitle: "Photo of your letter",
     sampleTitle: (id: string) => `Sample letter ${id}`,
     photoHintEmpty: "Lay it flat with the whole page in frame. We read it, then throw the photo away.",
+    photoDemo: "This is a prototype: use a sample or a made-up letter, not a real letter with your personal information.",
     photoHintHas: "Make sure the whole page is in the photo.",
     photoPick: "Take or choose a photo",
     photoChange: "Change photo",
@@ -68,6 +71,13 @@ const en = {
     read: "Read my letter",
     manual: "No photo? Enter the details by hand",
     answerFirst: "Answer all 5 questions first. Then read your letter, or enter it by hand.",
+    guardEarly: {
+      medicare: "Medicare has its own appeal rules, which this prototype doesn't cover, so it won't read your letter. Your next step is to call the number on your letter, and free counselors can help.",
+      medicaid: "Medicaid has its own appeal rules, which this prototype doesn't cover, so it won't read your letter. Your next step is to call the number on your letter.",
+      not_sure: "If you're not sure what kind of plan it is, this prototype won't guess. Your next step is to call the number on your letter and ask.",
+    } as Record<GuardPlan, string>,
+    guardSee: "See who to call",
+    guardFirst: "Choose your state first, so we can show free help where you live.",
     samplesIntro: "Try a fictional sample letter. It fills in the photo and the answers.",
     samples: {
       L01: "MRI: no prior authorization",
@@ -120,9 +130,12 @@ const en = {
     reasonLabel: "Why it was denied, as printed",
     reasonPlaceholderManual: "Copy the reason from your letter",
     reasonPlaceholderAi: "We couldn't find a clear reason. Copy it here if your letter gives one.",
-    reasonHelpAi: "Copied word for word from your letter. Fix it if it doesn't match.",
+    reasonHelpAi: "Copied from your letter. Fix it if it doesn't match.",
     categoryLegendManual: "Which of these is closest?",
     categoryLegendAi: "We read this as:",
+    kindCheck: "You changed the reason. Does the kind of reason below still fit? It decides your next step.",
+    kindStillFits: "Yes, it still fits",
+    kindNeeded: "Before you go on, check the kind of reason: pick the one that fits, or choose \"Yes, it still fits\".",
     severalLegend: "This letter lists more than one denied service. Which one do you want help with?",
     serviceLabel: "What was denied",
     serviceMissing: "What care or service was denied?",
@@ -160,7 +173,7 @@ const en = {
     note: "Uses the date printed on your letter, with a reminder 7 days before.",
     summary: "Appeal deadline (as printed on your letter)",
     alarm: "Your appeal deadline is in 7 days",
-    relative: "This deadline counts from the day you received the letter, so AppealPath doesn't turn it into a date: it can't know when the letter reached you. Write down the day it arrived.",
+    relative: "This deadline counts from a day your letter names, like the day you got it or the date printed on it, so AppealPath doesn't turn it into a date. Go by the exact words above, and write down the day the letter arrived.",
   },
   result: {
     sampleTag: "Sample letter: fictional, read ahead of time.",
@@ -182,7 +195,7 @@ const en = {
         `Hi, I'm calling about ${service ?? "a denied claim"} for ${member ?? "the patient"}. My insurance denied it.${reason ? ` The letter says: "${reason}"` : ""} Can you send the ${ask}?${ref ? ` The reference number is ${ref}.` : ""}`,
       step2: "Ask them to tell you when it's been sent.",
       step3: "If it's denied again, come back. Your next step will be an appeal.",
-      keep: "Keep your letter. If you end up appealing, its deadline is below.",
+      keep: "Asking the office to resubmit may not pause the appeal deadline on your letter. If it gets close and the claim still isn't fixed, ask your plan whether you should file an appeal too.",
     },
     appeal: {
       headline: "Next step: file an appeal",
@@ -241,6 +254,7 @@ const en = {
     noDeadline: "We didn't find a deadline on your letter.",
     helpTitle: "Free help",
     edit: "Change what we read",
+    editAnswers: "Change my answers",
     restart: "Start over",
     whyStep: "Why this step?",
     seeHow: "See how AppealPath decides",
@@ -339,6 +353,7 @@ const es: Strings = {
     photoTitle: "Foto de su carta",
     sampleTitle: (id: string) => `Carta de ejemplo ${id}`,
     photoHintEmpty: "Colóquela sobre una superficie plana, con toda la página en la foto. La leemos y luego borramos la foto.",
+    photoDemo: "Esto es un prototipo: use una carta de ejemplo o una inventada, no una carta real con sus datos personales.",
     photoHintHas: "Asegúrese de que toda la página salga en la foto.",
     photoPick: "Tomar o elegir una foto",
     photoChange: "Cambiar la foto",
@@ -368,6 +383,13 @@ const es: Strings = {
     read: "Leer mi carta",
     manual: "¿No tiene foto? Escriba los datos a mano",
     answerFirst: "Primero conteste las 5 preguntas. Luego lea su carta o escriba los datos a mano.",
+    guardEarly: {
+      medicare: "Medicare tiene sus propias reglas de apelación, que este prototipo no cubre, así que no va a leer su carta. Su próximo paso es llamar al número que aparece en su carta, y hay consejeros gratuitos que pueden ayudarle.",
+      medicaid: "Medicaid tiene sus propias reglas de apelación, que este prototipo no cubre, así que no va a leer su carta. Su próximo paso es llamar al número que aparece en su carta.",
+      not_sure: "Si no está seguro de qué tipo de plan es, este prototipo no va a adivinar. Su próximo paso es llamar al número que aparece en su carta y preguntar.",
+    },
+    guardSee: "Ver a quién llamar",
+    guardFirst: "Primero elija su estado, para mostrarle ayuda gratuita donde vive.",
     samplesIntro: "Pruebe una carta de ejemplo ficticia. Llena la foto y las respuestas por usted.",
     samples: {
       L01: "Resonancia magnética: sin autorización previa",
@@ -420,9 +442,12 @@ const es: Strings = {
     reasonLabel: "Por qué se denegó, tal como aparece",
     reasonPlaceholderManual: "Copie el motivo de su carta",
     reasonPlaceholderAi: "No encontramos un motivo claro. Cópielo aquí si su carta da uno.",
-    reasonHelpAi: "Texto copiado palabra por palabra de su carta. Corríjalo si no coincide.",
+    reasonHelpAi: "Texto copiado de su carta. Corríjalo si no coincide.",
     categoryLegendManual: "¿Cuál de estos se parece más?",
     categoryLegendAi: "Lo entendimos como:",
+    kindCheck: "Usted cambió el motivo. ¿Todavía corresponde el tipo de motivo de abajo? De eso depende su próximo paso.",
+    kindStillFits: "Sí, todavía corresponde",
+    kindNeeded: "Antes de seguir, revise el tipo de motivo: elija el que corresponda o elija \"Sí, todavía corresponde\".",
     severalLegend: "Esta carta deniega más de un servicio. ¿Con cuál quiere ayuda?",
     serviceLabel: "Qué se denegó",
     serviceMissing: "¿Qué atención o servicio se denegó?",
@@ -460,7 +485,7 @@ const es: Strings = {
     note: "Usa la fecha que aparece en su carta, con un recordatorio 7 días antes.",
     summary: "Fecha límite para apelar (tal como aparece en su carta)",
     alarm: "Su fecha límite para apelar es en 7 días",
-    relative: "Esta fecha límite cuenta desde el día en que recibió la carta, así que AppealPath no la convierte en una fecha: no puede saber cuándo le llegó. Anote el día en que la recibió.",
+    relative: "Esta fecha límite cuenta a partir de un día que indica su carta, como el día en que la recibió o la fecha que aparece en ella, así que AppealPath no la convierte en una fecha. Guíese por las palabras exactas de arriba y anote el día en que le llegó la carta.",
   },
   result: {
     sampleTag: "Carta de ejemplo: ficticia, leída de antemano.",
@@ -482,7 +507,7 @@ const es: Strings = {
         `Hola, llamo por ${service ? `«${service}»` : "un reclamo denegado"} ${member ? `de ${member}` : "del paciente"}. Mi seguro lo denegó.${reason ? ` La carta dice: "${reason}"` : ""} ¿Pueden enviar ${ask}?${ref ? ` El número de referencia es ${ref}.` : ""}`,
       step2: "Pídales que le avisen cuando lo hayan enviado.",
       step3: "Si lo vuelven a denegar, regrese. Su siguiente paso será una apelación.",
-      keep: "Guarde su carta. Si termina apelando, la fecha límite está abajo.",
+      keep: "Pedir que el consultorio vuelva a enviar el reclamo puede no detener la fecha límite para apelar de su carta. Si se acerca y el reclamo sigue sin resolverse, pregúntele a su plan si también debe presentar una apelación.",
     },
     appeal: {
       headline: "Siguiente paso: presente una apelación",
@@ -541,6 +566,7 @@ const es: Strings = {
     noDeadline: "No encontramos una fecha límite en su carta.",
     helpTitle: "Ayuda gratis",
     edit: "Cambiar lo que leímos",
+    editAnswers: "Cambiar mis respuestas",
     restart: "Empezar de nuevo",
     whyStep: "¿Por qué este paso?",
     seeHow: "Vea cómo decide AppealPath",

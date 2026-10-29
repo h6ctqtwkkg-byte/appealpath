@@ -195,7 +195,16 @@ function printLetter() {
   window.print();
 }
 
-export function Result(props: { decision: Decision; reading: Reading; answers: Answers; sample: boolean; onEdit: () => void; onRestart: () => void }) {
+export function Result(props: {
+  decision: Decision;
+  reading: Reading;
+  answers: Answers;
+  sample: boolean;
+  /** Straight from the form: no letter was read, so there are no facts to show. */
+  early: boolean;
+  onEdit: () => void;
+  onRestart: () => void;
+}) {
   const all = useT();
   const t = all.result;
   const lang = useLang();
@@ -317,6 +326,12 @@ export function Result(props: { decision: Decision; reading: Reading; answers: A
 
       <h2>{t.whatToDo}</h2>
       <ol class="next">{steps}</ol>
+      {d.outcome === "fix" && (
+        <>
+          <Deadline r={r} decision={d} />
+          <p class="small fix-keep">{t.fix.keep}</p>
+        </>
+      )}
 
       {d.outcome !== "guard_plan" && (
         <section class="reason-info" aria-labelledby="reason-means-h">
@@ -328,7 +343,6 @@ export function Result(props: { decision: Decision; reading: Reading; answers: A
         </section>
       )}
 
-      {d.outcome === "fix" && r.deadlineQuote && <p class="muted small">{t.fix.keep}</p>}
       {d.outcome === "appeal" && answers.plan === "job" && <p class="muted small">{t.appeal.hr}</p>}
 
       {d.outcome === "appeal" && (
@@ -346,8 +360,12 @@ export function Result(props: { decision: Decision; reading: Reading; answers: A
         </>
       )}
 
-      <h2 id="facts-h">{t.factsTitle}</h2>
-      <Facts r={r} />
+      {!props.early && (
+        <>
+          <h2 id="facts-h">{t.factsTitle}</h2>
+          <Facts r={r} />
+        </>
+      )}
 
       <h2>{t.helpTitle}</h2>
       {all.help.englishOnly && <p class="small muted">{all.help.englishOnly}</p>}
@@ -376,7 +394,7 @@ export function Result(props: { decision: Decision; reading: Reading; answers: A
 
       <div class="row-actions">
         <button class="btn secondary" type="button" onClick={props.onEdit}>
-          {t.edit}
+          {props.early ? t.editAnswers : t.edit}
         </button>
         <button class="btn secondary" type="button" onClick={props.onRestart}>
           {t.restart}

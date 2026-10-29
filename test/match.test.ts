@@ -69,4 +69,10 @@ describe("findPhone", () => {
   it("returns null for a number that isn't there", () => {
     expect(findPhone("(479) 555-0199", letter)).toBeNull();
   });
+  it("doesn't confirm a number with the wrong area code", () => {
+    expect(findPhone("(501) 555-0177", letter)).toBeNull();
+  });
+  it("ignores a leading 1", () => {
+    expect(findPhone("1-479-555-0177", letter)?.fax).toBe(false);
+  });
 });

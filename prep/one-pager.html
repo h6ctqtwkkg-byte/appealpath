@@ -45,36 +45,36 @@
       <h2>How it works</h2>
       <ol>
         <li>Take a photo of the letter and answer 5 questions (plan type, has the care happened, does your doctor say waiting could seriously harm you, has the office resubmitted, your state).</li>
-        <li>An AI vision model (Gemma 4 on Cloudflare Workers AI) copies the key facts word for word: what was denied, why, the deadline, who to call.</li>
-        <li>A <strong>second reader</strong> (Tesseract, running on the user's own device) looks for those exact words on the photo, highlights where they're printed, and flags anything it can't find, including fax numbers picked as phone numbers.</li>
-        <li>The user checks the deadline and the reason. Then fixed rules, each with a source, pick one next step:</li>
+        <li>An AI vision model (Gemma 4 on Cloudflare Workers AI) copies the key facts: what was denied, why, the deadline, who to call. It also suggests the kind of reason.</li>
+        <li>A <strong>second reader</strong> (Tesseract, running on the user's own device) looks for the deadline, reason and phone on the photo, highlights where they're printed, and flags any it can't find, including fax numbers picked as phone numbers.</li>
+        <li>The user checks and corrects the deadline and the reason. Then fixed rules, each with a source or labeled a design choice, pick one next step:</li>
       </ol>
       <div class="three">
         <div class="fix"><b>Fix &amp; resubmit</b>Missing prior authorization, records or a billing fix</div>
         <div class="appeal"><b>Appeal</b>Not medically necessary, not covered, out of network</div>
         <div class="urgent"><b>Urgent review today</b>Care is still ahead and waiting could cause harm</div>
       </div>
-      <p>Each result gives a phone script, a printable appeal letter filled with the letter's own words, free help (Arkansas contacts), and a calendar reminder when a date is printed. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess. Five sample letters, one for each rule, open from direct links (<code>?sample=L01</code> … <code>L12</code>).</p>
+      <p>Results give free help (Arkansas contacts), a call script (fix, urgent) or a printable appeal letter filled with the letter's own words (appeal), and a calendar reminder when a date is printed. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess. Five sample letters, one for each rule, open from direct links (<code>?sample=L01</code> … <code>L12</code>).</p>
     </div>
     <div>
       <h2>What makes it different</h2>
       <ul>
-        <li><strong>The AI reads; it never decides.</strong> Every next step traces to a rule and a source (Healthcare.gov) or is labeled as a design choice.</li>
-        <li><strong>It doesn't trust AI confidence.</strong> In testing, the model rated itself 100% sure about a sentence it had copied with a word missing. So two independent readers have to agree, and the user checks before anything is decided.</li>
+        <li><strong>The AI reads; rules decide.</strong> The user can correct anything it read, including the kind of reason. Each rule cites a source (Healthcare.gov) or is labeled a design choice.</li>
+        <li><strong>It doesn't trust AI confidence.</strong> In testing, the model rated itself 100% sure about a sentence it had copied with a word missing. So a second reader checks its words on the photo, and the user checks before anything is decided.</li>
         <li><strong>It never makes up a deadline.</strong> It quotes the one printed on the letter, or says there isn't one.</li>
-        <li><strong>Built to store nothing:</strong> there are no accounts and no database; the Worker sends the photo to Workers AI to be read and keeps nothing (src/worker.ts).</li>
+        <li><strong>Saves no photos or answers:</strong> no accounts, no database; the Worker passes the photo to Workers AI and logs only cost and timing (src/worker.ts).</li>
       </ul>
       <h2>How well it works</h2>
       <table>
-        <tr><th>Test images (fictional letters)</th><th>Right next step</th><th>Second reader</th></tr>
+        <tr><th>Test images (fictional letters)</th><th>Right next step</th><th>Second reader (deadline, phone)</th></tr>
         <tr><td>12 clean digital images</td><td><strong>12 / 12</strong></td><td>21/21 correct values confirmed; 2/2 wrong ones flagged</td></tr>
         <tr><td>14 simulated phone photos (tilted, blurred, shadowed, compressed)</td><td><strong>14 / 14</strong></td><td>22/24 confirmed; 2/2 wrong ones flagged</td></tr>
       </table>
-      <p style="font-size: 9pt">Known misses: the AI sometimes picked a fax number as the phone, and the second reader flagged every one. The reading instructions were tuned on these same letters, so these are best-case numbers; real-world accuracy will be lower, which is why the user always checks.</p>
+      <p style="font-size: 9pt">Known misses: the AI sometimes picked a fax number as the phone, and the second reader flagged every one. The reading instructions were tuned on these same letters, so these are best-case numbers; real-world accuracy will be lower, which is why every uploaded letter goes through the check screen.</p>
       <h2>What it won't do</h2>
       <p>Contact insurers, file anything, predict whether an appeal will win, diagnose, give legal advice, or store photos or answers.</p>
       <h2>Built with</h2>
-      <p>Cloudflare Workers (free plan) and Workers AI (Gemma 4, Llama 4 Scout as backup); Tesseract.js in the browser; Preact; TypeScript; 43 automated tests. Checked against WCAG 2.1 AA (7 issues found and fixed). AI coding tools were used during the build, as DSH allows.</p>
+      <p>Cloudflare Workers (free plan) and Workers AI (Gemma 4, Llama 4 Scout as backup); Tesseract.js in the browser; Preact; TypeScript; 45 automated tests. Checked against WCAG 2.1 AA (7 issues found and fixed). AI coding tools were used during the build, as DSH allows.</p>
       <h2>Sources</h2>
       <p style="font-size: 9pt">Healthcare.gov (internal appeals; external review) · Arkansas Insurance Department (consumer services; external review) · U.S. Department of Labor (EBSA)</p>
     </div>

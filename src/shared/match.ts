@@ -120,13 +120,13 @@ export function findQuote(quote: string, words: Word[]): QuoteMatch | null {
 
 /**
  * Where a phone number appears on the photo, and whether it's a fax: true only when every place it appears comes right
- * after the word "fax" on the same line ("or fax it to (479) 555-0178").
+ * after the word "fax" on the same line ("or fax it to (479) 555-0178"). Every digit has to match, area code included,
+ * so a number with the wrong area code isn't confirmed; a leading 1 is ignored.
  */
 export function findPhone(phone: string, words: Word[]): { boxes: Box[]; fax: boolean } | null {
-  const all = phone.replace(/\D/g, "");
-  const last4 = all.slice(-4);
-  const last7 = all.slice(-7);
-  if (last7.length < 7) return null;
+  const want = phone.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
+  const last4 = want.slice(-4);
+  if (want.length < 7) return null;
   const found: { boxes: Box; fax: boolean }[] = [];
   for (let i = 0; i < words.length; i++) {
     let joined = words[i]!.text.replace(/\D/g, "");
@@ -134,11 +134,11 @@ export function findPhone(phone: string, words: Word[]): { boxes: Box[]; fax: bo
     // The number may be split across words: "(479)" "555-0178".
     const line = words[i]!.line;
     let j = i;
-    while (j > 0 && words[j - 1]!.line === line && /\d/.test(words[j - 1]!.text) && joined.length < all.length) {
+    while (j > 0 && words[j - 1]!.line === line && /\d/.test(words[j - 1]!.text) && joined.length < want.length) {
       j--;
       joined = words[j]!.text.replace(/\D/g, "") + joined;
     }
-    if (!joined.endsWith(last7)) continue;
+    if (!joined.endsWith(want)) continue;
     const before = words.slice(Math.max(0, j - 4), j).filter((w) => w.line === line);
     found.push({ boxes: merge(words.slice(j, i + 1).map((w) => w.bbox)), fax: before.some((w) => /fax/i.test(w.text)) });
   }

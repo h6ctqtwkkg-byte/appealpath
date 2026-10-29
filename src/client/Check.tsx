@@ -1,4 +1,4 @@
-// Screen 2: always shown. The user checks the deadline and the reason against the letter before any next step, with the
+// Screen 2: shown for every letter that's read or typed in. The user checks the deadline and the reason against the letter before any next step, with the
 // second reader (Tesseract, on the device) saying whether the AI's words are really on the photo, and where.
 // prep/READER-TEST.md: the model rated itself 100% sure on a quote it got wrong, so nothing here is skipped on confidence.
 import { useRef, useState } from "preact/hooks";
@@ -117,6 +117,9 @@ export function Check(props: {
   const letterRef = useRef<HTMLDetailsElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [zoomBoxes, setZoomBoxes] = useState<Box[]>([]);
+  // The kind of reason decides the next step, so after the user edits the AI's reason they confirm the kind still fits.
+  const [kindStale, setKindStale] = useState(false);
+  const [kindNudge, setKindNudge] = useState(false);
   const ocrSize = ocr.status === "done" ? { width: ocr.result.width, height: ocr.result.height } : {};
 
   /** The whole letter at full width, with the highlight scrolled into view. */
@@ -129,6 +132,22 @@ export function Check(props: {
   const deadlineCheck = quoteVerdict(r.deadlineQuote, ocr);
   const reasonCheck = quoteVerdict(r.reasonQuote, ocr);
   const phoneCheck = phoneVerdict(r.appealPhone, ocr);
+
+  function kindSettled() {
+    setKindStale(false);
+    setKindNudge(false);
+  }
+
+  function confirm() {
+    if (kindStale) {
+      setKindNudge(true);
+      const fits = document.querySelector<HTMLElement>("#kind-check button");
+      fits?.scrollIntoView({ block: "center" });
+      fits?.focus({ preventScroll: true });
+      return;
+    }
+    props.onConfirm();
+  }
 
   function show(field: string, boxes: Box[]) {
     setHighlight({ field, boxes });
@@ -237,7 +256,10 @@ export function Check(props: {
               aria-describedby={[!manual && r.reasonQuote ? "reason-help" : "", ocr.status !== "none" ? "reason-check" : ""].filter(Boolean).join(" ") || undefined}
               placeholder={manual ? t.reasonPlaceholderManual : t.reasonPlaceholderAi}
               value={r.reasonQuote ?? ""}
-              onInput={(e) => set("reasonQuote", (e.currentTarget as HTMLTextAreaElement).value || null)}
+              onInput={(e) => {
+                set("reasonQuote", (e.currentTarget as HTMLTextAreaElement).value || null);
+                if (!manual) setKindStale(true);
+              }}
             />
             {!manual && r.reasonQuote && (
               <p class="help" id="reason-help">
@@ -245,11 +267,22 @@ export function Check(props: {
               </p>
             )}
             {second("reason", reasonCheck)}
+            {kindStale && (
+              <div class="notice kind-check" id="kind-check">
+                <p>{t.kindCheck}</p>
+                <button class="linkish" type="button" onClick={kindSettled}>
+                  {t.kindStillFits}
+                </button>
+              </div>
+            )}
             <Choice<Category>
               name="category"
               legend={<span class="small muted">{manual ? t.categoryLegendManual : t.categoryLegendAi}</span>}
               value={r.category}
-              onChange={(v) => set("category", v)}
+              onChange={(v) => {
+                set("category", v);
+                kindSettled();
+              }}
               options={CATEGORIES.map((c) => ({ value: c, label: all.categories[c] }))}
             />
           </div>
@@ -290,8 +323,13 @@ export function Check(props: {
             <TextField id="expedited" label={t.fields.expedited} value={r.expeditedPhone} onInput={(v) => set("expeditedPhone", v)} />
           </details>
 
+          {kindNudge && kindStale && (
+            <p class="small error-text" role="alert">
+              {t.kindNeeded}
+            </p>
+          )}
           <div class="actions">
-            <button class="btn block" type="button" onClick={props.onConfirm}>
+            <button class="btn block" type="button" onClick={confirm}>
               {t.confirm}
             </button>
             <div class="alt">

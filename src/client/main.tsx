@@ -55,6 +55,8 @@ function App() {
   const [capturedAt, setCapturedAt] = useState<string | undefined>(undefined);
   const [notice, setNotice] = useState<keyof typeof t.errors | null>(null);
   const [decision, setDecision] = useState<Decision | null>(null);
+  // True when the result came straight from the form (rule 1), with no letter read.
+  const [early, setEarly] = useState(false);
 
   // Focus follows the user's own actions only, so a direct link (?sample=…) doesn't land with a focus ring.
   const interacted = useRef(false);
@@ -138,6 +140,7 @@ function App() {
     }
     if (!photo?.base64) return;
     setNotice(null);
+    setEarly(false);
     setScreen("reading");
     try {
       const res = await fetch("/api/read", {
@@ -162,6 +165,7 @@ function App() {
 
   function manual() {
     setNotice(null);
+    setEarly(false);
     setReading(EMPTY_READING);
     setSource("manual");
     setScreen("check");
@@ -174,6 +178,7 @@ function App() {
       return null;
     }
     setNotice(null);
+    setEarly(false);
     setDraft(answers);
     if (photo?.sampleId !== id) setPhoto({ preview: `/samples/${id}.jpg`, base64: null, sampleId: id });
     setReading(captured.reading);
@@ -181,6 +186,16 @@ function App() {
     setSource("sample");
     setScreen("check");
     return captured.reading;
+  }
+
+  // Medicare, Medicaid and "not sure": rule 1 doesn't depend on the letter, so go straight to the result and read nothing.
+  function planGuard() {
+    setNotice(null);
+    setReading(EMPTY_READING);
+    setSource("manual");
+    setEarly(true);
+    setDecision(decide(draft as Answers, EMPTY_READING));
+    setScreen("result");
   }
 
   function confirm() {
@@ -198,6 +213,7 @@ function App() {
     setReading(EMPTY_READING);
     setDecision(null);
     setNotice(null);
+    setEarly(false);
     setScreen("form");
   }
 
@@ -239,6 +255,7 @@ function App() {
           setPhoto={setPhoto}
           onRead={read}
           onManual={manual}
+          onGuard={planGuard}
           onSample={(id) => openSample(id, SAMPLES.find((s) => s.id === id)?.answers ?? {})}
           notice={notice ? t.errors[notice] : null}
         />
@@ -263,7 +280,8 @@ function App() {
           reading={reading}
           answers={draft as Answers}
           sample={source === "sample"}
-          onEdit={() => setScreen("check")}
+          early={early}
+          onEdit={() => setScreen(early ? "form" : "check")}
           onRestart={restart}
         />
       )}

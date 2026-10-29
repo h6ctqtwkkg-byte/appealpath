@@ -1,7 +1,9 @@
-// Screen 1: the letter photo and the five questions.
+// Screen 1: the letter photo and the five questions. Medicare, Medicaid and "not sure" only need the state: rule 1 sends
+// them to "call your plan" whatever the letter says, so they see that right away and nothing is read.
 import { useState, type Dispatch, type StateUpdater } from "preact/hooks";
+import { GUARD_PLANS } from "../shared/rules";
 import type { Answers } from "../shared/types";
-import { useT, type Strings } from "./i18n";
+import { useT, type GuardPlan, type Strings } from "./i18n";
 import { prepare, type Photo } from "./image";
 import { SAMPLES } from "./samples";
 import { STATES } from "./states";
@@ -10,9 +12,12 @@ import { Choice } from "./ui";
 export type Draft = Partial<Answers>;
 
 const ORDER: (keyof Answers)[] = ["plan", "careHappened", "doctorSaysHarm", "officeResubmitted", "state"];
+const GUARD_ORDER: (keyof Answers)[] = ["plan", "state"];
+
+export const isGuardPlan = (draft: Draft) => !!draft.plan && GUARD_PLANS.includes(draft.plan);
 
 export function missingAnswers(draft: Draft, t: Strings): string[] {
-  return ORDER.filter((k) => draft[k] === undefined || draft[k] === "").map((k) => t.form.missing[k]);
+  return (isGuardPlan(draft) ? GUARD_ORDER : ORDER).filter((k) => draft[k] === undefined || draft[k] === "").map((k) => t.form.missing[k]);
 }
 
 export function Form(props: {
@@ -22,6 +27,7 @@ export function Form(props: {
   setPhoto: (p: Photo | null) => void;
   onRead: () => void;
   onManual: () => void;
+  onGuard: () => void;
   onSample: (id: string) => void;
   notice: string | null;
 }) {
@@ -29,9 +35,10 @@ export function Form(props: {
   const f = t.form;
   const { draft, setDraft, photo } = props;
   const [photoError, setPhotoError] = useState(false);
-  const [tried, setTried] = useState<"read" | "manual" | null>(null);
+  const [tried, setTried] = useState<"read" | "manual" | "guard" | null>(null);
   const set = <K extends keyof Answers>(k: K, v: Answers[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const missing = missingAnswers(draft, t);
+  const guard = isGuardPlan(draft);
 
   async function pick(e: Event) {
     const file = (e.currentTarget as HTMLInputElement).files?.[0];
@@ -45,11 +52,12 @@ export function Form(props: {
     }
   }
 
-  function go(kind: "read" | "manual") {
+  function go(kind: "read" | "manual" | "guard") {
     setTried(kind);
     if (missing.length || (kind === "read" && !photo)) return;
     if (kind === "read") props.onRead();
-    else props.onManual();
+    else if (kind === "manual") props.onManual();
+    else props.onGuard();
   }
 
   return (
@@ -91,6 +99,7 @@ export function Form(props: {
         <div class="body">
           <strong id="photo-title">{photo?.sampleId ? f.sampleTitle(photo.sampleId) : f.photoTitle}</strong>
           <p class="hint">{photo ? f.photoHintHas : f.photoHintEmpty}</p>
+          {!photo?.sampleId && <p class="hint demo-only">{f.photoDemo}</p>}
           <label class="btn secondary">
             {photo ? f.photoChange : f.photoPick}
             <input class="visually-hidden" type="file" accept="image/*" aria-describedby="photo-title" onChange={pick} />
@@ -111,43 +120,54 @@ export function Form(props: {
         onChange={(v) => set("plan", v)}
         options={(["job", "marketplace", "medicare", "medicaid", "not_sure"] as const).map((v) => ({ value: v, label: f.plans[v] }))}
       />
-      <Choice
-        name="care"
-        legend={<><span class="n">2.</span>{f.q2}</>}
-        value={draft.careHappened === undefined ? undefined : draft.careHappened ? "yes" : "no"}
-        onChange={(v) => set("careHappened", v === "yes")}
-        options={[
-          { value: "yes", label: f.yes },
-          { value: "no", label: f.careNo },
-        ]}
-      />
-      <Choice
-        name="harm"
-        legend={<><span class="n">3.</span>{f.q3}</>}
-        value={draft.doctorSaysHarm}
-        onChange={(v) => set("doctorSaysHarm", v)}
-        row
-        options={[
-          { value: "yes", label: f.yes },
-          { value: "no", label: f.no },
-          { value: "not_asked", label: f.notAsked },
-        ]}
-      />
-      <Choice
-        name="resubmitted"
-        legend={<><span class="n">4.</span>{f.q4}</>}
-        value={draft.officeResubmitted}
-        onChange={(v) => set("officeResubmitted", v)}
-        row
-        options={[
-          { value: "yes", label: f.yes },
-          { value: "no", label: f.no },
-          { value: "dont_know", label: f.dontKnow },
-        ]}
-      />
+      <div role="status">
+        {guard && (
+          <div class="notice">
+            <p>{f.guardEarly[draft.plan as GuardPlan]}</p>
+          </div>
+        )}
+      </div>
+      {!guard && (
+        <>
+          <Choice
+            name="care"
+            legend={<><span class="n">2.</span>{f.q2}</>}
+            value={draft.careHappened === undefined ? undefined : draft.careHappened ? "yes" : "no"}
+            onChange={(v) => set("careHappened", v === "yes")}
+            options={[
+              { value: "yes", label: f.yes },
+              { value: "no", label: f.careNo },
+            ]}
+          />
+          <Choice
+            name="harm"
+            legend={<><span class="n">3.</span>{f.q3}</>}
+            value={draft.doctorSaysHarm}
+            onChange={(v) => set("doctorSaysHarm", v)}
+            row
+            options={[
+              { value: "yes", label: f.yes },
+              { value: "no", label: f.no },
+              { value: "not_asked", label: f.notAsked },
+            ]}
+          />
+          <Choice
+            name="resubmitted"
+            legend={<><span class="n">4.</span>{f.q4}</>}
+            value={draft.officeResubmitted}
+            onChange={(v) => set("officeResubmitted", v)}
+            row
+            options={[
+              { value: "yes", label: f.yes },
+              { value: "no", label: f.no },
+              { value: "dont_know", label: f.dontKnow },
+            ]}
+          />
+        </>
+      )}
       <div class="question">
         <label for="state" class="q-label">
-          <span class="n">5.</span>
+          <span class="n">{guard ? "2." : "5."}</span>
           {f.q5}
         </label>
         <select id="state" value={draft.state ?? ""} onChange={(e) => set("state", (e.currentTarget as HTMLSelectElement).value)}>
@@ -171,19 +191,27 @@ export function Form(props: {
 
       {missing.length > 0 && !tried && (
         <p class="small muted" id="answer-first">
-          {f.answerFirst}
+          {guard ? f.guardFirst : f.answerFirst}
         </p>
       )}
-      <div class="actions">
-        <button class="btn block" type="button" aria-describedby={missing.length > 0 ? "answer-first" : undefined} onClick={() => go("read")}>
-          {f.read}
-        </button>
-        <div class="alt">
-          <button class="linkish" type="button" aria-describedby={missing.length > 0 ? "answer-first" : undefined} onClick={() => go("manual")}>
-            {f.manual}
+      {guard ? (
+        <div class="actions">
+          <button class="btn block" type="button" aria-describedby={missing.length > 0 ? "answer-first" : undefined} onClick={() => go("guard")}>
+            {f.guardSee}
           </button>
         </div>
-      </div>
+      ) : (
+        <div class="actions">
+          <button class="btn block" type="button" aria-describedby={missing.length > 0 ? "answer-first" : undefined} onClick={() => go("read")}>
+            {f.read}
+          </button>
+          <div class="alt">
+            <button class="linkish" type="button" aria-describedby={missing.length > 0 ? "answer-first" : undefined} onClick={() => go("manual")}>
+              {f.manual}
+            </button>
+          </div>
+        </div>
+      )}
 
       <section class="samples" id="samples" aria-labelledby="samples-h">
         <p id="samples-h">{f.samplesIntro}</p>

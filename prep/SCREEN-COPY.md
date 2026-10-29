@@ -19,6 +19,7 @@ Every word on every screen, written before the build so the 48 hours go to build
 - Label: Photo of your letter
 - Button: Take or choose a photo
 - Hint: Lay it flat with the whole page in frame. We read it, then throw the photo away.
+- Prototype notice (bold): This is a prototype: use a sample or a made-up letter, not a real letter with your personal information.
 - After choosing: Change photo
 
 **Questions**
@@ -32,6 +33,8 @@ Every word on every screen, written before the build so the 48 hours go to build
    Yes · No · Don't know
 5. What state do you live in? (dropdown, Arkansas first)
 
+**Medicare, Medicaid or Not sure:** questions 2–4 hide, the state becomes question 2, and a notice appears under question 1, e.g. "Medicare has its own appeal rules, which this prototype doesn't cover, so it won't read your letter. Your next step is to call the number on your letter, and free counselors can help." The main button becomes **See who to call** and goes straight to the plan-type guard. Nothing is read.
+
 **Main button:** Read my letter
 
 **Below the button:**
@@ -44,7 +47,7 @@ Every word on every screen, written before the build so the 48 hours go to build
 
 ## 2. Check what we read
 
-**Always shown** before any result, with the deadline and the reason at the top. The reader test (READER-TEST.md) showed Gemma rates itself 1.0 on everything, including a quote it got wrong, so its confidence score can't decide whether to ask. Highlight a field when the model left it empty, or, if you build the OCR cross-check (stretch goal), when the two reads disagree.
+**Shown for every letter that's read or typed in** before any result, with the deadline and the reason at the top. The reader test (READER-TEST.md) showed Gemma rates itself 1.0 on everything, including a quote it got wrong, so its confidence score can't decide whether to ask. Highlight a field when the model left it empty, or, if you build the OCR cross-check (stretch goal), when the two reads disagree.
 
 **Headline:** Check what we read
 
@@ -65,6 +68,8 @@ Reason picker (shown if the reason is unclear): Prior authorization missing · M
 **Button:** Looks right, show my next step
 
 ---
+
+**After editing the reason** (AI or sample readings): "You changed the reason. Does the kind of reason below still fit? It decides your next step." with a **Yes, it still fits** button. Continue is held until the user picks a kind or presses that button.
 
 ## 3. Results
 
@@ -90,7 +95,7 @@ Every result has, in order: the headline, one sentence on why, the steps, the **
 2. Ask them to tell you when it's been sent.
 3. If it's denied again, come back. Your next step will be an appeal.
 
-**Keep this:** If you end up appealing, your deadline as printed is "[deadline quote]".
+**Deadline box** (after the steps): the deadline as printed, then: Asking the office to resubmit may not pause the appeal deadline on your letter. If it gets close and the claim still isn't fixed, ask your plan whether you should file an appeal too.
 
 ### Appeal
 

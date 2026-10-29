@@ -16,7 +16,7 @@
     {
       "id": "check",
       "label": "2 · Check what we read",
-      "text": "The AI reads the letter live and copies what's printed: what was denied, why, the deadline, and who to call. Then a second reader, running on the phone, checks those exact words against the photo."
+      "text": "The AI reads the letter live and copies what's printed: what was denied, why, the deadline, and who to call. Then a second reader, running on the phone, checks the deadline, the reason and the phone number against the photo."
     },
     {
       "id": "correctFax",
@@ -61,12 +61,12 @@
     {
       "id": "spanish",
       "label": "En español",
-      "text": "It also works in Spanish, while the letter's own words stay exactly as printed."
+      "text": "It also works in Spanish, and the letter's own words aren't translated, so you can check them against the paper."
     },
     {
       "id": "end",
       "label": "AppealPath",
-      "text": "AppealPath is a prototype, not medical or legal advice, and it's built to store nothing. It gets people from a confusing letter to the right phone call."
+      "text": "AppealPath is a prototype, not medical or legal advice, and it doesn't save your photo or answers. It gets people from a confusing letter to the right phone call."
     }
   ]
 }
