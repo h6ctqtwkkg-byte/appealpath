@@ -1,17 +1,61 @@
-// Screen 2: always shown. The user checks the deadline and the reason against the letter before any next step.
+// Screen 2: always shown. The user checks the deadline and the reason against the letter before any next step, with the
+// second reader (Tesseract, on the device) saying whether the AI's words are really on the photo, and where.
 // prep/READER-TEST.md: the model rated itself 100% sure on a quote it got wrong, so nothing here is skipped on confidence.
-import { useState } from "preact/hooks";
-import { CATEGORIES, CATEGORY_LABELS, type Category, type Reading } from "../shared/types";
+import { useRef, useState } from "preact/hooks";
+import { FOUND, findPhone, findQuote, type Box } from "../shared/match";
+import { CATEGORIES, type Category, type Reading } from "../shared/types";
+import { useT } from "./i18n";
 import type { Photo } from "./image";
-import { Choice } from "./ui";
+import type { OcrResult } from "./ocr";
+import { Choice, LetterImage } from "./ui";
 
 type Source = "ai" | "sample" | "manual";
+export type OcrState = { status: "none" | "running" | "failed" } | { status: "done"; result: OcrResult };
+type Verdict = "exact" | "close" | "notFound" | "fax";
 
 /** Enough rows to show a copied sentence without scrolling inside the box on a phone. */
 const rowsFor = (text: string | null) => Math.min(8, Math.max(2, Math.ceil((text?.length ?? 0) / 32)));
 
+function quoteVerdict(text: string | null, ocr: OcrState): { verdict: Verdict; boxes: Box[] } | null {
+  if (!text?.trim() || ocr.status !== "done") return null;
+  const m = findQuote(text, ocr.result.words);
+  if (!m || m.score < FOUND) return { verdict: "notFound", boxes: m?.boxes ?? [] };
+  return { verdict: m.exact ? "exact" : "close", boxes: m.boxes };
+}
+
+function phoneVerdict(text: string | null, ocr: OcrState): { verdict: Verdict; boxes: Box[] } | null {
+  if (!text?.trim() || ocr.status !== "done") return null;
+  const m = findPhone(text, ocr.result.words);
+  if (!m) return { verdict: "notFound", boxes: [] };
+  return { verdict: m.fax ? "fax" : "exact", boxes: m.boxes };
+}
+
+function SecondCheck(props: { ocr: OcrState; result: { verdict: Verdict; boxes: Box[] } | null; onShow: (boxes: Box[]) => void; active: boolean }) {
+  const t = useT().second;
+  if (props.ocr.status === "none") return null;
+  if (props.ocr.status === "running") return <p class="second running">{t.running}</p>;
+  if (props.ocr.status === "failed") return <p class="second warn">{t.failed}</p>;
+  if (!props.result) return null;
+  const { verdict, boxes } = props.result;
+  const ok = verdict === "exact";
+  return (
+    <p class={ok ? "second ok" : "second warn"}>
+      <span class="mark" aria-hidden="true">
+        {ok ? "✓" : "!"}
+      </span>
+      <span>{t[verdict]}</span>
+      {boxes.length > 0 && (
+        <button class="linkish" type="button" aria-pressed={props.active} onClick={() => props.onShow(boxes)}>
+          {props.active ? t.shown : t.show}
+        </button>
+      )}
+    </p>
+  );
+}
+
 function TextField(props: { id: string; label: string; value: string | null; onInput: (v: string | null) => void; help?: string; quote?: boolean }) {
   const Tag = props.quote ? "textarea" : "input";
+  const helpId = props.help ? `${props.id}-help` : undefined;
   return (
     <div class={props.value ? "field" : "field missing"}>
       <label for={props.id}>{props.label}</label>
@@ -19,11 +63,17 @@ function TextField(props: { id: string; label: string; value: string | null; onI
         id={props.id}
         type={props.quote ? undefined : "text"}
         class={props.quote ? "quote-input" : undefined}
+        lang={props.quote ? "en" : undefined}
         rows={props.quote ? rowsFor(props.value) : undefined}
+        aria-describedby={helpId}
         value={props.value ?? ""}
         onInput={(e: Event) => props.onInput((e.currentTarget as HTMLInputElement).value || null)}
       />
-      {props.help && <p class="help">{props.help}</p>}
+      {props.help && (
+        <p class="help" id={helpId}>
+          {props.help}
+        </p>
+      )}
     </div>
   );
 }
@@ -32,65 +82,92 @@ export function Check(props: {
   reading: Reading;
   setReading: (r: Reading) => void;
   photo: Photo | null;
+  ocr: OcrState;
   source: Source;
   capturedAt?: string;
   onConfirm: () => void;
   onBack: () => void;
 }) {
-  const { reading: r, setReading } = props;
+  const all = useT();
+  const t = all.check;
+  const { reading: r, setReading, ocr } = props;
   const set = <K extends keyof Reading>(k: K, v: Reading[K]) => setReading({ ...r, [k]: v });
   const manual = props.source === "manual";
   const several = r.deniedServices.length > 1;
   // Decided once, so typing a deadline into the "not found" box doesn't swap the box out from under the cursor.
   const [deadlineFound] = useState(r.deadlineQuote !== null);
+  const [highlight, setHighlight] = useState<{ field: string; boxes: Box[] } | null>(null);
+  const [letterOpen, setLetterOpen] = useState(typeof window !== "undefined" && window.innerWidth >= 760);
+  const letterRef = useRef<HTMLDetailsElement>(null);
+
+  const deadlineCheck = quoteVerdict(r.deadlineQuote, ocr);
+  const reasonCheck = quoteVerdict(r.reasonQuote, ocr);
+  const phoneCheck = phoneVerdict(r.appealPhone, ocr);
+
+  function show(field: string, boxes: Box[]) {
+    if (highlight?.field === field) return setHighlight(null);
+    setHighlight({ field, boxes });
+    setLetterOpen(true);
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    requestAnimationFrame(() => letterRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" }));
+  }
+
+  const second = (field: string, result: { verdict: Verdict; boxes: Box[] } | null) => (
+    <SecondCheck ocr={ocr} result={result} active={highlight?.field === field} onShow={(boxes) => show(field, boxes)} />
+  );
 
   return (
-    <main class="wrap wide">
-      <h1>{manual ? "Enter what your letter says" : "Check what we read"}</h1>
-      <p class="lede">
-        {manual
-          ? "Copy the deadline and the reason from your letter. Leave anything blank that isn't printed."
-          : "Check the deadline and the reason against your letter. Fix anything that's wrong; we won't guess."}
-      </p>
-      {props.source === "sample" && (
-        <p class="sample-tag">Sample letter: read ahead of time{props.capturedAt ? ` (${props.capturedAt})` : ""}, no AI used just now.</p>
-      )}
+    <main class="wrap wide" id="main">
+      <h1>{manual ? t.titleManual : t.titleAi}</h1>
+      <p class="lede">{manual ? t.ledeManual : t.ledeAi}</p>
+      {props.source === "sample" && <p class="sample-tag">{t.sampleTag(props.capturedAt)}</p>}
       {!r.isDenial && !manual && (
         <div class="notice" role="alert">
-          <p>This doesn't look like an insurance denial. If it is, fill in the details below.</p>
+          <p>{t.notDenial}</p>
         </div>
       )}
+      {ocr.status !== "none" && <p class="small muted">{all.second.about}</p>}
 
       <div class={props.photo ? "check-layout with-photo" : "check-layout"}>
         {props.photo && (
-          <details class="letter-view" open={typeof window !== "undefined" && window.innerWidth >= 760}>
-            <summary>Show your letter</summary>
-            <a href={props.photo.preview} target="_blank" rel="noopener">
-              <img src={props.photo.preview} alt="Your letter" />
+          <details class="letter-view" open={letterOpen} ref={letterRef} onToggle={(e) => setLetterOpen((e.currentTarget as HTMLDetailsElement).open)}>
+            <summary>{t.showLetter}</summary>
+            <a href={props.photo.preview} target="_blank" rel="noopener" aria-label={t.openFull}>
+              <LetterImage
+                src={props.photo.preview}
+                alt=""
+                boxes={highlight?.boxes}
+                width={ocr.status === "done" ? ocr.result.width : undefined}
+                height={ocr.status === "done" ? ocr.result.height : undefined}
+              />
             </a>
           </details>
         )}
 
         <div>
           {deadlineFound || manual ? (
-            <TextField
-              id="deadline"
-              label="Your appeal deadline, as printed"
-              value={r.deadlineQuote}
-              onInput={(v) => set("deadlineQuote", v)}
-              quote
-              help={manual ? "Copy it word for word. If your letter doesn't give one, leave this blank." : "Copied word for word from your letter. Fix it if it doesn't match."}
-            />
+            <>
+              <TextField
+                id="deadline"
+                label={t.deadlineLabel}
+                value={r.deadlineQuote}
+                onInput={(v) => set("deadlineQuote", v)}
+                quote
+                help={manual ? t.deadlineHelpManual : t.deadlineHelpAi}
+              />
+              {second("deadline", deadlineCheck)}
+            </>
           ) : (
             <div class="field missing">
-              <div class="label">Your appeal deadline</div>
-              <p style="margin: 0 0 10px">We didn't find a deadline on your letter.</p>
+              <div class="label">{t.deadlineMissingLabel}</div>
+              <p style="margin: 0 0 10px">{t.deadlineMissing}</p>
               <label for="deadline-typed" class="small muted">
-                If your letter does show one, type it exactly as printed:
+                {t.deadlineTypeIt}
               </label>
               <input
                 id="deadline-typed"
                 type="text"
+                lang="en"
                 value={r.deadlineQuote ?? ""}
                 onInput={(e) => set("deadlineQuote", (e.currentTarget as HTMLInputElement).value || null)}
               />
@@ -98,22 +175,24 @@ export function Check(props: {
           )}
 
           <div class={r.category === "unclear" ? "field key missing" : "field key"}>
-            <label for="reason">Why it was denied, as printed</label>
+            <label for="reason">{t.reasonLabel}</label>
             <textarea
               id="reason"
               class="quote-input"
+              lang="en"
               rows={rowsFor(r.reasonQuote)}
-              placeholder={manual ? "Copy the reason from your letter" : "We couldn't find a clear reason. Copy it here if your letter gives one."}
+              placeholder={manual ? t.reasonPlaceholderManual : t.reasonPlaceholderAi}
               value={r.reasonQuote ?? ""}
               onInput={(e) => set("reasonQuote", (e.currentTarget as HTMLTextAreaElement).value || null)}
             />
-            {!manual && r.reasonQuote && <p class="help">Copied word for word from your letter. Fix it if it doesn't match.</p>}
+            {!manual && r.reasonQuote && <p class="help">{t.reasonHelpAi}</p>}
+            {second("reason", reasonCheck)}
             <Choice<Category>
               name="category"
-              legend={<span class="small muted">{manual ? "Which of these is closest?" : "We read this as:"}</span>}
+              legend={<span class="small muted">{manual ? t.categoryLegendManual : t.categoryLegendAi}</span>}
               value={r.category}
               onChange={(v) => set("category", v)}
-              options={CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABELS[c] }))}
+              options={CATEGORIES.map((c) => ({ value: c, label: all.categories[c] }))}
             />
           </div>
 
@@ -121,43 +200,44 @@ export function Check(props: {
             <div class="field">
               <Choice
                 name="service"
-                legend="This letter lists more than one denied service. Which one do you want help with?"
+                legend={t.severalLegend}
                 value={r.service ?? undefined}
                 onChange={(v) => set("service", v)}
                 options={r.deniedServices.map((s) => ({ value: s, label: s }))}
               />
             </div>
           ) : (
-            <TextField id="service" label="What was denied" value={r.service} onInput={(v) => set("service", v)} help={r.service ? undefined : "What care or service was denied?"} />
+            <TextField id="service" label={t.serviceLabel} value={r.service} onInput={(v) => set("service", v)} help={r.service ? undefined : t.serviceMissing} />
           )}
 
           <TextField
             id="phone"
-            label="Phone number for appeals"
+            label={t.phoneLabel}
             value={r.appealPhone}
             onInput={(v) => set("appealPhone", v)}
-            help={r.appealPhone ? undefined : "Not found. Check the back of your insurance card."}
+            help={r.appealPhone ? undefined : t.phoneMissing}
           />
+          {second("phone", phoneCheck)}
 
           <details class="more">
-            <summary>More details for your appeal letter</summary>
-            <TextField id="reference" label="Reference or claim number" value={r.reference} onInput={(v) => set("reference", v)} />
-            <TextField id="plan" label="Plan name" value={r.planName} onInput={(v) => set("planName", v)} />
-            <TextField id="member" label="Member name" value={r.memberName} onInput={(v) => set("memberName", v)} />
-            <TextField id="memberid" label="Member ID" value={r.memberId} onInput={(v) => set("memberId", v)} />
-            <TextField id="date" label="Date of the letter" value={r.letterDate} onInput={(v) => set("letterDate", v)} />
-            <TextField id="address" label="Where to send an appeal" value={r.appealAddress} onInput={(v) => set("appealAddress", v)} />
-            <TextField id="provider" label="Doctor or clinic" value={r.provider} onInput={(v) => set("provider", v)} />
-            <TextField id="expedited" label="Phone for urgent appeals" value={r.expeditedPhone} onInput={(v) => set("expeditedPhone", v)} />
+            <summary>{t.more}</summary>
+            <TextField id="reference" label={t.fields.reference} value={r.reference} onInput={(v) => set("reference", v)} />
+            <TextField id="plan" label={t.fields.plan} value={r.planName} onInput={(v) => set("planName", v)} />
+            <TextField id="member" label={t.fields.member} value={r.memberName} onInput={(v) => set("memberName", v)} />
+            <TextField id="memberid" label={t.fields.memberId} value={r.memberId} onInput={(v) => set("memberId", v)} />
+            <TextField id="date" label={t.fields.date} value={r.letterDate} onInput={(v) => set("letterDate", v)} />
+            <TextField id="address" label={t.fields.address} value={r.appealAddress} onInput={(v) => set("appealAddress", v)} />
+            <TextField id="provider" label={t.fields.provider} value={r.provider} onInput={(v) => set("provider", v)} />
+            <TextField id="expedited" label={t.fields.expedited} value={r.expeditedPhone} onInput={(v) => set("expeditedPhone", v)} />
           </details>
 
           <div class="actions">
             <button class="btn block" type="button" onClick={props.onConfirm}>
-              Looks right, show my next step
+              {t.confirm}
             </button>
             <div class="alt">
               <button class="linkish" type="button" onClick={props.onBack}>
-                Back to the questions
+                {t.back}
               </button>
             </div>
           </div>

@@ -1,40 +1,97 @@
 {
-  "measuredOn": "2026-10-28",
-  "images": "clean digital images of the printed pages, not phone photos",
-  "model": "google/gemma-4-26b-a4b-it",
-  "photos": 12,
-  "fields": [
+  "runs": [
     {
-      "name": "Service",
-      "right": 12,
-      "empty": 0,
-      "wrong": 0
+      "measuredOn": "2026-10-29",
+      "images": "simulated phone-like images: tilted, slightly blurred, shadowed and heavily compressed",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 14,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 13,
+          "empty": 1,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 12,
+          "empty": 0,
+          "wrong": 1
+        },
+        {
+          "name": "Deadline",
+          "right": 13,
+          "empty": 1,
+          "wrong": 0
+        },
+        {
+          "name": "Phone",
+          "right": 12,
+          "empty": 0,
+          "wrong": 2
+        }
+      ],
+      "results": {
+        "right": 14,
+        "total": 14
+      },
+      "secondReader": {
+        "confirmed": 22,
+        "correct": 24,
+        "caught": 2,
+        "wrong": 2
+      },
+      "misses": [
+        "L02-blurry.jpg: picked (479) 555-0178 as the phone number, which isn't the letter's number to call",
+        "L04.jpg: picked (479) 555-0178 as the phone number, which isn't the letter's number to call",
+        "L11.jpg: reason read as not_covered (should be out_of_network)"
+      ]
     },
     {
-      "name": "Reason",
-      "right": 11,
-      "empty": 0,
-      "wrong": 0
-    },
-    {
-      "name": "Deadline",
-      "right": 12,
-      "empty": 0,
-      "wrong": 0
-    },
-    {
-      "name": "Phone",
-      "right": 10,
-      "empty": 0,
-      "wrong": 2
+      "measuredOn": "2026-10-29",
+      "images": "clean digital images of the printed pages, not phone photos",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 12,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 12,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 11,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Deadline",
+          "right": 12,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Phone",
+          "right": 10,
+          "empty": 0,
+          "wrong": 2
+        }
+      ],
+      "results": {
+        "right": 12,
+        "total": 12
+      },
+      "secondReader": {
+        "confirmed": 21,
+        "correct": 21,
+        "caught": 2,
+        "wrong": 2
+      },
+      "misses": [
+        "L04.jpg: picked (479) 555-0178 as the phone number, which isn't the letter's number to call",
+        "L07.jpg: picked (479) 555-0178 as the phone number, which isn't the letter's number to call"
+      ]
     }
-  ],
-  "results": {
-    "right": 12,
-    "total": 12
-  },
-  "misses": [
-    "L04.jpg: phone read as (479) 555-0178",
-    "L07.jpg: phone read as (479) 555-0178"
   ]
 }

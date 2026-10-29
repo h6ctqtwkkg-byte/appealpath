@@ -1,29 +1,17 @@
 // The three demo letters (fictional, from test-letters/). Their readings in public/samples/readings.json are real
 // model answers captured ahead of time by scripts/capture-samples.mjs, so a sample never spends neurons and always works.
+// Their labels are in i18n.ts (form.samples).
 import type { Answers, Reading } from "../shared/types";
 
 export interface Sample {
   id: string;
-  label: string;
   answers: Answers;
 }
 
 export const SAMPLES: Sample[] = [
-  {
-    id: "L01",
-    label: "MRI: no prior authorization",
-    answers: { plan: "job", careHappened: false, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" },
-  },
-  {
-    id: "L02",
-    label: "Physical therapy: not medically necessary",
-    answers: { plan: "marketplace", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" },
-  },
-  {
-    id: "L03",
-    label: "Rehab after a stroke: urgent",
-    answers: { plan: "job", careHappened: false, doctorSaysHarm: "yes", officeResubmitted: "no", state: "AR" },
-  },
+  { id: "L01", answers: { plan: "job", careHappened: false, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" } },
+  { id: "L02", answers: { plan: "marketplace", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" } },
+  { id: "L03", answers: { plan: "job", careHappened: false, doctorSaysHarm: "yes", officeResubmitted: "no", state: "AR" } },
 ];
 
 export interface CapturedReading {

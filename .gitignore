@@ -6,3 +6,5 @@ public/app.js.map
 photos/
 test-letters/renders/
 .DS_Store
+public/ocr/
+test-letters/phone-like/

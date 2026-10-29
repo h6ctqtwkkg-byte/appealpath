@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AppealPath: one-page description</title>
+<style>
+  @page { size: letter; margin: 0.4in 0.5in; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #1a2332; font: 9.6pt/1.32 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  h1 { font-size: 21pt; margin: 0; letter-spacing: -0.01em; color: #1f3f6e; }
+  .tag { font-size: 11.5pt; margin: 2px 0 4px; }
+  .meta { font-size: 8.8pt; color: #4b5567; margin: 0 0 8px; }
+  .banner { background: #1a2332; color: #fff; font-size: 8.8pt; padding: 4px 8px; border-radius: 4px; margin-bottom: 9px; }
+  h2 { font-size: 10.8pt; margin: 9px 0 3px; color: #1f3f6e; text-transform: uppercase; letter-spacing: .05em; }
+  p { margin: 0 0 5px; }
+  ol, ul { margin: 0 0 5px; padding-left: 18px; }
+  li { margin-bottom: 2px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.3pt; margin: 3px 0 5px; }
+  th, td { border-bottom: 1px solid #dcd7cb; padding: 3px 4px; text-align: left; vertical-align: top; }
+  th { font-size: 8.3pt; text-transform: uppercase; letter-spacing: .04em; color: #4b5567; }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 3px 0 5px; }
+  .three div { border: 1.5px solid; border-radius: 6px; padding: 5px 7px; font-size: 9.2pt; }
+  .three b { display: block; font-size: 9.6pt; }
+  .fix { border-color: #1b6b5a !important; background: #e7f3ef; }
+  .appeal { border-color: #2d4a9a !important; background: #e9eefa; }
+  .urgent { border-color: #a1261b !important; background: #fbecea; }
+  .links { font-size: 9.2pt; border-top: 1.5px solid #1a2332; padding-top: 5px; margin-top: 8px; }
+  .todo { background: #fff3b0; padding: 0 3px; }
+  a { color: #1f3f6e; }
+</style>
+</head>
+<body>
+  <h1>AppealPath</h1>
+  <p class="tag"><strong>From a confusing health insurance denial letter to the right next step.</strong></p>
+  <p class="meta">DSH Hacks V2 · AI × Healthcare · built solo by Noah · English and Spanish</p>
+  <div class="banner"><strong>Prototype.</strong> Not medical or legal advice. All letters shown or tested are fictional; no real patient data was used.</div>
+
+  <div class="cols">
+    <div>
+      <h2>The problem</h2>
+      <p>When a health plan denies care, the letter is full of codes, policy names and fine print. People don't know whether to call their doctor's office, file an appeal, or ask for an urgent review, and the deadline is easy to miss. The care the doctor already ordered just waits. A denial is a barrier to <em>access</em>, not a diagnosis problem.</p>
+      <h2>Who it's for</h2>
+      <p>Patients and caregivers on job-based or Marketplace plans holding a denial letter, often on a phone and stressed.</p>
+      <h2>How it works</h2>
+      <ol>
+        <li>Take a photo of the letter and answer 5 questions (plan type, has the care happened, does your doctor say waiting could seriously harm you, has the office resubmitted, your state).</li>
+        <li>An AI vision model (Gemma 4 on Cloudflare Workers AI) copies the key facts word for word: what was denied, why, the deadline, who to call.</li>
+        <li>A <strong>second reader</strong> (Tesseract, running on the user's own device) looks for those exact words on the photo, highlights where they're printed, and flags anything it can't find, including fax numbers picked as phone numbers.</li>
+        <li>The user checks the deadline and the reason. Then fixed rules, each with a source, pick one next step:</li>
+      </ol>
+      <div class="three">
+        <div class="fix"><b>Fix &amp; resubmit</b>Missing prior authorization, records or a billing fix</div>
+        <div class="appeal"><b>Appeal</b>Not medically necessary, not covered, out of network</div>
+        <div class="urgent"><b>Urgent review today</b>Care is still ahead and waiting could cause harm</div>
+      </div>
+      <p>Each result gives a phone script, a printable appeal letter filled with the letter's own words, free help (Arkansas contacts), and a calendar reminder when a date is printed. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess.</p>
+    </div>
+    <div>
+      <h2>What makes it different</h2>
+      <ul>
+        <li><strong>The AI reads; it never decides.</strong> Every next step traces to a rule and a source (Healthcare.gov) or is labeled as a design choice.</li>
+        <li><strong>It doesn't trust AI confidence.</strong> In testing, the model rated itself 100% sure about a sentence it had copied with a word missing. So two independent readers have to agree, and the user checks before anything is decided.</li>
+        <li><strong>It never makes up a deadline.</strong> It quotes the one printed on the letter, or says there isn't one.</li>
+        <li><strong>Nothing is stored:</strong> no accounts, no database; the photo is read and then dropped.</li>
+      </ul>
+      <h2>How well it works</h2>
+      <table>
+        <tr><th>Test images (fictional letters)</th><th>Right next step</th><th>Second reader</th></tr>
+        <tr><td>12 clean digital images</td><td><strong>12 / 12</strong></td><td>21/21 correct values confirmed; 2/2 wrong ones flagged</td></tr>
+        <tr><td>14 simulated phone photos (tilted, blurred, shadowed, compressed)</td><td><strong>14 / 14</strong></td><td>22/24 confirmed; 2/2 wrong ones flagged</td></tr>
+      </table>
+      <p style="font-size: 9pt">Known misses: the AI sometimes picked a fax number as the phone, and the second reader flagged every one. The reading instructions were tuned on these same letters, so these are best-case numbers; real-world accuracy will be lower, which is why the user always checks.</p>
+      <h2>What it won't do</h2>
+      <p>Contact insurers, file anything, predict whether an appeal will win, diagnose, give legal advice, or store photos or answers.</p>
+      <h2>Built with</h2>
+      <p>Cloudflare Workers (free plan) and Workers AI (Gemma 4, Llama 4 Scout as backup); Tesseract.js in the browser; Preact; TypeScript; 40 automated tests. Checked against WCAG 2.1 AA (7 issues found and fixed). AI coding tools were used during the build, as DSH allows.</p>
+      <h2>Sources</h2>
+      <p style="font-size: 9pt">Healthcare.gov (internal appeals; external review) · Arkansas Insurance Department (consumer services; external review) · U.S. Department of Labor (EBSA)</p>
+    </div>
+  </div>
+
+  <div class="links">
+    <strong>Try it:</strong> <a href="https://appealpath.7zhvt4rjzh.workers.dev">appealpath.7zhvt4rjzh.workers.dev</a> ·
+    <strong>Code:</strong> <a href="https://github.com/h6ctqtwkkg-byte/appealpath">github.com/h6ctqtwkkg-byte/appealpath</a> ·
+    <strong>Demo video:</strong> <span class="todo">add the link here before submitting</span>
+  </div>
+</body>
+</html>

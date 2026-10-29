@@ -20,17 +20,6 @@ export const FIX_TYPE: readonly Category[] = ["prior_auth_missing", "missing_inf
 /** Reasons the plan decided on the merits, which only an appeal can change. */
 export const APPEAL_TYPE: readonly Category[] = ["not_medically_necessary", "not_covered", "out_of_network", "experimental"];
 
-export const CATEGORY_LABELS: Record<Category, string> = {
-  prior_auth_missing: "Prior authorization missing",
-  missing_info: "Missing paperwork or records",
-  billing_error: "Billing or coding mistake",
-  not_medically_necessary: "Not medically necessary",
-  not_covered: "Not covered by my plan",
-  out_of_network: "Out of network",
-  experimental: "Experimental",
-  unclear: "Not sure",
-};
-
 /** The five questions on the form. */
 export interface Answers {
   plan: PlanType;

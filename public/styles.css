@@ -6,9 +6,10 @@
   --surface: #ffffff;
   --ink: #1a2332;
   --ink-2: #4b5567;
-  --ink-3: #6b7383;
+  --ink-3: #626a7a;
   --rule: #dcd7cb;
   --rule-strong: #b9b2a2;
+  --control: #857f70;
   --primary: #1f3f6e;
   --primary-ink: #ffffff;
   --primary-hover: #183259;
@@ -41,6 +42,7 @@
     --ink-3: #959eac;
     --rule: #333b48;
     --rule-strong: #4a5363;
+    --control: #778195;
     --primary: #8fb3ff;
     --primary-ink: #0f1520;
     --primary-hover: #a9c4ff;
@@ -149,14 +151,14 @@ legend .n { display: inline-block; min-width: 1.6em; color: var(--ink-3); font-w
 }
 .choice span::before {
   content: ""; flex: none; width: 18px; height: 18px; border-radius: 50%;
-  border: 2px solid var(--rule-strong); background: var(--surface);
+  border: 2px solid var(--control); background: var(--surface);
 }
 .choice input:checked + span { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
 .choice input:checked + span::before { border-color: var(--primary); background: radial-gradient(circle, var(--primary) 0 4px, var(--surface) 5px); }
 .choice input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
 select, input[type="text"], textarea {
   width: 100%; min-height: 50px; padding: 12px 14px; font: 17px/1.4 var(--sans); color: var(--ink);
-  border: 1.5px solid var(--rule-strong); border-radius: var(--radius); background: var(--surface);
+  border: 1.5px solid var(--control); border-radius: var(--radius); background: var(--surface);
 }
 textarea { min-height: 88px; resize: vertical; }
 textarea.quote-input { font-family: var(--serif); background: var(--quote-bg); }
@@ -274,3 +276,54 @@ footer.foot p { margin-bottom: 6px; }
   body.print-letter .appeal-letter, body.print-letter .appeal-letter * { visibility: visible; }
   body.print-letter .appeal-letter { position: absolute; left: 0; top: 0; width: 100%; border: 0; padding: 0.6in; }
 }
+
+/* Language, judge shortcut, skip link */
+.top-links { display: flex; align-items: center; gap: 16px; font-size: 15px; }
+.lang { font-size: 15px; }
+.review-note { display: block; font-size: 13px; opacity: .85; margin-top: 2px; }
+.try-top { font-size: 15px; color: var(--ink-2); margin: -10px 0 20px; }
+.skip { position: absolute; left: 8px; top: -60px; background: var(--surface); color: var(--primary); padding: 10px 14px; border-radius: 8px; z-index: 10; }
+.skip:focus { top: 8px; }
+.error-text { color: var(--urgent); margin-top: 8px; }
+.question { margin: 0 0 20px; }
+.q-label { display: block; font-weight: 650; font-size: 17px; margin-bottom: 8px; }
+.q-label .n { display: inline-block; min-width: 1.6em; color: var(--ink-3); font-weight: 600; }
+
+/* Second reader */
+.second { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 14px; margin: -4px 0 14px; padding: 8px 12px; border-radius: 8px; }
+.second.ok { background: var(--fix-bg); color: var(--ink); }
+.second.warn { background: var(--warn-bg); color: var(--ink); }
+.second.running { color: var(--ink-2); padding-left: 0; }
+.second .mark { font-weight: 800; }
+.second.ok .mark { color: var(--fix); }
+.second.warn .mark { color: var(--urgent); }
+.second .linkish { font-size: 14px; }
+.field .second { margin: 10px 0 4px; }
+.letter-frame { position: relative; }
+/* A see-through marker: multiply keeps the printed words readable underneath. */
+.letter-frame .hl {
+  position: absolute; border-radius: 3px; pointer-events: none;
+  background: rgba(255, 205, 0, .38); mix-blend-mode: multiply;
+  outline: 2px solid #c98a00; outline-offset: 1px;
+}
+
+/* Reason explanation, calendar, accuracy runs */
+.reason-info { border-left: 4px solid var(--rule-strong); padding: 2px 0 2px 16px; margin: 0 0 18px; }
+.reason-info h3 { margin-top: 10px; }
+.reason-info p { margin-bottom: 8px; }
+.calendar { margin-top: 12px; }
+.calendar .btn { min-height: 44px; font-size: 16px; }
+.calendar p { margin: 6px 0 0; }
+.run { margin-bottom: 18px; }
+.how td, .how th[scope="row"] { font-weight: normal; text-transform: none; letter-spacing: 0; color: var(--ink); font-size: 15px; }
+
+/* Accessibility fixes (prep/ACCESSIBILITY.md) */
+/* 2.4.7: the photo picker's real input is visually hidden, so show focus on its label. */
+label.btn:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* 2.5.8: text-style buttons get a full-size tap area without looking like buttons. */
+.linkish { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; margin: 0 -4px; }
+.second .linkish { min-height: 32px; }
+/* Headings that take focus when the screen changes shouldn't show a ring for mouse users. */
+h1[tabindex="-1"]:focus { outline: none; }
+h1[tabindex="-1"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
