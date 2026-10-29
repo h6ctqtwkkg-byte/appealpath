@@ -73,15 +73,15 @@ Local dev uses real Workers AI on your account, so reads count against the free 
 | `src/client/` | The Preact app; all text in `i18n.ts` (English and Spanish) |
 | `public/samples/` | The 5 demo letters (one per rule) and their readings, captured ahead of time from the real model |
 | `test-letters/` | 18 fictional letters (PDF): L01–L12 used while building, L13–L18 held out. The answer key (Markdown + JSON) and saved runs |
-| `prep/` | Routing sources, screen wording, demo script, one-pager, Devpost write-up, reader test, accessibility audit |
+| `prep/` | Routing sources, screen wording, demo script, one-pager, Devpost write-up, reader test, accessibility audit, and kits for the user test, Spanish review and VoiceOver check |
 
 ## Still to do (Noah)
 
 - [ ] Post the DSH questions on Discord (video limit, zip requirement, the stale Nov 8 date, prize delivery for minors).
 - [ ] Print `test-letters/letters.pdf` (18 pages), take the 20 photos into `photos/` (steps in `test-letters/ANSWER-KEY.md`), and run `node scripts/measure.mjs photos "phone photos"`. The held-out letters L13–L18 come out as their own run. Don't change the reading instructions because of them.
-- [ ] Show it to 2–3 real people and write down what they say, word for word.
-- [ ] Have a native Spanish speaker review `src/client/i18n.ts`. It's been proofread once ("denegación", grammar), but not by a native speaker, and the app says so.
-- [ ] Do a 5-minute VoiceOver pass on an iPhone. The accessibility tree has been checked; a person listening hasn't.
+- [ ] Show it to 2–3 real people and write down what they say, word for word. Script and note sheet: `prep/USER-TEST.md`.
+- [ ] Have a native Spanish speaker review the Spanish. Print `prep/spanish-review.pdf` (built from the app's own text by `node scripts/spanish-sheet.mjs`, most important lines first). It's been proofread once ("denegación", grammar), but not by a native speaker, and the app says so.
+- [ ] Do a 5-minute VoiceOver pass on an iPhone with `prep/VOICEOVER-CHECK.md`. The accessibility tree has been checked; a person listening hasn't.
 - [ ] Watch the draft demo (`demo/AppealPath-demo.mp4`, computer voice) and record your own voice over `demo/AppealPath-demo-silent.mp4` if you can. Upload it and add the link to the one-pager.
 
 ## Rules for this project
