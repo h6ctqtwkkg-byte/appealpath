@@ -28,6 +28,8 @@ const SOURCE_LINKS = [
   "https://beta.dol.gov/about/agencies/ebsa/ask-ebsa",
   "https://humanservices.arkansas.gov/contact-us/file-an-appeal/",
   "https://www.medicaid.gov/about-us/where-can-people-get-help-medicaid-chip",
+  "https://www.medicare.gov/providers-services/claims-appeals-complaints/appeals/medicare-health-plans",
+  "https://www.law.cornell.edu/cfr/text/42/438.410",
 ];
 
 function RunTable({ run }: { run: Run }) {

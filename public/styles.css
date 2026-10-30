@@ -176,6 +176,15 @@ textarea.quote-input { font-family: var(--serif); background: var(--quote-bg); }
 .notice p:last-child { margin-bottom: 0; }
 .notice.kind-check { margin: 10px 0; }
 .notice.kind-check p { margin: 0 0 4px; }
+.notice.unconfirmed-gate { margin: 4px 0 14px; }
+.notice.unconfirmed-gate p { margin: 0 0 10px; }
+.unconfirmed-note { display: block; margin-top: 4px; font-family: var(--sans); }
+.trace { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 4px 16px 2px; margin: 0 0 18px; }
+.trace h2 { margin-top: 12px; }
+.trace ol { margin: 8px 0 10px; padding-left: 22px; }
+.trace li { margin-bottom: 8px; color: var(--ink-2); }
+.trace li.hit { color: var(--ink); }
+.trace li strong { color: var(--ink); white-space: nowrap; }
 .photo .hint.demo-only { font-weight: 600; color: var(--ink); }
 .fix-keep { margin: -8px 0 18px; }
 

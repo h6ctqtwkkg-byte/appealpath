@@ -5,6 +5,8 @@
 // case by case. Run `npm run dev` first.
 //   node scripts/measure.mjs <folder> "<what the images are>" [http://127.0.0.1:8792]
 // Files are matched to letters by name: L02.jpg and L02-blurry.jpg both score as L02.
+// REPEAT=2 node scripts/measure.mjs … reads the folder again for the run-to-run spread: the readings go to
+// test-letters/runs/repeats/ and public/accuracy.json is left alone.
 import { execFileSync } from "node:child_process";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -164,7 +166,8 @@ const newRuns = [...groups].map(([heldOut, g]) => ({
 const previous = JSON.parse(await readFile("public/accuracy.json", "utf8").catch(() => "null"));
 const labels = new Set(newRuns.map((x) => x.images));
 const runs = (previous?.runs ?? (previous ? [previous] : [])).filter((x) => !labels.has(x.images));
-await writeFile("public/accuracy.json", JSON.stringify({ runs: [...runs, ...newRuns] }, null, 2) + "\n");
+const repeat = process.env.REPEAT;
+if (!repeat) await writeFile("public/accuracy.json", JSON.stringify({ runs: [...runs, ...newRuns] }, null, 2) + "\n");
 
 let readerCommit = "unknown";
 try {
@@ -173,13 +176,17 @@ try {
   // Not in a git checkout; the run still saves.
 }
 const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const casesFile = `test-letters/runs/${measuredOn}-${slug}.json`;
-await mkdir("test-letters/runs", { recursive: true });
-await writeFile(casesFile, JSON.stringify({ measuredOn, images: label, readerInstructions: `src/read.ts at ${readerCommit}`, neurons: Math.round(neurons), cases }, null, 2) + "\n");
+const runsDir = repeat ? "test-letters/runs/repeats" : "test-letters/runs";
+const casesFile = `${runsDir}/${measuredOn}-${slug}${repeat ? `-repeat-${repeat}` : ""}.json`;
+await mkdir(runsDir, { recursive: true });
+await writeFile(
+  casesFile,
+  JSON.stringify({ measuredOn, images: label, repeat: repeat ? Number(repeat) : undefined, readerInstructions: `src/read.ts at ${readerCommit}`, neurons: Math.round(neurons), runs: newRuns, cases }, null, 2) + "\n",
+);
 
 console.log(`\n${neurons.toFixed(0)} neurons used · every reading saved in ${casesFile}`);
 for (const run of newRuns) {
-  console.log(`\n${run.images}: right next step ${run.results.right}/${run.results.total} · saved in public/accuracy.json`);
+  console.log(`\n${run.images}: right next step ${run.results.right}/${run.results.total}${repeat ? "" : " · saved in public/accuracy.json"}`);
   console.log(`second reader: confirmed ${run.secondReader.confirmed}/${run.secondReader.correct} right values, caught ${run.secondReader.caught}/${run.secondReader.wrong} wrong ones`);
   for (const m of run.misses) console.log(" -", m);
 }

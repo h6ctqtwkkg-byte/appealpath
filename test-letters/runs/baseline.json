@@ -1,0 +1,686 @@
+{
+  "measuredOn": "2026-10-30",
+  "about": "No-AI baseline (scripts/baseline.mjs), one run",
+  "table": [
+    {
+      "images": "Development, clean",
+      "n": 12,
+      "step": "11/12",
+      "reason": "10/11",
+      "deadline": "2/12",
+      "phone": "12/12"
+    },
+    {
+      "images": "Development, simulated phone",
+      "n": 14,
+      "step": "12/14",
+      "reason": "11/13",
+      "deadline": "2/14",
+      "phone": "13/14"
+    },
+    {
+      "images": "Held-out, clean",
+      "n": 6,
+      "step": "5/6",
+      "reason": "5/6",
+      "deadline": "3/6",
+      "phone": "6/6"
+    },
+    {
+      "images": "Held-out, simulated phone",
+      "n": 6,
+      "step": "5/6",
+      "reason": "5/6",
+      "deadline": "0/6",
+      "phone": "5/6"
+    }
+  ],
+  "cases": [
+    {
+      "file": "L01.jpg",
+      "letter": "L01",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "prior_auth_missing",
+        "deadlineQuote": "You have 180 days from the date you receive this notice to file an appeal.",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": true,
+      "phone": true,
+      "step": true,
+      "outcome": "fix",
+      "expected": "fix"
+    },
+    {
+      "file": "L02.jpg",
+      "letter": "L02",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": "HOW TO APPEAL Your appeal must be received by April 19, 2027.",
+        "appealPhone": "(479) 555-0177"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L03.jpg",
+      "letter": "L03",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": "Your right to appeal You may appeal this decision within 180 days of the date you receive this notice.",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L04.jpg",
+      "letter": "L04",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "out_of_network",
+        "deadlineQuote": "HOW TO APPEAL You have 180 days from the date you receive this notice to ask for an appeal.",
+        "appealPhone": "(479) 555-0177"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L05.jpg",
+      "letter": "L05",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": "If you disagree with this decision ‘You may file an appeal within 180 days of the date of this statement.",
+        "appealPhone": "(479) 555-0142"
+      },
+      "reason": false,
+      "deadline": false,
+      "phone": true,
+      "step": false,
+      "outcome": "guard_unclear",
+      "expected": "fix"
+    },
+    {
+      "file": "L06.jpg",
+      "letter": "L06",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "missing_info",
+        "deadlineQuote": "Your right to appeal You may file an appeal within 180 days after you receive this notice.",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L07.jpg",
+      "letter": "L07",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "not_covered",
+        "deadlineQuote": "HOW TO APPEAL Your appeal must be received within 180 days of the date of this notice.",
+        "appealPhone": "(479) 555-0177"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L08.jpg",
+      "letter": "L08",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "prior_auth_missing",
+        "deadlineQuote": "Your right to appeal You have 180 days from the date you receive this notice to file an appeal.",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L09.jpg",
+      "letter": "L09",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": "YOU HAVE THE RIGHT TO APPEAL If you want to appeal, you must ask within 65 days of the date of this notice.",
+        "appealPhone": "(479) 555-0188"
+      },
+      "reason": null,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "guard_plan",
+      "expected": "guard_plan"
+    },
+    {
+      "file": "L10.jpg",
+      "letter": "L10",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": null,
+        "appealPhone": "(479) 555-0142"
+      },
+      "reason": true,
+      "deadline": true,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L11.jpg",
+      "letter": "L11",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "out_of_network",
+        "deadlineQuote": "If you disagree with this decision ‘You may file an appeal within 180 days of receiving this statement.",
+        "appealPhone": "(479) 555-0142"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L12.jpg",
+      "letter": "L12",
+      "condition": "clean",
+      "heldOut": false,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": "If you disagree with this decision You may file an appeal within 180 days of the date of this statement.",
+        "appealPhone": "(479) 555-0142"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "guard_unclear",
+      "expected": "guard_unclear"
+    },
+    {
+      "file": "L13.jpg",
+      "letter": "L13",
+      "condition": "clean",
+      "heldOut": true,
+      "reading": {
+        "category": "prior_auth_missing",
+        "deadlineQuote": "You must file your appeal no later than 180 calendar days after the date you receive this letter.",
+        "appealPhone": "1-800-555-0123"
+      },
+      "reason": true,
+      "deadline": true,
+      "phone": true,
+      "step": true,
+      "outcome": "fix",
+      "expected": "fix"
+    },
+    {
+      "file": "L14.jpg",
+      "letter": "L14",
+      "condition": "clean",
+      "heldOut": true,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": "Your appeal must be postmarked by March 31, 2027.",
+        "appealPhone": "(501) 555-0161"
+      },
+      "reason": true,
+      "deadline": true,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L15.jpg",
+      "letter": "L15",
+      "condition": "clean",
+      "heldOut": true,
+      "reading": {
+        "category": "experimental",
+        "deadlineQuote": "How to appeal You have 180 days from the date of this notice to request an internal appeal.",
+        "appealPhone": "(417) 555-0133"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L16.jpg",
+      "letter": "L16",
+      "condition": "clean",
+      "heldOut": true,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": "How to appeal You may request an appeal within 180 days after you get this letter.",
+        "appealPhone": "(870) 555-0151"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L17.jpg",
+      "letter": "L17",
+      "condition": "clean",
+      "heldOut": true,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": "Appeals must be filed within 180 days of the statement date shown above.",
+        "appealPhone": "1 (888) 555-0119"
+      },
+      "reason": false,
+      "deadline": true,
+      "phone": true,
+      "step": false,
+      "outcome": "guard_unclear",
+      "expected": "fix"
+    },
+    {
+      "file": "L18.jpg",
+      "letter": "L18",
+      "condition": "clean",
+      "heldOut": true,
+      "reading": {
+        "category": "billing_error",
+        "deadlineQuote": "APPEAL To appeal, contact us within 180 days of the date of this notice.",
+        "appealPhone": "1-866-555 0171"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L01.jpg",
+      "letter": "L01",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "prior_auth_missing",
+        "deadlineQuote": "You have 180 days from the date you receive this notice to file an appeal.",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": true,
+      "phone": true,
+      "step": true,
+      "outcome": "fix",
+      "expected": "fix"
+    },
+    {
+      "file": "L02-blurry.jpg",
+      "letter": "L02",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": null,
+        "appealPhone": null
+      },
+      "reason": false,
+      "deadline": false,
+      "phone": false,
+      "step": false,
+      "outcome": "guard_unclear",
+      "expected": "appeal"
+    },
+    {
+      "file": "L02.jpg",
+      "letter": "L02",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": "The services listed above were not medically necessary HOW TO APPEAL Your appeal must be received by April 19, 2027.",
+        "appealPhone": "(479) 555-0177"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L03.jpg",
+      "letter": "L03",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": "Our reviewer found that your rehabilitation needs can be met at a lower level of care, such as & skilled pursing facility or outpatient therapy (Criteria IRF-2) Your right to appeal You may appeal this decision within 180 days of the date you receive this notice.",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L04.jpg",
+      "letter": "L04",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "out_of_network",
+        "deadlineQuote": "| of-network providers, [ HOW TO APPEAL | You have 180 days from the date you receive this notice to ask for an appeal.",
+        "appealPhone": "(479) 555-0177"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L05.jpg",
+      "letter": "L05",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": "\\ If you disagree with this decision You may file an appeal within 180 days of the date of this statement.",
+        "appealPhone": "(479) 555-0142"
+      },
+      "reason": false,
+      "deadline": false,
+      "phone": true,
+      "step": false,
+      "outcome": "guard_unclear",
+      "expected": "fix"
+    },
+    {
+      "file": "L06.jpg",
+      "letter": "L06",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "missing_info",
+        "deadlineQuote": "Your right to appeal You may file an appeal within 180 days after you receive this notice Include any records you or your provider have, including the operative report.",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L07.jpg",
+      "letter": "L07",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "not_covered",
+        "deadlineQuote": "This service is not a covered benefit HOW TO APPEAL Your appeal must be received within 180 days of the date of this notice.",
+        "appealPhone": "(479) 555-0177"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L08-angled.jpg",
+      "letter": "L08",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "prior_auth_missing",
+        "deadlineQuote": "Your right to appeal You have 180 days fro the date you receive this notice to file an appeal Call the Appeals Unit at (479) 555-0143 OF YT 10 Appeals Unit Sample Health Plas: PO Box 000%, ‘Example City, AR 000SC: 1f waiting for 8 standard decision could seriously jeopardize your fe, health or ability 10 TEER maximum function, you maY ask for an expedited appeal bY calling (479) 555-0144 Utilization Management Department sample Health Plan NAL SAMPLE for leet o AppeaPeth — oe 1s Made UF OA rou nur IEE",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L08.jpg",
+      "letter": "L08",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "prior_auth_missing",
+        "deadlineQuote": "Your provider may submit reduest with supporting clinical information, Your right to appeal You have 180 days from the date Jou receive this notice to file an appeal, Call the Appeals Unit at (479) 555-0143 or write to Appeals Unit, Sample Health Plan, PO Box 0001, Example City, AR 00000.",
+        "appealPhone": "(479) 555-0143"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L09.jpg",
+      "letter": "L09",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": "YOU HAVE THE RIGHT TO APPEAL If you want to appeal, you must ask within 65 days of the date of this notice.",
+        "appealPhone": "(479) 555-0188"
+      },
+      "reason": null,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "guard_plan",
+      "expected": "guard_plan"
+    },
+    {
+      "file": "L10.jpg",
+      "letter": "L10",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": null,
+        "appealPhone": "(479) 555-0142"
+      },
+      "reason": true,
+      "deadline": true,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L11.jpg",
+      "letter": "L11",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "out_of_network",
+        "deadlineQuote": "f you disagree with this decision You may file an appeal within 180 days of receiving this statement.",
+        "appealPhone": "(479) 555-0142"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L12.jpg",
+      "letter": "L12",
+      "condition": "phone",
+      "heldOut": false,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": "| If you disagree with this decision You may file an appeal within 180 days of the date of this statement, Call Member Services at (479) 555-0142.",
+        "appealPhone": "(479) 555-0142"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "guard_unclear",
+      "expected": "guard_unclear"
+    },
+    {
+      "file": "L13.jpg",
+      "letter": "L13",
+      "condition": "phone",
+      "heldOut": true,
+      "reading": {
+        "category": "prior_auth_missing",
+        "deadlineQuote": "You must file your appeal no ater than 180 calendar days after the date you receive this letter.",
+        "appealPhone": "1-800-555-0123"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "fix",
+      "expected": "fix"
+    },
+    {
+      "file": "L14.jpg",
+      "letter": "L14",
+      "condition": "phone",
+      "heldOut": true,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": "Your appeal must be postmarked by March 3, 2027.",
+        "appealPhone": "(501) 555-0161"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L15.jpg",
+      "letter": "L15",
+      "condition": "phone",
+      "heldOut": true,
+      "reading": {
+        "category": "experimental",
+        "deadlineQuote": "How to appeal You have 180 days from the date of this notice to request an internal appeal.",
+        "appealPhone": "(417) 555-0133"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L16.jpg",
+      "letter": "L16",
+      "condition": "phone",
+      "heldOut": true,
+      "reading": {
+        "category": "not_medically_necessary",
+        "deadlineQuote": "How to appeal You may request an appeal within 180 days after You get this letter.",
+        "appealPhone": "(870) 555-0151"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": true,
+      "step": true,
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L17.jpg",
+      "letter": "L17",
+      "condition": "phone",
+      "heldOut": true,
+      "reading": {
+        "category": "unclear",
+        "deadlineQuote": "Call Customer Service at 1 (888) 555-0119 Appeals must be filed within 180 days of the statement date shown above.",
+        "appealPhone": "1 (888) 555-0119"
+      },
+      "reason": false,
+      "deadline": false,
+      "phone": true,
+      "step": false,
+      "outcome": "guard_unclear",
+      "expected": "fix"
+    },
+    {
+      "file": "L18.jpg",
+      "letter": "L18",
+      "condition": "phone",
+      "heldOut": true,
+      "reading": {
+        "category": "billing_error",
+        "deadlineQuote": "APPEAL To appeal, contact us within 180 days of the date of this notice.",
+        "appealPhone": "1-866-555-0172"
+      },
+      "reason": true,
+      "deadline": false,
+      "phone": false,
+      "step": true,
+      "outcome": "appeal",
+      "expected": "appeal"
+    }
+  ]
+}

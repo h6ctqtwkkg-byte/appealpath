@@ -36,12 +36,12 @@
     {
       "id": "appeal",
       "label": "3 · Appeal",
-      "text": "The cardiology visit was denied as out of network, so the next step is an appeal. The deadline is quoted from the letter, never calculated, and there's an appeal letter filled in from the letter's own words."
+      "text": "The cardiology visit was denied as out of network, so the next step is an appeal. The deadline is quoted from the letter, never calculated. The app shows why: each rule, in order, up to the one that fit. And there's an appeal letter filled in from the letter's own words."
     },
     {
       "id": "sampleFax",
       "label": "The mistake that matters",
-      "text": "In testing, the AI's most dangerous mistake was picking the fax number as the number to call. This built-in sample is a real reading where it did that. The second reader warns about the number, so you compare it with the letter before anything is decided."
+      "text": "In testing, the AI's most dangerous mistake was picking the fax number as the number to call. This built-in sample is a real reading where it did that. The second reader warns about the number, and if I tap on anyway, the app stops and asks me to compare it with the letter first."
     },
     {
       "id": "fix",

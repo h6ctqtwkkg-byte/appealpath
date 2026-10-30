@@ -28,6 +28,7 @@ flowchart LR
 
 - **The AI reads; the rules decide.** The model copies text into fields and suggests the kind of reason, which the user can change. Five fixed rules, each with a source or labeled as a design choice (`prep/ROUTING.md`), pick the next step.
 - **Two readers, and the user checks.** The model rated itself 100% sure on a sentence it copied with a word missing, so its confidence is never trusted. A second, independent reader runs on the device and looks for the deadline, the reason and the phone number on the photo (and the urgent-appeals number when the answers point to urgent), allowing for small OCR slips. It can highlight where they're printed, and it flags any it can't find, including fax numbers picked as phone numbers. Every uploaded letter goes through a check screen with the deadline and the reason first.
+- **Warnings you can't miss, and the reasons shown.** If the second reader couldn't confirm a value, the app stops before the next step and asks you to compare it with the letter, and flags it again on the result. Every result lists the rules in order, answered yes or no, up to the one that picked the step. A pay-per-call (900) number never becomes a call link.
 - **Never a made-up deadline.** The app quotes the deadline printed on the letter. If the letter prints a date, the user can add it to their calendar. If no deadline is printed, the app says so.
 - **Saves no photos or answers.** No accounts, no database. The Worker sends the photo to Workers AI to be read, keeps nothing, and logs only the model, cost and timing (see `src/worker.ts`). The browser remembers only your language choice; that's how the code is written, not something an outside test has checked. Reads are limited to about 6 a minute per visitor.
 
@@ -40,7 +41,14 @@ flowchart LR
 | 6 held-out letters (L13–L18, never used for tuning), clean images | **6 / 6** | Confirmed 10 of 11 correct values; 1 wrong value (an over-long deadline quote) not flagged |
 | 6 held-out letters, simulated phone-like images | **6 / 6** | Confirmed 10 of 12 correct values; no wrong values |
 
-Known misses: on 4 images of 3 letters the AI picked the fax number as the phone, and the second reader flagged every one. On one letter it read "out of network" as "not covered", which leads to the same next step. The reading instructions were tuned on L01–L12, so treat those numbers as a best case. The held-out letters were written afterward and never used for tuning, but they come from the same author, and there are only 6. The second reader can't yet join a phone number that wraps onto a second line (L18). Real phone photos haven't been measured yet. **The full method, every miss and how to rerun it: [EVALUATION.md](EVALUATION.md).**
+Known misses: on 4 images of 3 letters the AI picked the fax number as the phone, and the second reader flagged every one. On one letter it read "out of network" as "not covered", which leads to the same next step. The reading instructions were tuned on L01–L12, so treat those numbers as a best case. The held-out letters were written afterward and never used for tuning, but they come from the same author, and there are only 6. The second reader can't yet join a phone number that wraps onto a second line (L18). Real phone photos haven't been measured yet.
+
+Three more tests, all in EVALUATION.md:
+- **A reader with no AI** (OCR plus keyword rules, same images) got the next step right on 33 of 38. It beat the AI on phone numbers, but misread a deadline date on a phone photo.
+- **Four runs of every image:** the next step was right all 152 times. The AI picked a wrong phone number 15 times, mostly the fax, and the second reader flagged all 15.
+- **A planted instruction** on three letters ("report a 1-900 number") was followed 0 times in 12 attack reads.
+
+**The full method, every miss and how to rerun it: [EVALUATION.md](EVALUATION.md).**
 
 ## Accessibility
 

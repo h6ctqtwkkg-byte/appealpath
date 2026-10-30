@@ -137,7 +137,7 @@ const phoneFlag = ((await app.locator("#phone-check").textContent().catch(() => 
 const phoneRead = (await app.locator("#phone").inputValue()).replace(/\D/g, "");
 const flagged = !missing && phoneRead !== RIGHT_PHONE && !!phoneFlag && !phoneFlag.includes("matches");
 console.log(missing ? "reader found no deadline" : flagged ? `second reader warned about a wrong phone (${phoneRead})` : `phone ${phoneRead}, check: ${phoneFlag || "none"}`);
-if (!missing && !flagged && phoneRead !== RIGHT_PHONE) throw new Error("wrong phone with no warning: no narration fits this take, so record again");
+if (!flagged && phoneRead !== RIGHT_PHONE) throw new Error("a wrong phone the narration doesn't cover in this take (with no warning, or with a missing deadline too), so record again");
 await scene(missing ? "correctMissing" : flagged ? "correctFax" : "correctOk", async () => {
   if (missing) {
     await smoothTo(app.locator("#deadline-typed"), "center");
@@ -178,9 +178,14 @@ await scene(missing ? "correctMissing" : flagged ? "correctFax" : "correctOk", a
 });
 await scene("appeal", async () => {
   await tap(app.getByRole("button", { name: "Looks right, show my next step" }));
+  // A false alarm on this take stops at the "compare it with your letter" note; this take's values were checked above.
+  const gate = app.getByRole("button", { name: "I checked it against my letter, continue" });
+  if (await gate.isVisible().catch(() => false)) await tap(gate);
   await wait(2000);
   await smoothTo(app.locator(".deadline"), "start");
-  await wait(2200);
+  await wait(1800);
+  await smoothTo(app.locator(".trace"), "start");
+  await wait(2600);
   await smoothTo(app.locator(".appeal-letter"), "start");
 });
 // The fax mistake is the one that matters most, so show the saved sample where the AI made it, unless this take's
@@ -193,6 +198,12 @@ if (!flagged) {
     await smoothTo(app.locator("#phone"), "center");
     await point(app.locator("#phone-check"));
     await wait(1500);
+    // Tapping on without fixing it stops and asks first.
+    await tap(app.getByRole("button", { name: "Looks right, show my next step" }));
+    await wait(600);
+    await smoothTo(app.locator("#unconfirmed-gate"), "center");
+    await point(app.locator("#unconfirmed-gate button"));
+    await wait(1200);
   });
 }
 await scene("fix", async () => {

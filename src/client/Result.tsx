@@ -1,8 +1,10 @@
 // Screen 3: one next step. Wording in i18n.ts; the outcome comes from src/shared/rules.ts.
 import type { JSX } from "preact";
 import { deadlineEvent, printedDate } from "../shared/dates";
+import { explain } from "../shared/rules";
 import { distinctServices } from "../shared/services";
 import { EXTERNAL_REVIEW, type Answers, type Decision, type Reading } from "../shared/types";
+import type { CheckedField } from "./checks";
 import { helpFor } from "./help";
 import { STRINGS, useLang, useT } from "./i18n";
 import { REASON_INFO } from "./reasons";
@@ -38,7 +40,7 @@ function Script({ es, en }: { es: string; en: string }) {
   );
 }
 
-function Facts({ r }: { r: Reading }) {
+function Facts({ r, unconfirmed }: { r: Reading; unconfirmed: CheckedField[] }) {
   const t = useT().result;
   return (
     <section class="facts" aria-labelledby="facts-h">
@@ -51,6 +53,7 @@ function Facts({ r }: { r: Reading }) {
           <dt>{t.facts.reason}</dt>
           <dd class="q" lang={r.reasonQuote ? "en" : undefined}>
             {r.reasonQuote ? `"${r.reasonQuote}"` : t.noReason}
+            {r.reasonQuote && unconfirmed.includes("reason") && <span class="small error-text unconfirmed-note">{t.unconfirmedQuote}</span>}
           </dd>
         </div>
         <div class="row">
@@ -109,7 +112,7 @@ function Calendar({ quote }: { quote: string }) {
   );
 }
 
-function Deadline({ r, decision }: { r: Reading; decision: Decision }) {
+function Deadline({ r, decision, unconfirmed }: { r: Reading; decision: Decision; unconfirmed: boolean }) {
   const t = useT().result;
   if (!decision.noDeadline && r.deadlineQuote) {
     return (
@@ -118,6 +121,7 @@ function Deadline({ r, decision }: { r: Reading; decision: Decision }) {
         <blockquote class="quote" lang="en">
           {r.deadlineQuote}
         </blockquote>
+        {unconfirmed && <p class="small error-text">{t.unconfirmedQuote}</p>}
         <Calendar quote={r.deadlineQuote} />
       </div>
     );
@@ -129,6 +133,32 @@ function Deadline({ r, decision }: { r: Reading; decision: Decision }) {
         {t.deadlineNone} <CallLine phone={r.appealPhone} fallback={t.yourPlan} /> {t.deadlineNoneEnd}
       </p>
     </div>
+  );
+}
+
+/** The five rules, checked in order up to the one that picked this step, so the user can see why. */
+function Trace({ answers, reading, decision }: { answers: Answers; reading: Reading; decision: Decision }) {
+  const all = useT();
+  const t = all.result.trace;
+  const tests = explain(answers, reading);
+  return (
+    <section class="trace" aria-labelledby="trace-h">
+      <h2 id="trace-h">{t.title}</h2>
+      <p class="small muted">{t.intro}</p>
+      <ol>
+        {t.rules.slice(0, decision.rule).map((question, i) => (
+          <li key={i} class={tests[i] ? "hit" : undefined}>
+            {question}{" "}
+            {i < 4 && <strong>{tests[i] ? t.yes : t.no}</strong>}
+            {tests[i] && <strong> → {all.result.kicker[decision.outcome]}</strong>}
+            {i === 2 && <span class="small muted"> {t.kind(all.categories[reading.category])}</span>}
+          </li>
+        ))}
+      </ol>
+      <p class="small muted">
+        <a href="#how">{all.result.seeHow}</a>
+      </p>
+    </section>
   );
 }
 
@@ -203,6 +233,8 @@ export function Result(props: {
   sample: boolean;
   /** Straight from the form: no letter was read, so there are no facts to show. */
   early: boolean;
+  /** Values the second reader couldn't confirm on the photo. */
+  unconfirmed: CheckedField[];
   onEdit: () => void;
   onRestart: () => void;
 }) {
@@ -292,7 +324,8 @@ export function Result(props: {
         <li key="1">
           {t.guardPlan.call} <CallLine phone={r.appealPhone} fallback={t.numberOnLetter} /> {t.guardPlan.ask}
         </li>,
-        <li key="2">{t.guardPlan.step2}</li>,
+        <li key="2">{t.guardPlan.urgent}</li>,
+        <li key="3">{t.guardPlan.step2}</li>,
       ];
       break;
     case "guard_unclear":
@@ -318,6 +351,20 @@ export function Result(props: {
       </section>
 
       {d.outcome === "urgent" && <p class="emergency">{t.urgent.emergency}</p>}
+      {props.unconfirmed.includes("phone") && r.appealPhone && (
+        <div class="notice">
+          <p>
+            <strong>{r.appealPhone}</strong>: {t.unconfirmed}
+          </p>
+        </div>
+      )}
+      {d.outcome === "urgent" && props.unconfirmed.includes("expedited") && r.expeditedPhone && (
+        <div class="notice">
+          <p>
+            <strong>{r.expeditedPhone}</strong>: {t.unconfirmed}
+          </p>
+        </div>
+      )}
       {distinctServices(r.deniedServices).length > 1 && (
         <div class="notice">
           <p>{t.several(service)}</p>
@@ -328,16 +375,18 @@ export function Result(props: {
           <p>{t.askDoctor}</p>
         </div>
       )}
-      {(d.outcome === "appeal" || d.outcome === "urgent") && <Deadline r={r} decision={d} />}
+      {(d.outcome === "appeal" || d.outcome === "urgent") && <Deadline r={r} decision={d} unconfirmed={props.unconfirmed.includes("deadline")} />}
 
       <h2>{t.whatToDo}</h2>
       <ol class="next">{steps}</ol>
       {d.outcome === "fix" && (
         <>
-          <Deadline r={r} decision={d} />
+          <Deadline r={r} decision={d} unconfirmed={props.unconfirmed.includes("deadline")} />
           <p class="small fix-keep">{t.fix.keep}</p>
         </>
       )}
+
+      <Trace answers={answers} reading={r} decision={d} />
 
       {d.outcome !== "guard_plan" && (
         <section class="reason-info" aria-labelledby="reason-means-h">
@@ -357,6 +406,7 @@ export function Result(props: {
           <p class="muted small">
             {t.appeal.letterNote} {t.appeal.letterDated(r.letterDate)} {t.appeal.letterLanguage}
           </p>
+          {r.reasonQuote && props.unconfirmed.includes("reason") && <p class="small error-text">{t.unconfirmedReasonLetter}</p>}
           <AppealLetter r={r} />
           <div class="row-actions">
             <button class="btn" type="button" onClick={printLetter}>
@@ -369,7 +419,7 @@ export function Result(props: {
       {!props.early && (
         <>
           <h2 id="facts-h">{t.factsTitle}</h2>
-          <Facts r={r} />
+          <Facts r={r} unconfirmed={props.unconfirmed} />
         </>
       )}
 
@@ -406,9 +456,6 @@ export function Result(props: {
           {t.restart}
         </button>
       </div>
-      <p class="small muted" style="margin-top: 14px">
-        {t.whyStep} <a href="#how">{t.seeHow}</a> {t.rule(d.rule)}
-      </p>
     </main>
   );
 }

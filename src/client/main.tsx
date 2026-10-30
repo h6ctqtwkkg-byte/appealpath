@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { decide } from "../shared/rules";
 import { EMPTY_READING, type Answers, type Decision, type ReadResponse, type Reading } from "../shared/types";
 import { Check, type OcrState } from "./Check";
+import { unconfirmed } from "./checks";
 import { Form, isGuardPlan, missingAnswers, type Draft } from "./Form";
 import { How } from "./How";
 import { initialLang, LangContext, saveLang, STRINGS, type Lang } from "./i18n";
@@ -142,11 +143,15 @@ function App() {
     setNotice(null);
     setEarly(false);
     setScreen("reading");
+    // The Worker gives up within about 40 seconds; past that the network is stuck, so stop and offer the other ways in.
+    const stop = new AbortController();
+    const timer = setTimeout(() => stop.abort(), 60_000);
     try {
       const res = await fetch("/api/read", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ image }),
+        signal: stop.signal,
       });
       const body = (await res.json()) as ReadResponse;
       if (!body.ok) {
@@ -158,8 +163,10 @@ function App() {
       setSource("ai");
       setScreen("check");
     } catch {
-      setNotice("unavailable");
+      setNotice(stop.signal.aborted ? "busy" : "unavailable");
       setScreen("form");
+    } finally {
+      clearTimeout(timer);
     }
   }
 
@@ -307,6 +314,7 @@ function App() {
           reading={reading}
           answers={draft as Answers}
           sample={source === "sample" && !early}
+          unconfirmed={early || ocr.status === "running" ? [] : unconfirmed(reading, ocr, decision.outcome === "urgent")}
           early={early}
           onEdit={() => setScreen(early ? "form" : "check")}
           onRestart={restart}

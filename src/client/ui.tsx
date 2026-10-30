@@ -1,6 +1,7 @@
 // Small shared pieces: banner, header, step indicator, footer, radio choices, quoted letter text, phone links, the letter view.
 import type { ComponentChildren } from "preact";
 import type { Box } from "../shared/match";
+import { payPerCall } from "../shared/phones";
 import { useLang, useT, type Lang } from "./i18n";
 
 export function Banner() {
@@ -113,9 +114,17 @@ export function Quote({ children, label }: { children: ComponentChildren; label?
   );
 }
 
-/** A phone number as printed, linked for tapping when it has 10 digits. */
+/** A phone number as printed, linked for tapping when it has 10 digits. A pay-per-call number gets a warning, not a link. */
 export function Phone({ number }: { number: string }) {
+  const t = useT();
   const digits = number.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
+  if (payPerCall(number)) {
+    return (
+      <>
+        {number} <span class="error-text">({t.check.payPerCall})</span>
+      </>
+    );
+  }
   return digits.length === 10 ? <a href={`tel:+1${digits}`}>{number}</a> : <>{number}</>;
 }
 

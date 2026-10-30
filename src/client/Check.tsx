@@ -2,36 +2,22 @@
 // second reader (Tesseract, on the device) saying whether the AI's words are really on the photo, and where.
 // prep/READER-TEST.md: the model rated itself 100% sure on a quote it got wrong, so nothing here is skipped on confidence.
 import { useRef, useState } from "preact/hooks";
-import { FOUND, findPhone, findQuote, type Box } from "../shared/match";
+import type { Box } from "../shared/match";
+import { payPerCall } from "../shared/phones";
 import { GUARD_PLANS } from "../shared/rules";
 import { distinctServices } from "../shared/services";
 import { CATEGORIES, type Answers, type Category, type Reading } from "../shared/types";
+import { phoneVerdict, quoteVerdict, unconfirmed, type OcrState, type Verdict } from "./checks";
 import { useT } from "./i18n";
 import type { Photo } from "./image";
-import type { OcrResult } from "./ocr";
 import { STATES } from "./states";
 import { Choice, LetterImage } from "./ui";
 
 type Source = "ai" | "sample" | "manual";
-export type OcrState = { status: "none" | "running" | "failed" } | { status: "done"; result: OcrResult };
-type Verdict = "exact" | "close" | "notFound" | "fax";
+export type { OcrState } from "./checks";
 
 /** Enough rows to show a copied sentence without scrolling inside the box on a phone. */
 const rowsFor = (text: string | null) => Math.min(8, Math.max(2, Math.ceil((text?.length ?? 0) / 32)));
-
-function quoteVerdict(text: string | null, ocr: OcrState): { verdict: Verdict; boxes: Box[] } | null {
-  if (!text?.trim() || ocr.status !== "done") return null;
-  const m = findQuote(text, ocr.result.words);
-  if (!m || m.score < FOUND) return { verdict: "notFound", boxes: m?.boxes ?? [] };
-  return { verdict: m.exact ? "exact" : "close", boxes: m.boxes };
-}
-
-function phoneVerdict(text: string | null, ocr: OcrState): { verdict: Verdict; boxes: Box[] } | null {
-  if (!text?.trim() || ocr.status !== "done") return null;
-  const m = findPhone(text, ocr.result.words);
-  if (!m) return { verdict: "notFound", boxes: [] };
-  return { verdict: m.fax ? "fax" : "exact", boxes: m.boxes };
-}
 
 function SecondCheck(props: { id: string; ocr: OcrState; result: { verdict: Verdict; boxes: Box[] } | null; onShow: (boxes: Box[]) => void; active: boolean }) {
   const t = useT().second;
@@ -119,9 +105,12 @@ export function Check(props: {
   const letterRef = useRef<HTMLDetailsElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [zoomBoxes, setZoomBoxes] = useState<Box[]>([]);
-  // The kind of reason decides the next step, so after the user edits the AI's reason they confirm the kind still fits.
-  const [kindStale, setKindStale] = useState(false);
+  // The kind of reason decides the next step, so after the user edits the AI's reason, or picks a different service,
+  // they confirm the kind still fits.
+  const [kindStale, setKindStale] = useState<"reason" | "service" | null>(null);
   const [kindNudge, setKindNudge] = useState(false);
+  // Values the second reader couldn't confirm: the user says they compared them before going on.
+  const [gate, setGate] = useState(false);
   const ocrSize = ocr.status === "done" ? { width: ocr.result.width, height: ocr.result.height } : {};
 
   /** The whole letter at full width, with the highlight scrolled into view. */
@@ -137,18 +126,32 @@ export function Check(props: {
   // The urgent result calls this number first, so when the answers point to urgent it sits by the main phone and is checked too.
   const urgentLikely = a.careHappened === false && a.doctorSaysHarm === "yes" && !(a.plan && GUARD_PLANS.includes(a.plan));
   const expeditedCheck = urgentLikely ? phoneVerdict(r.expeditedPhone, ocr) : null;
+  const unresolved = unconfirmed(r, ocr, urgentLikely);
 
   function kindSettled() {
-    setKindStale(false);
+    setKindStale(null);
     setKindNudge(false);
   }
 
+  function focusOn(selector: string) {
+    const el = document.querySelector<HTMLElement>(selector);
+    el?.scrollIntoView({ block: "center" });
+    el?.focus({ preventScroll: true });
+  }
+
+  /** Stops for a kind of reason that needs confirming; the gate's own button goes through this too. */
+  function kindReady() {
+    if (!kindStale) return true;
+    setKindNudge(true);
+    focusOn("#kind-check button");
+    return false;
+  }
+
   function confirm() {
-    if (kindStale) {
-      setKindNudge(true);
-      const fits = document.querySelector<HTMLElement>("#kind-check button");
-      fits?.scrollIntoView({ block: "center" });
-      fits?.focus({ preventScroll: true });
+    if (!kindReady()) return;
+    if (unresolved.length) {
+      setGate(true);
+      requestAnimationFrame(() => focusOn("#unconfirmed-gate button"));
       return;
     }
     props.onConfirm();
@@ -277,7 +280,7 @@ export function Check(props: {
               value={r.reasonQuote ?? ""}
               onInput={(e) => {
                 set("reasonQuote", (e.currentTarget as HTMLTextAreaElement).value || null);
-                if (!manual) setKindStale(true);
+                if (!manual) setKindStale("reason");
               }}
             />
             {!manual && r.reasonQuote && (
@@ -288,7 +291,7 @@ export function Check(props: {
             {second("reason", reasonCheck)}
             {kindStale && (
               <div class="notice kind-check" id="kind-check">
-                <p>{t.kindCheck}</p>
+                <p>{kindStale === "service" ? t.kindCheckService : t.kindCheck}</p>
                 <button class="linkish" type="button" onClick={kindSettled}>
                   {t.kindStillFits}
                 </button>
@@ -312,7 +315,10 @@ export function Check(props: {
                 name="service"
                 legend={t.severalLegend}
                 value={r.service ?? undefined}
-                onChange={(v) => set("service", v)}
+                onChange={(v) => {
+                  set("service", v);
+                  if (!manual && v !== r.service) setKindStale("service");
+                }}
                 options={services.map((s) => ({ value: s, label: s }))}
               />
               <p class="help">{t.severalNote}</p>
@@ -330,6 +336,14 @@ export function Check(props: {
             checkedBy={ocr.status !== "none" ? "phone-check" : undefined}
           />
           {second("phone", phoneCheck)}
+          {payPerCall(r.appealPhone) && (
+            <p class="second warn" role="alert">
+              <span class="mark" aria-hidden="true">
+                !
+              </span>
+              <span>{t.payPerCall}</span>
+            </p>
+          )}
           {urgentLikely && (
             <>
               <TextField
@@ -341,6 +355,14 @@ export function Check(props: {
                 checkedBy={ocr.status !== "none" ? "expedited-check" : undefined}
               />
               {second("expedited", expeditedCheck)}
+              {payPerCall(r.expeditedPhone) && (
+                <p class="second warn" role="alert">
+                  <span class="mark" aria-hidden="true">
+                    !
+                  </span>
+                  <span>{t.payPerCall}</span>
+                </p>
+              )}
             </>
           )}
 
@@ -360,6 +382,20 @@ export function Check(props: {
             <p class="small error-text" role="alert">
               {t.kindNeeded}
             </p>
+          )}
+          {gate && unresolved.length > 0 && (
+            <div class="notice unconfirmed-gate" id="unconfirmed-gate" role="alert">
+              <p>
+                <strong>
+                  {ocr.status === "running" ? t.unconfirmedRunning : ocr.status === "failed" ? t.unconfirmedFailed : t.unconfirmedTitle}{" "}
+                  {unresolved.map((f) => t.unconfirmedFields[f]).join(", ")}.
+                </strong>{" "}
+                {t.unconfirmedDo}
+              </p>
+              <button class="btn secondary" type="button" onClick={() => kindReady() && props.onConfirm()}>
+                {t.unconfirmedOk}
+              </button>
+            </div>
           )}
           <div class="actions">
             <button class="btn block" type="button" onClick={confirm}>

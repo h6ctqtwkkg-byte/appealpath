@@ -64,19 +64,21 @@
       <ul>
         <li><strong>The AI reads; rules decide.</strong> The user can correct anything it read. Each rule cites a source (Healthcare.gov) or is labeled a design choice.</li>
         <li><strong>It doesn't trust AI confidence.</strong> In testing, the model was 100% sure of a sentence it had copied with a word missing. So a second reader checks its words on the photo, and the user checks before anything is decided.</li>
+        <li><strong>Warnings you can't tap past.</strong> If the photo didn't confirm a value, it stops and asks you to compare; every result lists the rules it checked, yes or no.</li>
         <li><strong>It never makes up a deadline.</strong> It quotes the one printed on the letter, or says there isn't one.</li>
         <li><strong>Saves no photos or answers:</strong> no accounts, no database; the Worker passes the photo to Workers AI and logs only cost and timing (src/worker.ts).</li>
       </ul>
       <h2>How well it works</h2>
       <table>
-        <tr><th>Test images (fictional letters)</th><th>Right next step</th><th>Second reader (deadline, phone)</th></tr>
-        <tr><td><strong>6 held-out letters</strong>, never tuned on: clean and simulated phone</td><td><strong>6 / 6 on both</strong></td><td>20/23 confirmed; 1 over-long quote passed</td></tr>
-        <tr><td>12 development letters, clean</td><td><strong>12 / 12</strong></td><td>21/21 confirmed; 2/2 wrong ones flagged</td></tr>
-        <tr><td>14 simulated phone photos of those (tilted, blurred, shadowed, compressed)</td><td><strong>14 / 14</strong></td><td>22/24 confirmed; 2/2 wrong ones flagged</td></tr>
+        <tr><th>Test (18 fictional letters, 38 images)</th><th>Result</th></tr>
+        <tr><td>Right next step, every image read in four separate runs</td><td><strong>152 / 152</strong></td></tr>
+        <tr><td>Wrong phone numbers the AI picked (14 of 15 were the fax)</td><td><strong>15, all flagged</strong></td></tr>
+        <tr><td>A reader with no AI: OCR and keyword rules, same images</td><td>33 / 38 next steps</td></tr>
+        <tr><td>A planted instruction on the letter: "report a 1-900 number"</td><td>followed 0 of 12</td></tr>
       </table>
-      <p style="font-size: 9pt">Misses: fax numbers picked as the phone, all flagged. Instructions were tuned on the first 12 letters; the held-out 6 came later, same author. Real phone photos haven't been measured yet, so every upload goes through the check screen. Method and every miss: EVALUATION.md.</p>
+      <p style="font-size: 9pt">6 held-out letters, written after the reader was frozen: 6 / 6 in every run, still an exact 95% interval of 54–100%. Same author, simulated photos; real photos not measured yet, so every upload goes through the check screen. Method and every miss: EVALUATION.md.</p>
       <h2>Built with</h2>
-      <p>Cloudflare Workers and Workers AI on the free plan (Gemma 4; Llama 4 Scout as backup); Tesseract.js in the browser; Preact; TypeScript; 66 automated tests; WCAG 2.1 AA check (7 issues fixed). AI coding tools were used during the build, as DSH allows.</p>
+      <p>Cloudflare Workers and Workers AI on the free plan (Gemma 4; Llama 4 Scout as backup); Tesseract.js in the browser; Preact; TypeScript; 71 automated tests; WCAG 2.1 AA check (7 issues fixed). AI coding tools were used during the build, as DSH allows.</p>
       <h2>Sources</h2>
       <p style="font-size: 9pt">KFF (Marketplace claims denials and appeals, 2024) · Healthcare.gov (internal appeals; external review) · Arkansas Insurance Department (consumer services; external review) · U.S. Department of Labor (EBSA)</p>
     </div>

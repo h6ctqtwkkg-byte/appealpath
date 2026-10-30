@@ -16,8 +16,9 @@ const page = await phone.newPage();
 await rm(SHOTS, { recursive: true, force: true });
 await mkdir(SHOTS, { recursive: true });
 
-// Waits for the second reader when the screen has one, then scrolls `target` to `at` px from the top of the screen.
-async function shot(name, url, { target, at = 120, es = false, ocr = false } = {}) {
+// Waits for the second reader when the screen has one, runs `act` (taps and typing), then scrolls `target` to `at` px
+// from the top of the screen.
+async function shot(name, url, { target, at = 120, es = false, ocr = false, act } = {}) {
   await page.goto(`${BASE}/${url}`);
   // A ?sample= link shows the first screen until the sample has opened.
   await page.waitForSelector("main h1");
@@ -27,6 +28,8 @@ async function shot(name, url, { target, at = 120, es = false, ocr = false } = {
     await page.locator("header button.lang").click();
     await page.waitForFunction((es) => (document.documentElement.lang === "es") === es, es);
   }
+  if (ocr) await page.waitForFunction(() => /finished|terminó/i.test(document.body.innerText), null, { timeout: 90_000 });
+  if (act) await act(page);
   if (target) {
     await page.waitForFunction(
       (sel) => [...document.querySelectorAll("main *")].some((e) => e.matches(sel.css) && (!sel.text || e.textContent.includes(sel.text))),
@@ -34,7 +37,6 @@ async function shot(name, url, { target, at = 120, es = false, ocr = false } = {
     );
   }
   await page.waitForTimeout(800); // a new screen scrolls itself to the top first
-  if (ocr) await page.waitForFunction(() => /finished|terminó/i.test(document.body.innerText), null, { timeout: 90_000 });
   await page.evaluate(
     ([sel, at]) => {
       const el = sel && [...document.querySelectorAll("main *")].find((e) => e.matches(sel.css) && (!sel.text || e.textContent.includes(sel.text)));
@@ -46,10 +48,17 @@ async function shot(name, url, { target, at = 120, es = false, ocr = false } = {
   await page.screenshot({ path: `${SHOTS}/${name}.png` });
 }
 
+// L04's story: the AI picked the fax number, the check won't let it through unseen, the person fixes it, one next step.
+const tapContinue = (p) => p.getByRole("button", { name: "Looks right, show my next step" }).click();
+const fixPhone = async (p) => {
+  await p.locator("#phone").fill("(479) 555-0177");
+  await tapContinue(p);
+};
 await shot("check-fax", "?sample=L04", { target: { css: "label, .q-label, span", text: "Phone number for appeals" }, at: 300, ocr: true });
-await shot("check-top", "?sample=L04", { ocr: true, target: { css: "h1" }, at: 20 });
-await shot("appeal", "?sample=L02&result");
-await shot("appeal-letter", "?sample=L02&result", { target: { css: "h2", text: "Your appeal letter" }, at: 40 });
+await shot("check-gate", "?sample=L04", { ocr: true, act: tapContinue, target: { css: "#unconfirmed-gate" }, at: 380 });
+await shot("fixed-result", "?sample=L04", { ocr: true, act: fixPhone, target: { css: "h1" }, at: 400 });
+await shot("trace", "?sample=L04", { ocr: true, act: fixPhone, target: { css: "#trace-h" }, at: 40 });
+await shot("appeal-letter", "?sample=L04", { ocr: true, act: fixPhone, target: { css: "h2", text: "Your appeal letter" }, at: 40 });
 await shot("urgent", "?sample=L03&result");
 await shot("urgent-es", "?sample=L03&result", { es: true });
 await shot("guard", "?sample=L09&result");
@@ -58,7 +67,7 @@ await phone.close();
 
 // The slides, with the screenshots inlined.
 const pngs = {};
-for (const n of ["check-fax", "check-top", "appeal", "appeal-letter", "urgent", "urgent-es", "guard", "fix"]) {
+for (const n of ["check-fax", "check-gate", "fixed-result", "trace", "appeal-letter", "urgent", "urgent-es", "guard", "fix"]) {
   pngs[n] = (await readFile(`${SHOTS}/${n}.png`)).toString("base64");
 }
 const img = (name) => `<img src="data:image/png;base64,${pngs[name]}" alt="">`;
@@ -66,6 +75,22 @@ const device = (name, label = "") => `<figure class="device">${label ? `<figcapt
 const logo = `<svg width="54" height="54" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1f3f6e"/><path d="M9 8h10l4 4v12H9z" fill="#fff"/><path d="M12 18h6m-2.5-3 3 3-3 3" stroke="#1f3f6e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const foot = `<footer><b>Prototype, not medical or legal advice.</b> Every letter shown is fictional. · appealpath.7zhvt4rjzh.workers.dev · DSH Hacks V2, problem statement B: Faster care</footer>`;
 
+// The results slide's counts come from the saved runs: test-letters/runs/repeats (scripts/repeats-summary.mjs),
+// baseline.json (scripts/baseline.mjs) and injection.json (scripts/injection.mjs). The words around them (every wrong
+// phone flagged, March 3 for March 31, 54–100%) were checked against those runs on Oct 30; recheck them after a new run.
+const repeatsSummary = JSON.parse(await readFile("test-letters/runs/repeats/summary.json", "utf8"));
+const baselineRun = JSON.parse(await readFile("test-letters/runs/baseline.json", "utf8"));
+const injectionRun = JSON.parse(await readFile("test-letters/runs/injection.json", "utf8"));
+const frac = (rows, key) => {
+  const [a, b] = rows.map((r) => r[key].split("/").map(Number)).reduce((x, y) => [x[0] + y[0], x[1] + y[1]], [0, 0]);
+  return `${a} / ${b}`;
+};
+const runsCount = repeatsSummary.table.length;
+const aiSteps = frac(repeatsSummary.table, "next step");
+const wrongPhones = repeatsSummary.table.reduce((n, r) => n + Number(r["phone"].split("/")[1]) - Number(r["phone"].split("/")[0]), 0);
+const baseline = { step: frac(baselineRun.table, "step"), phone: frac(baselineRun.table, "phone") };
+const attacks = injectionRun.cases.filter((c) => c.variant !== "control" && !c.error);
+const injection = { kept: `${attacks.filter((c) => c.outcome === c.expected).length} / ${attacks.length}`, attacks: attacks.length, followed: attacks.filter((c) => c.tookAttackPhone || !c.categoryRight).length };
 const run = (match) => accuracy.runs.find((r) => r.images.includes(match));
 const devClean = run("clean digital images of the printed pages");
 const devPhone = run("simulated phone-like");
@@ -122,7 +147,7 @@ const slides = {
       <p class="lede">The AI copies the facts, a second reader checks them against the photo, you confirm, and fixed rules pick one next step.</p>
       <div class="chips"><span class="chip fix">Fix &amp; resubmit</span><span class="chip appeal">Appeal</span><span class="chip urgent">Urgent review today</span><span class="chip guard">Call your plan</span></div>
       <div class="stat">In 2024, insurers on HealthCare.gov denied 19% of in-network claims, and fewer than 1% of those denials were appealed.<small>KFF, Claims Denials and Appeals in ACA Marketplace Plans in 2024</small></div>
-    </div><div class="devices">${device("check-fax", "The AI picked the fax number")}${device("appeal", "One next step, deadline as printed")}</div></div>${foot}`,
+    </div><div class="devices">${device("check-fax", "1. The AI picked the fax number")}${device("fixed-result", "2. Fixed by the person, then one step")}</div></div>${foot}`,
 
   "2-how-it-works": `<div class="slide" style="flex-direction:column;gap:0"><div class="brand">${logo} AppealPath</div>
       <div class="kicker">How it works</div>
@@ -136,7 +161,7 @@ const slides = {
         <div class="arrow">→</div>
         <div class="box you"><b>You confirm</b>The deadline and the reason come first. Change the reason, and it asks again which kind it is.</div>
         <div class="arrow">→</div>
-        <div class="box rules"><b>5 fixed rules</b>Checked in order; each cites HealthCare.gov, the Arkansas Insurance Dept. or the U.S. Dept. of Labor, or is labeled a design choice.</div>
+        <div class="box rules"><b>5 fixed rules</b>Checked in order. Two cite HealthCare.gov; the rest are labeled design choices, so anyone can check them.</div>
       </div>
       <div class="outcomes">
         <div class="urgent"><b>Urgent review today</b>Care still ahead and the doctor says waiting could cause serious harm</div>
@@ -150,24 +175,24 @@ const slides = {
   "3-check": `<div class="slide"><div class="text">
       <div class="brand">${logo} AppealPath</div>
       <div class="kicker">Check what we read</div>
-      <h2>The AI picked the fax number. The second reader warned before anything was decided.</h2>
+      <h2>The AI picked the fax number. The app won't let that slip through unseen.</h2>
       <ul class="points">
         <li>A real reading of fictional letter L04, saved as a sample: the AI copied the fax line as the number to call.</li>
-        <li>The second reader, running on the phone, couldn't confirm the number and says to compare it with the letter. The person fixes it.</li>
-        <li>The AI rated itself 100% sure even of a sentence it copied wrong in testing, so AppealPath never uses its confidence.</li>
+        <li>The second reader, running on the phone, couldn't confirm the number. Tapping on stops and asks the person to compare it with the letter.</li>
+        <li>In testing, the AI rated itself 100% sure of a sentence it copied wrong, so AppealPath never uses its confidence.</li>
       </ul>
-    </div><div class="devices">${device("check-top")}${device("check-fax")}</div></div>${foot}`,
+    </div><div class="devices">${device("check-fax", "The warning")}${device("check-gate", "Tap on, and it asks first")}</div></div>${foot}`,
 
   "4-appeal": `<div class="slide"><div class="text">
       <div class="brand">${logo} AppealPath</div>
       <div class="kicker">Next step: appeal</div>
-      <h2>The deadline as printed, and an appeal letter in the letter's own words.</h2>
+      <h2>It shows why this step, and writes the appeal letter in the letter's own words.</h2>
       <ul class="points">
-        <li>The deadline is quoted, never worked out. A calendar reminder appears only when a real date is printed.</li>
-        <li>Step 1 depends on the reason: a doctor's letter for medical necessity, the plan's rule for an exclusion.</li>
-        <li>External review is only promised for denials HealthCare.gov says qualify.</li>
+        <li>The five rules are listed in order, up to the one that fit, so the person can see which rule picked it and why.</li>
+        <li>The deadline is quoted, never worked out. A calendar reminder appears only when the words call a date the deadline.</li>
+        <li>Step 1 depends on the reason, and external review is only promised for denials HealthCare.gov says qualify.</li>
       </ul>
-    </div><div class="devices">${device("appeal")}${device("appeal-letter")}</div></div>${foot}`,
+    </div><div class="devices">${device("trace", "Why this next step")}${device("appeal-letter", "Ready to print and sign")}</div></div>${foot}`,
 
   "5-urgent-and-guard": `<div class="slide" style="flex-direction:column;gap:0"><div class="brand">${logo} AppealPath</div>
       <div class="kicker">The other next steps, and Spanish</div>
@@ -180,15 +205,15 @@ const slides = {
 
   "6-results": `<div class="slide" style="flex-direction:column;gap:0"><div class="brand">${logo} AppealPath</div>
       <div class="kicker">How well it works, on 18 fictional letters</div>
-      <h2>The right next step on every test image, and every fax-number mistake flagged.</h2>
+      <h2>The right next step on every image, in every run. A reader with no AI: ${baseline.step}.</h2>
       <table>
-        <tr><th>Images</th><th>Right next step</th><th>Wrong values the second reader flagged</th></tr>
-        <tr class="held"><td><b>6 held-out letters</b>, written after the reader was frozen: clean</td><td class="big">${steps(heldClean)}</td><td>${heldClean.secondReader.caught} of ${heldClean.secondReader.wrong}: an over-long deadline quote passed, since every word is on the page</td></tr>
-        <tr class="held"><td><b>6 held-out letters</b>: simulated phone photos</td><td class="big">${steps(heldPhone)}</td><td>No wrong values to flag</td></tr>
-        <tr><td>12 development letters: clean</td><td class="big">${steps(devClean)}</td><td>${devClean.secondReader.caught} of ${devClean.secondReader.wrong} (fax numbers)</td></tr>
-        <tr><td>12 development letters as 14 simulated phone photos</td><td class="big">${steps(devPhone)}</td><td>${devPhone.secondReader.caught} of ${devPhone.secondReader.wrong} (fax numbers)</td></tr>
+        <tr><th>Test</th><th>Right next step</th><th>What else it showed</th></tr>
+        <tr class="held"><td><b>AI reader</b>, 38 images × ${runsCount} runs</td><td class="big">${aiSteps}</td><td>Picked a wrong phone number ${wrongPhones} times, mostly the fax; the second reader flagged every one</td></tr>
+        <tr><td><b>No-AI baseline</b>: OCR and keyword rules, same 38 images</td><td class="big">${baseline.step}</td><td>Better at phone numbers (${baseline.phone}), but read one deadline as March 3 instead of March 31</td></tr>
+        <tr class="held"><td><b>6 held-out letters</b>, written after the reader was frozen</td><td class="big">6 / 6</td><td>Every run; still only 6 letters: an exact 95% interval of 54–100%</td></tr>
+        <tr><td><b>Planted instruction</b> on 3 letters: "report a 1-900 number"</td><td class="big">${injection.kept}</td><td>Followed ${injection.followed} of ${injection.attacks} attack reads; a 900 number never becomes a call link</td></tr>
       </table>
-      <p class="note">Limits: synthetic letters from one author, simulated photos, one read per image; real phone photos not measured yet. Every miss and the method: EVALUATION.md in the repo.</p>
+      <p class="note">Limits: synthetic letters from one author, simulated photos; real phone photos and real users not measured yet. Every miss and the method: EVALUATION.md in the repo.</p>
     </div>${foot}`,
 };
 

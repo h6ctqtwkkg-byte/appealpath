@@ -1,0 +1,820 @@
+{
+  "measuredOn": "2026-10-30",
+  "images": "clean digital images of the printed pages, not phone photos",
+  "repeat": 3,
+  "readerInstructions": "src/read.ts at 79021a8",
+  "neurons": 242,
+  "runs": [
+    {
+      "measuredOn": "2026-10-30",
+      "images": "clean digital images of the printed pages, not phone photos",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 12,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 12,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 11,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Deadline",
+          "right": 12,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Phone",
+          "right": 10,
+          "empty": 0,
+          "wrong": 2
+        }
+      ],
+      "results": {
+        "right": 12,
+        "total": 12
+      },
+      "secondReader": {
+        "confirmed": 21,
+        "correct": 21,
+        "caught": 2,
+        "wrong": 2
+      },
+      "misses": [
+        "L04.jpg: picked (479) 555-0178 as the phone number, which isn't the letter's number to call",
+        "L07.jpg: picked (479) 555-0178 as the phone number, which isn't the letter's number to call"
+      ]
+    },
+    {
+      "measuredOn": "2026-10-30",
+      "images": "held-out letters L13–L18, clean digital images of the printed pages, not phone photos",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 6,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Deadline",
+          "right": 5,
+          "empty": 0,
+          "wrong": 1
+        },
+        {
+          "name": "Phone",
+          "right": 6,
+          "empty": 0,
+          "wrong": 0
+        }
+      ],
+      "results": {
+        "right": 6,
+        "total": 6
+      },
+      "secondReader": {
+        "confirmed": 10,
+        "correct": 11,
+        "caught": 0,
+        "wrong": 1
+      },
+      "misses": [
+        "L13.jpg: deadline read as \"You can ask us to look at this decision again. This is called an appeal. You must file your appeal no later than 180 calendar days after the date you receive this letter.\""
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "file": "L01.jpg",
+      "letter": "L01",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 12.045453071594238,
+      "ms": 5780,
+      "ocrWords": 297,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Health Plan",
+        "memberName": "Jordan Sample",
+        "memberId": "SHP-000-4417",
+        "letterDate": "October 19, 2026",
+        "reference": "UM-26-104417",
+        "deniedServices": [
+          "MRI of the lumbar spine (lower back) without contrast"
+        ],
+        "service": "MRI of the lumbar spine (lower back) without contrast",
+        "reasonQuote": "Prior authorization was not received.",
+        "category": "prior_auth_missing",
+        "deadlineQuote": "You have 180 days from the date you receive this notice to file an appeal.",
+        "appealPhone": "(479) 555-0143",
+        "expeditedPhone": "(479) 555-0144",
+        "appealAddress": "Appeals Unit, Sample Health Plan, PO Box 0001, Example City, AR 00000",
+        "provider": "Dr. Morgan Lee, Example Family Clinic"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "fix",
+      "expected": "fix"
+    },
+    {
+      "file": "L02.jpg",
+      "letter": "L02",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 14.290908813476562,
+      "ms": 9714,
+      "ocrWords": 244,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Silver 2026 (Marketplace plan)",
+        "memberName": "Riley Example",
+        "memberId": "EMH-22-90817",
+        "letterDate": "October 21, 2026",
+        "reference": "C-26-0098813",
+        "deniedServices": [
+          "Physical therapy, 12 visits, August 4 to September 25, 2026"
+        ],
+        "service": "Physical therapy",
+        "reasonQuote": "The records submitted do not meet our medical necessity criteria for outpatient physical therapy (Clinical Policy PT-104). The services listed above were not medically necessary.",
+        "category": "not_medically_necessary",
+        "deadlineQuote": "Your appeal must be received by April 19, 2027.",
+        "appealPhone": "(479) 555-0177",
+        "expeditedPhone": "(479) 555-0177",
+        "appealAddress": "Example Marketplace Health Appeals, PO Box 0002, Example City, AR 00000",
+        "provider": "Example Physical Therapy Group"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L03.jpg",
+      "letter": "L03",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 14.972726821899414,
+      "ms": 7026,
+      "ocrWords": 288,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Health Plan",
+        "memberName": "Casey Sample",
+        "memberId": "SHP-000-5521",
+        "letterDate": "October 26, 2026",
+        "reference": "UM-26-105521",
+        "deniedServices": [
+          "Admission to an inpatient rehabilitation facility"
+        ],
+        "service": "Admission to an inpatient rehabilitation facility",
+        "reasonQuote": "Based on the clinical information provided, the requested level of care is not medically necessary. Our reviewer found that your rehabilitation needs can be met at a lower level of care, such as a skilled nursing facility or outpatient therapy (Criteria IRF-2).",
+        "category": "not_medically_necessary",
+        "deadlineQuote": "You may appeal this decision within 180 days of the date you receive this notice.",
+        "appealPhone": "(479) 555-0143",
+        "expeditedPhone": "(479) 555-0144",
+        "appealAddress": "Appeals Unit, Sample Health Plan, PO Box 0001, Example City, AR 00000",
+        "provider": "Dr. Avery Chen"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L04.jpg",
+      "letter": "L04",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 12.890907287597656,
+      "ms": 6075,
+      "ocrWords": 206,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Bronze 2026 (Marketplace plan)",
+        "memberName": "Morgan Example",
+        "memberId": "EMH-22-71530",
+        "letterDate": "October 14, 2026",
+        "reference": "C-26-0101452",
+        "deniedServices": [
+          "Cardiology follow-up office visit, September 30, 2026"
+        ],
+        "service": "Cardiology follow-up office visit",
+        "reasonQuote": "The provider is not in your plan's network. Your plan does not cover non-emergency services from out-of-network providers.",
+        "category": "out_of_network",
+        "deadlineQuote": "You have 180 days from the date you receive this notice to ask for an appeal.",
+        "appealPhone": "(479) 555-0178",
+        "expeditedPhone": null,
+        "appealAddress": "Example Marketplace Health Appeals, PO Box 0002, Example City, AR 00000, or fax it to (479) 555-0178",
+        "provider": "Example Heart Specialists"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "wrong"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "flagged"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L05.jpg",
+      "letter": "L05",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 13.581817626953125,
+      "ms": 5843,
+      "ocrWords": 202,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Health Plan",
+        "memberName": "Drew Sample",
+        "memberId": "SHP-000-6630",
+        "letterDate": "October 12, 2026",
+        "reference": "26-EOB-776630",
+        "deniedServices": [
+          "Laboratory blood panel"
+        ],
+        "service": "Laboratory blood panel",
+        "reasonQuote": "R-16: Claim denied. The diagnosis code on the claim does not support the service billed. The provider may correct the claim and resubmit it. You should not be billed for this service while the claim is being corrected.",
+        "category": "billing_error",
+        "deadlineQuote": "You may file an appeal within 180 days of the date of this statement.",
+        "appealPhone": "(479) 555-0142",
+        "expeditedPhone": null,
+        "appealAddress": "Appeals Unit, Sample Health Plan, PO Box 0001, Example City, AR 00000.",
+        "provider": "Example Lab Services"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "fix",
+      "expected": "fix"
+    },
+    {
+      "file": "L06.jpg",
+      "letter": "L06",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 14.154544830322266,
+      "ms": 6415,
+      "ocrWords": 222,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Health Plan",
+        "memberName": "Avery Sample",
+        "memberId": "SHP-000-7712",
+        "letterDate": "October 22, 2026",
+        "reference": "CR-26-107712",
+        "deniedServices": [
+          "Outpatient knee arthroscopy"
+        ],
+        "service": "Outpatient knee arthroscopy",
+        "reasonQuote": "Required medical records are missing. We first requested records from your provider on September 15, 2026. The resubmitted claim we received on October 8, 2026 did not include the operative report. Without the complete records, we cannot determine whether this service is covered under your plan.",
+        "category": "missing_info",
+        "deadlineQuote": "You may file an appeal within 180 days after you receive this notice.",
+        "appealPhone": "(479) 555-0143",
+        "expeditedPhone": null,
+        "appealAddress": "Appeals Unit, Sample Health Plan, PO Box 0001, Example City, AR 00000.",
+        "provider": "Example Surgery Center"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L07.jpg",
+      "letter": "L07",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 13.96363639831543,
+      "ms": 8667,
+      "ocrWords": 167,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Gold 2026 (Marketplace plan)",
+        "memberName": "Jamie Example",
+        "memberId": "EMH-22-40021",
+        "letterDate": "October 9, 2026",
+        "reference": "PA-26-0040021",
+        "deniedServices": [
+          "Prescription hearing aids (pair)"
+        ],
+        "service": "Prescription hearing aids (pair)",
+        "reasonQuote": "Hearing aids are excluded from coverage under your plan (Evidence of Coverage, Section 7: Exclusions). This service is not a covered benefit.",
+        "category": "not_covered",
+        "deadlineQuote": "Your appeal must be received within 180 days of the date of this notice.",
+        "appealPhone": "(479) 555-0178",
+        "expeditedPhone": null,
+        "appealAddress": "Example Marketplace Health Appeals, PO Box 0002, Example City, AR 00000",
+        "provider": "Example Hearing Center"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "wrong"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "flagged"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L08.jpg",
+      "letter": "L08",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 14.436363220214844,
+      "ms": 3771,
+      "ocrWords": 229,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Health Plan",
+        "memberName": "Rowan Sample",
+        "memberId": "SHP-000-8840",
+        "letterDate": "October 27, 2026",
+        "reference": "UM-26-108840",
+        "deniedServices": [
+          "Laparoscopic gallbladder removal (cholecystectomy)"
+        ],
+        "service": "Laparoscopic gallbladder removal (cholecystectomy)",
+        "reasonQuote": "Prior authorization is required for this surgery, and no authorization request has been received from your provider.",
+        "category": "prior_auth_missing",
+        "deadlineQuote": "You have 180 days from the date you receive this notice to file an appeal.",
+        "appealPhone": "(479) 555-0143",
+        "expeditedPhone": "(479) 555-0144",
+        "appealAddress": "Appeals Unit, Sample Health Plan, PO Box 0001, Example City, AR 00000",
+        "provider": "Dr. Avery Chen, Example Regional Hospital"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L09.jpg",
+      "letter": "L09",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 12.181816101074219,
+      "ms": 5661,
+      "ocrWords": 171,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Senior Advantage",
+        "memberName": "Pat Example",
+        "memberId": "SSA-71-00921",
+        "letterDate": "October 20, 2026",
+        "reference": null,
+        "deniedServices": [
+          "continued stay at Example Skilled Nursing Center after October 25, 2026"
+        ],
+        "service": "continued stay at Example Skilled Nursing Center",
+        "reasonQuote": "Based on our review, your condition no longer requires daily skilled nursing care.",
+        "category": "not_medically_necessary",
+        "deadlineQuote": "If you want to appeal, you must ask within 65 days of the date of this notice.",
+        "appealPhone": "(479) 555-0188",
+        "expeditedPhone": null,
+        "appealAddress": "Sample Senior Advantage Appeals, PO Box 0003, Example City, AR 00000",
+        "provider": "Example Skilled Nursing Center"
+      },
+      "scores": {
+        "Service": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "guard_plan",
+      "expected": "guard_plan"
+    },
+    {
+      "file": "L10.jpg",
+      "letter": "L10",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 13.018181800842285,
+      "ms": 5698,
+      "ocrWords": 176,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Health Plan",
+        "memberName": "Quinn Sample",
+        "memberId": "SHP-000-9903",
+        "letterDate": "October 16, 2026",
+        "reference": "UM-26-109903",
+        "deniedServices": [
+          "in-lab overnight sleep study"
+        ],
+        "service": "in-lab overnight sleep study",
+        "reasonQuote": "Based on the information provided, an in-lab sleep study is not medically necessary. Under our criteria (SLP-3), a home sleep apnea test is the covered first step.",
+        "category": "not_medically_necessary",
+        "deadlineQuote": null,
+        "appealPhone": "(479) 555-0142",
+        "expeditedPhone": null,
+        "appealAddress": null,
+        "provider": "Example Sleep Center"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "phone": "confirmed"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L11.jpg",
+      "letter": "L11",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 12.909090995788574,
+      "ms": 2549,
+      "ocrWords": 211,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Health Plan",
+        "memberName": "Taylor Sample",
+        "memberId": "SHP-000-1155",
+        "letterDate": "October 23, 2026",
+        "reference": "26-EOB-781155",
+        "deniedServices": [
+          "Ground ambulance transport"
+        ],
+        "service": "Ground ambulance transport",
+        "reasonQuote": "Denied. The provider is not in your plan's network, and this service is not covered out of network.",
+        "category": "out_of_network",
+        "deadlineQuote": "You may file an appeal within 180 days of receiving this statement.",
+        "appealPhone": "(479) 555-0142",
+        "expeditedPhone": null,
+        "appealAddress": "Appeals Unit, Sample Health Plan, PO Box 0001, Example City, AR 00000",
+        "provider": "Example Regional Hospital"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L12.jpg",
+      "letter": "L12",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 10.245452880859375,
+      "ms": 4797,
+      "ocrWords": 148,
+      "reading": {
+        "isDenial": true,
+        "planName": "Sample Health Plan",
+        "memberName": "Reese Sample",
+        "memberId": "SHP-000-0312",
+        "letterDate": "October 5, 2026",
+        "reference": "26-EOB-770312",
+        "deniedServices": [
+          "Office visit"
+        ],
+        "service": "Office visit",
+        "reasonQuote": "R-88: Claim denied. See plan documents.",
+        "category": "unclear",
+        "deadlineQuote": "You may file an appeal within 180 days of the date of this statement.",
+        "appealPhone": "(479) 555-0142",
+        "expeditedPhone": null,
+        "appealAddress": null,
+        "provider": "Example Family Clinic"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "guard_unclear",
+      "expected": "guard_unclear"
+    },
+    {
+      "file": "L13.jpg",
+      "letter": "L13",
+      "heldOut": true,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 13.681816101074219,
+      "ms": 7088,
+      "ocrWords": 236,
+      "reading": {
+        "isDenial": true,
+        "planName": "Riverbend Silver 2026 (Marketplace plan)",
+        "memberName": "Casey Example",
+        "memberId": "ERH-5501-13",
+        "letterDate": "October 22, 2026",
+        "reference": "PA-2026-55013",
+        "deniedServices": [
+          "Continuous glucose monitor (CGM) system and a 90-day supply of sensors"
+        ],
+        "service": "Continuous glucose monitor (CGM) system and a 90-day supply of sensors",
+        "reasonQuote": "We did not receive a prior authorization request from your prescriber. This item needs our approval before it is covered. We have not decided whether it is medically right for you.",
+        "category": "prior_auth_missing",
+        "deadlineQuote": "You can ask us to look at this decision again. This is called an appeal. You must file your appeal no later than 180 calendar days after the date you receive this letter.",
+        "appealPhone": "1-800-555-0123",
+        "expeditedPhone": null,
+        "appealAddress": "Appeals, Example Riverbend Health, PO Box 0013, Example City, AR 00000",
+        "provider": "Dr. Avery Example, Example Endocrine Clinic"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "wrong",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "fix",
+      "expected": "fix"
+    },
+    {
+      "file": "L14.jpg",
+      "letter": "L14",
+      "heldOut": true,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 14.163636207580566,
+      "ms": 3147,
+      "ocrWords": 253,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Prairie Benefits Plan",
+        "memberName": "Morgan Sample",
+        "memberId": "EPB-77-0014",
+        "letterDate": "October 20, 2026",
+        "reference": "2026-0914-0014",
+        "deniedServices": [
+          "CT scan of the abdomen and pelvis with contrast"
+        ],
+        "service": "CT scan of the abdomen and pelvis with contrast",
+        "reasonQuote": "Based on the clinical information provided, the CT scan did not meet the plan's criteria for medical necessity (Imaging Guideline IG-7).",
+        "category": "not_medically_necessary",
+        "deadlineQuote": "Your appeal must be postmarked by March 31, 2027.",
+        "appealPhone": "(501) 555-0161",
+        "expeditedPhone": null,
+        "appealAddress": "Appeals, Example Claims Administrators, PO Box 0014, Example City, AR 00000, or send it by fax to (501) 555-0162.",
+        "provider": "Example Regional Imaging"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L15.jpg",
+      "letter": "L15",
+      "heldOut": true,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 14.018182754516602,
+      "ms": 10836,
+      "ocrWords": 203,
+      "reading": {
+        "isDenial": true,
+        "planName": "Ozark Bronze 2026 (Marketplace plan)",
+        "memberName": "Sam Example",
+        "memberId": "OZM-3315-0015",
+        "letterDate": "October 26, 2026",
+        "reference": "R-26-15015",
+        "deniedServices": [
+          "Example NeuroBand nerve stimulation device for migraine prevention, with 12 months of supplies."
+        ],
+        "service": "Example NeuroBand nerve stimulation device",
+        "reasonQuote": "The requested device is considered experimental and investigational for your condition under Medical Policy MP-221. There is not enough published evidence that it improves health outcomes.",
+        "category": "experimental",
+        "deadlineQuote": "You have 180 days from the date of this notice to request an internal appeal.",
+        "appealPhone": "(417) 555-0133",
+        "expeditedPhone": null,
+        "appealAddress": "Appeals, Example Ozark Mutual, PO Box 0015, Example City, MO 00000",
+        "provider": "Dr. Jamie Example, Example Neurology"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    },
+    {
+      "file": "L16.jpg",
+      "letter": "L16",
+      "heldOut": true,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 14.409090995788574,
+      "ms": 3732,
+      "ocrWords": 242,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Heartland Health Plan",
+        "memberName": "Drew Sample",
+        "memberId": "EHH-004-1616",
+        "letterDate": "October 27, 2026",
+        "reference": "AUTH-26-161616",
+        "deniedServices": [
+          "spinal fusion surgery (L4–L5)"
+        ],
+        "service": "spinal fusion surgery (L4–L5)",
+        "reasonQuote": "The records do not show that conservative treatment, such as physical therapy, was tried for at least six months. For this reason the surgery is not medically necessary at this time under Clinical Guideline SP-12.",
+        "category": "not_medically_necessary",
+        "deadlineQuote": "You may request an appeal within 180 days after you get this letter.",
+        "appealPhone": "(870) 555-0151",
+        "expeditedPhone": "(870) 555-0152",
+        "appealAddress": "Appeals Department, PO Box 0016, Example City, AR 00000",
+        "provider": "Dr. Quinn Example, Example Spine Center"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "urgent",
+      "expected": "urgent"
+    },
+    {
+      "file": "L17.jpg",
+      "letter": "L17",
+      "heldOut": true,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 13.454545974731445,
+      "ms": 4165,
+      "ocrWords": 202,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Lakeside Health",
+        "memberName": "Taylor Example",
+        "memberId": "ELH-21-001717",
+        "letterDate": "October 14, 2026",
+        "reference": "26-4417-0017",
+        "deniedServices": [
+          "Cataract surgery, right eye"
+        ],
+        "service": "Cataract surgery, right eye",
+        "reasonQuote": "Denied. We asked the provider for the operative report and have not received it. Once we receive the requested records, we will review this claim again.",
+        "category": "missing_info",
+        "deadlineQuote": "Appeals must be filed within 180 days of the statement date shown above.",
+        "appealPhone": "1 (888) 555-0119",
+        "expeditedPhone": null,
+        "appealAddress": "Appeals, Example Lakeside Health, PO Box 0017, Example City, AR 00000.",
+        "provider": "Example Eye Surgery Center"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "confirmed"
+      },
+      "outcome": "fix",
+      "expected": "fix"
+    },
+    {
+      "file": "L18.jpg",
+      "letter": "L18",
+      "heldOut": true,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 14.018182754516602,
+      "ms": 5653,
+      "ocrWords": 218,
+      "reading": {
+        "isDenial": true,
+        "planName": "Delta Gold 2026 (Marketplace plan)",
+        "memberName": "Jesse Sample",
+        "memberId": "EDC-6618-0018",
+        "letterDate": "October 23, 2026",
+        "reference": "DC-26-180018",
+        "deniedServices": [
+          "Allergy skin testing, 40 tests, September 30, 2026"
+        ],
+        "service": "Allergy skin testing",
+        "reasonQuote": "Denied. The claim was billed with a procedure code that does not match the diagnosis code submitted. This is a coding error on the claim. Your provider can send us a corrected claim.",
+        "category": "billing_error",
+        "deadlineQuote": "To appeal, contact us within 180 days of the date of this notice.",
+        "appealPhone": "1-866-555-0171",
+        "expeditedPhone": null,
+        "appealAddress": "Member Appeals, Example Delta Care, PO Box 0018, Example City, AR 00000.",
+        "provider": "Example Allergy & Asthma Clinic"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "deadline": "confirmed",
+        "phone": "flagged"
+      },
+      "outcome": "appeal",
+      "expected": "appeal"
+    }
+  ]
+}
