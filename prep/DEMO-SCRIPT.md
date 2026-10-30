@@ -1,28 +1,32 @@
 # AppealPath demo video script
 
-> **A draft video already exists:** `demo/AppealPath-demo.mp4` (2:16, 1080p). It records the live app in a phone frame, with captions and a computer voice. Make it with `node scripts/demo/record.mjs`; the narration is in `scripts/demo/narration.json`. Using your own voice is better: either record over `demo/AppealPath-demo-silent.mp4` (same video, no sound) in iMovie or QuickTime, or edit the narration lines and re-run the script. The `demo/` folder isn't in git; upload the video to YouTube (unlisted) or Devpost.
+The video is made by `node scripts/demo/record.mjs`. It records the live app in a phone frame, with captions and a computer voice, and writes `demo/AppealPath-demo.mp4` and the same video with no sound, `demo/AppealPath-demo-silent.mp4`. The `demo/` folder isn't in git. The lines are in `scripts/demo/narration.json`; change them there and re-run the script to move the captions too.
 
-**Length:** about 2:00. DSH hasn't published a limit (still asked on Discord); if they set one shorter, cut the "How it decides" section first.
-**Recording:** phone screen recording (or Chrome's phone view at phone width), plus your voice. Show your hands holding the printed letter for the first shot only.
-**Rule:** every letter on screen is one of the fictional samples, and you say so out loud.
+**Your voice is better than the computer's.** Open `demo/AppealPath-demo-silent.mp4` in iMovie or QuickTime and record over it, scene by scene. Each scene's line is on screen, so read it or say it in your own words. Keep each scene about as long as its line.
 
-| Time | On screen | You say |
+**Optional, and worth it:** film 10–15 seconds of yourself at the start saying why you built it (only what's true for you), and a few seconds of your phone taking a photo of a printed letter. Send me the clips and I'll cut them into the start.
+
+**Length:** 3:02 for this take. DSH hasn't published a limit (still asked on Discord). An old update said 3–5 minutes; if that's confirmed, your on-camera intro and a slower read get it there.
+**Rule:** every letter on screen is fictional, and the video says so.
+
+Only one of the three "2 ·" lines plays, depending on what the live read found, and "The mistake that matters" plays only when the live read didn't already show a fax mistake: **2 · Fix what's missing** played in this take.
+
+| Starts at | Scene | Line |
 |---|---|---|
-| 0:00–0:12 | The printed L01 letter in your hand, then the AppealPath form | "When insurance denies care, you get a letter like this: codes, policy numbers, and a deadline buried at the bottom. Most people don't know if they should call their doctor, file an appeal, or panic. AppealPath tells you the next step. All the letters here are fake ones I wrote; no real patient data." |
-| 0:12–0:35 | **Letter A (L01):** snap the photo, answer the 5 questions (job plan; not yet; no; no; Arkansas), tap Read my letter → **Fix & resubmit** | "This MRI was denied because the doctor's office never sent the prior authorization. That's not a no on the care; it's missing paperwork. So the next step is to ask the office to send it, and here's exactly what to say on the phone." |
-| 0:35–0:58 | **Letter B (L02):** sample-letter button → **Appeal**, with the deadline box and the appeal letter preview | "Physical therapy, denied as not medically necessary. That's an appeal. The deadline, April 19th, is copied word for word from the letter. AppealPath never calculates a deadline on its own. And here's an appeal letter you can print and sign." |
-| 0:58–1:18 | **Letter C (L03):** inpatient rehab after a stroke; answers include "my doctor says waiting could seriously harm" → **Urgent review today** | "A rehab stay after a stroke. The care hasn't happened, and the doctor says waiting could cause harm. That changes everything: you can ask for an expedited appeal today, and Healthcare.gov says you can request an outside review at the same time." |
-| 1:18–1:38 | **Back on letter B's check screen:** the ✓ "Matches your photo" lines, then tap **Show me** so the deadline lights up on the photo | "Here's the part I care most about. In my testing, the AI said it was 100% sure about a sentence it had copied wrong. So a second reader runs right on your phone, looks for the AI's deadline, reason and phone number on the photo, and shows you where they're printed. When it can't find them, or the AI grabbed a fax number instead of a phone number, it tells you." |
-| 1:38–1:52 | The How it decides page: rules table, then the two accuracy tables | "Fixed rules, with a source for each, pick the next step, not the AI. On 12 clean and 14 phone-like test letters it got every next step right, and the second reader caught every wrong phone number. These are fake letters, so it's a best case, and that's why you always check." |
-| 1:52–2:00 | The form again, with the prototype banner in view | "AppealPath is a prototype, not medical or legal advice, and it doesn't save your photo. It's built to get people from a confusing letter to the right phone call." |
-
-## Before recording
-
-- [ ] All three demo letters give the right result on the live URL (not just locally).
-- [ ] The free AI quota isn't used up today; if it is, use the sample-letter buttons and say "sample, read ahead of time".
-- [ ] Phone on Do Not Disturb; notifications off.
-- [ ] Screen recording shows taps.
-- [ ] Say the accuracy numbers you actually measured, including misses. Don't round up. If you measured real phone photos, use those.
+| 0:00 | AppealPath | In 2024, insurers on HealthCare.gov denied nearly one in five in-network claims, and fewer than one in a hundred of those denials were appealed. But a denial doesn't always need an appeal. Sometimes the doctor's office just fixes the paperwork. Sometimes you need an urgent review today. AppealPath reads the letter, checks its own work, and points to the right first step. Every letter in this video is fictional. |
+| 0:26 | 1 · Your letter | Here's a simulated phone photo of a fictional denial letter. I add the photo and answer five quick questions: a Marketplace plan, the care already happened, and I live in Missouri. |
+| 0:40 | 2 · Check what we read | The AI reads the letter live and copies what's printed: what was denied, why, the deadline, and who to call. Then a second reader, running on the phone, checks the deadline, the reason and the phone number against the photo. |
+| not in this take | 2 · Fix what's wrong | And it caught a real mistake: the AI picked the fax number as the phone number. In testing, the AI even said it was one hundred percent sure of a sentence it had copied wrong, so AppealPath never trusts its confidence. I check the number against the letter and fix it before going on. |
+| 0:53 | 2 · Fix what's missing | On this photo the AI couldn't find the deadline, and it won't make one up. So I type it exactly as it's printed on the letter, and AppealPath uses my words. |
+| not in this take | 2 · Check it against the photo | Show me opens the whole letter with those words highlighted, so checking takes a second. AppealPath never trusts the AI's own confidence: in testing, it said it was one hundred percent sure of a sentence it had copied wrong. |
+| 1:03 | 3 · Appeal | The cardiology visit was denied as out of network, so the next step is an appeal. The deadline is quoted from the letter, never calculated, and there's an appeal letter filled in from the letter's own words. |
+| 1:15 | The mistake that matters | In testing, the AI's most dangerous mistake was picking the fax number as the number to call. This built-in sample is a real reading where it did that. The second reader warns about the number, so you compare it with the letter before anything is decided. |
+| 1:30 | Sample letters | The other samples, also read ahead of time, show the other next steps. This MRI was denied because the office never sent the prior authorization. That's paperwork, so the next step is fix and resubmit, with a script for the call. |
+| 1:45 | Care still ahead | This rehab stay was denied as not medically necessary, a reason that usually leads to an appeal. But the care is still ahead and the doctor says waiting could cause harm, so the rules move it to an urgent review today. |
+| 1:57 | No guessing | Medicare and Medicaid have their own appeal rules, so AppealPath says so the moment you pick one, and doesn't read the letter. A letter with no clear reason gets: call and ask, instead of a guess. |
+| 2:10 | How it decides | Fixed rules pick the next step, each with a source or labeled a design choice. On eighteen fictional test letters, including six written after the reader was frozen, it chose the right step on every image, and the second reader flagged every fax-number mistake. These are fictional letters and simulated photos, so that's a best case. |
+| 2:30 | En español | It also works in Spanish, and the letter's own words aren't translated, so you can check them against the paper. |
+| 2:37 | AppealPath | AppealPath is a prototype, not medical or legal advice, and it doesn't save your photo or answers. It helps people find the right first step after a denial, before the deadline passes. |
 
 ## Questions judges might ask (have one-line answers ready)
 
@@ -31,5 +35,7 @@
 - **"How do you know the rules are right?"** Each rule links to Healthcare.gov or the Arkansas Insurance Department; the ones that are my own design decisions are labeled that way.
 - **"Why not Medicare and Medicaid?"** Different appeal systems. v1 sends those to the number on the letter and free counseling instead of guessing.
 - **"Privacy?"** The photo is read and thrown away. Photos and answers aren't saved; the server logs only cost and timing, and the browser remembers the language choice.
-- **"Did you use real letters?"** No. 12 fictional letters, watermarked as samples, plus simulated phone photos of them.
+- **"Did you use real letters?"** No. 18 fictional letters, watermarked as samples, with an answer key, plus simulated phone photos of them. Six were written after the reader was frozen, as a held-out test.
+- **"Is the AI even needed?"** It does the part rules can't: finding the right sentence and the right phone number on a letter it has never seen, among fax, nurse and member-services numbers. The rules do the part the AI shouldn't: deciding.
+- **"Why should I trust the samples?"** Their readings are real model output saved ahead of time, so they work even when the free AI allowance runs out. **Read it live with the AI** sends any sample through the real reader.
 - **"Why Spanish?"** A confusing insurance letter is even harder in a second language. The letter quotes stay in English because that's what's printed, and the appeal letter stays in English because the plan reads it. (If you cite a number for Spanish speakers in your area, take it from Census data and say so; it isn't checked here.)

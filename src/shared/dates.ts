@@ -1,5 +1,8 @@
 // Reads a date that is printed in a deadline sentence ("received by April 19, 2027"). It never works one out:
-// "within 180 days of receiving this notice" has no printed date, so it returns null.
+// "within 180 days of receiving this notice" has no printed date, so it returns null. A date in a sentence that counts
+// a period is where the count starts, not the deadline ("within 180 days of November 1, 2026"), so that returns null
+// too, as does a sentence with more than one date. And the words right before the date have to say it's the deadline
+// ("by", "no later than", "Deadline:"), so "The appeal period begins November 1, 2026" gets no date either.
 
 const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
@@ -16,13 +19,21 @@ function valid(year: number, month: number, day: number): PrintedDate | null {
     : null;
 }
 
+const NAMED = /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2}),?\s+(\d{4})\b/gi;
+const NUMERIC = /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g;
+const COUNTED = /\b(?:days?|weeks?|months?|years?|within)\b/i;
+const DEADLINE_BEFORE = /\b(?:by|before|no later than|not later than|until|deadline(?: is)?:?|due(?: on| by)?)\s*$/i;
+
 export function printedDate(text: string | null): PrintedDate | null {
-  if (!text) return null;
-  const named = text.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2}),?\s+(\d{4})\b/i);
-  if (named) return valid(Number(named[3]), MONTHS.indexOf(named[1]!.toLowerCase()) + 1, Number(named[2]));
-  const numeric = text.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/);
-  if (numeric) return valid(Number(numeric[3]), Number(numeric[1]), Number(numeric[2]));
-  return null;
+  if (!text || COUNTED.test(text)) return null;
+  const named = [...text.matchAll(NAMED)];
+  const numeric = [...text.matchAll(NUMERIC)];
+  if (named.length + numeric.length !== 1) return null;
+  const at = (named[0] ?? numeric[0])!.index;
+  if (!DEADLINE_BEFORE.test(text.slice(0, at))) return null;
+  if (named[0]) return valid(Number(named[0][3]), MONTHS.indexOf(named[0][1]!.toLowerCase()) + 1, Number(named[0][2]));
+  const [, month, day, year] = numeric[0]!;
+  return valid(Number(year), Number(month), Number(day));
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");

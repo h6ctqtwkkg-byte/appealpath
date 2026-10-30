@@ -35,9 +35,11 @@ const en = {
   } satisfies Record<Category, string>,
   form: {
     title: "Got a health insurance denial? Find your next step.",
-    lede: "Take a photo of the letter and answer 5 quick questions. You'll get one next step, who to call, and the deadline printed on your letter.",
+    lede: "Fix the paperwork, appeal, or ask for an urgent review? Which comes first depends on your letter. Take a photo, answer 5 quick questions, and get one next step, who to call, and the deadline printed on your letter.",
     tryTop: "Just looking, or judging?",
-    tryTopLink: "Try a sample letter",
+    tryText: "Open a fictional letter the AI has already read, with nothing to upload. On this one, the AI picked the fax number as the number to call. See the check warn about it.",
+    tryButton: "Open the sample letter",
+    tryTopLink: "Or pick another sample",
     photoTitle: "Photo of your letter",
     sampleTitle: (id: string) => `Sample letter ${id}`,
     photoHintEmpty: "Lay it flat with the whole page in frame. We read it, then throw the photo away.",
@@ -82,6 +84,7 @@ const en = {
     samples: {
       L01: "MRI: no prior authorization",
       L02: "Physical therapy: not medically necessary",
+      L04: "Cardiology: the AI picked the fax number",
       L03: "Rehab after a stroke: urgent",
       L09: "Medicare plan: call your plan",
       L12: "No clear reason: call and ask",
@@ -108,6 +111,10 @@ const en = {
     ledeAi: "Check the deadline and the reason against your letter. Fix anything that's wrong; we won't guess.",
     ledeManual: "Copy the deadline and the reason from your letter. Leave anything blank that isn't printed.",
     sampleTag: (date?: string) => `Sample letter: read ahead of time${date ? ` (${date})` : ""}, no AI used just now.`,
+    sampleNotes: {
+      L04: "This saved reading is a real one where the AI picked the fax number as the number to call, as it did in both test runs on this letter. The second reader warns about it below: compare the phone number with the letter, and fix it.",
+    } as Record<string, string>,
+    readLive: "Read it live with the AI",
     notDenial: "This doesn't look like an insurance denial. If it is, fill in the details below.",
     showLetter: "Show your letter",
     openFull: "Open your letter full size",
@@ -192,7 +199,7 @@ const en = {
     fixAskDefault: "missing information",
     fix: {
       headline: "Next step: ask your doctor's office to fix and resubmit",
-      why: "Your plan didn't turn down the care itself. Something the office sends is missing or needs correcting.",
+      why: "The reason on your letter is paperwork: something the office sends is missing or needs correcting.",
       call: (who: string) => `Call ${who} and read this:`,
       script: (service: string | null, member: string | null, reason: string | null, ask: string, ref: string | null) =>
         `Hi, I'm calling about ${service ?? "a denied claim"} for ${member ?? "the patient"}. My insurance denied it.${reason ? ` The letter says: "${reason}"` : ""} Can you send the ${ask}?${ref ? ` The reference number is ${ref}.` : ""}`,
@@ -336,13 +343,13 @@ const en = {
     notMeasured: "Not measured yet.",
     tested: (photos: number, images: string, date: string, model: string) => `${photos} images of fictional letters (${images}), ${date}, read with ${model}.`,
     fieldCols: { field: "Field", right: "Read right", empty: "Left empty for you", wrong: "Wrong" },
-    fieldNames: { Service: "What was denied", Reason: "Reason", Deadline: "Deadline", Phone: "Phone" } as Record<string, string>,
+    fieldNames: { Service: "What was denied", Reason: "Kind of reason", Deadline: "Deadline", Phone: "Phone" } as Record<string, string>,
     rightSteps: (right: number, total: number) => `Right next step without any fixes: ${right} of ${total}.`,
     secondReader: (confirmed: number, correct: number, caught: number, wrong: number) =>
       `Second reader: confirmed ${confirmed} of ${correct} correctly read deadlines and phone numbers${wrong ? `, and flagged ${caught} of ${wrong} wrong ones` : ""}.`,
     misses: "What it got wrong",
     caveat:
-      "These test letters are cleaner than real mail. The reading instructions were adjusted after earlier runs on letters L01–L12, so those numbers are a best case. The held-out letters (L13–L18) were written after the instructions were finished and never used to adjust them, but they come from the same author as the instructions, and none of these are real phone photos yet. Real-world accuracy will be lower, which is why every letter you upload goes to the check screen.",
+      "These test letters are cleaner than real mail. The reading instructions were adjusted after earlier runs on letters L01–L12, so those numbers are a best case. The held-out letters (L13–L18) were written after the instructions were finished and never used to adjust them, but they come from the same author as the instructions, and none of these are real phone photos yet. How it does on real photos hasn't been measured, which is why every letter you upload goes to the check screen.",
     wontTitle: "What it won't do",
     wont: "Contact your insurer, file anything, predict whether you'll win, give medical or legal advice, or save your photo or answers.",
     limitsTitle: "Limits",
@@ -380,9 +387,11 @@ const es: Strings = {
   },
   form: {
     title: "¿Su seguro médico le denegó algo? Encuentre su siguiente paso.",
-    lede: "Tómele una foto a la carta y conteste 5 preguntas rápidas. Recibirá un siguiente paso, a quién llamar y la fecha límite que aparece en su carta.",
+    lede: "¿Corregir el trámite, apelar o pedir una revisión urgente? Lo que va primero depende de su carta. Tómele una foto, conteste 5 preguntas rápidas y reciba un siguiente paso, a quién llamar y la fecha límite que aparece en su carta.",
     tryTop: "¿Solo quiere ver cómo funciona?",
-    tryTopLink: "Pruebe una carta de ejemplo",
+    tryText: "Abra una carta ficticia que la IA ya leyó, sin subir nada. En esta, la IA eligió el número de fax como el número para llamar. Vea cómo la revisión le avisa.",
+    tryButton: "Abrir la carta de ejemplo",
+    tryTopLink: "O elija otro ejemplo",
     photoTitle: "Foto de su carta",
     sampleTitle: (id: string) => `Carta de ejemplo ${id}`,
     photoHintEmpty: "Colóquela sobre una superficie plana, con toda la página en la foto. La leemos y luego borramos la foto.",
@@ -427,6 +436,7 @@ const es: Strings = {
     samples: {
       L01: "Resonancia magnética: sin autorización previa",
       L02: "Fisioterapia: no es médicamente necesaria",
+      L04: "Cardiología: la IA eligió el número de fax",
       L03: "Rehabilitación después de un derrame cerebral: urgente",
       L09: "Plan de Medicare: llame a su plan",
       L12: "Sin motivo claro: llame y pregunte",
@@ -453,6 +463,10 @@ const es: Strings = {
     ledeAi: "Compare la fecha límite y el motivo con su carta. Corrija lo que esté mal; nosotros no adivinamos.",
     ledeManual: "Copie la fecha límite y el motivo de su carta. Deje en blanco lo que no aparezca.",
     sampleTag: (date?: string) => `Carta de ejemplo: leída de antemano${date ? ` (${date})` : ""}, sin usar IA ahora.`,
+    sampleNotes: {
+      L04: "Esta lectura guardada es real: la IA eligió el número de fax como el número para llamar, igual que en las dos pruebas con esta carta. El segundo lector lo advierte abajo: compare el teléfono con la carta y corríjalo.",
+    },
+    readLive: "Leerla ahora con la IA",
     notDenial: "Esto no parece una carta de denegación del seguro. Si lo es, llene los datos abajo.",
     showLetter: "Ver su carta",
     openFull: "Abrir su carta en tamaño completo",
@@ -537,7 +551,7 @@ const es: Strings = {
     fixAskDefault: "la información que falta",
     fix: {
       headline: "Siguiente paso: pídale al consultorio de su médico que lo corrija y lo reenvíe",
-      why: "Su plan no rechazó la atención en sí. Falta algo que el consultorio debe enviar, o hay algo que corregir.",
+      why: "El motivo de su carta es un trámite: falta algo que el consultorio debe enviar, o hay algo que corregir.",
       call: (who: string) => `Llame a ${who} y lea esto:`,
       script: (service: string | null, member: string | null, reason: string | null, ask: string, ref: string | null) =>
         `Hola, llamo por ${service ? `«${service}»` : "un reclamo denegado"} ${member ? `de ${member}` : "del paciente"}. Mi seguro lo denegó.${reason ? ` La carta dice: "${reason}"` : ""} ¿Pueden enviar ${ask}?${ref ? ` El número de referencia es ${ref}.` : ""}`,
@@ -684,13 +698,13 @@ const es: Strings = {
     notMeasured: "Todavía no se ha medido.",
     tested: (photos: number, images: string, date: string, model: string) => `${photos} imágenes de cartas ficticias (${images}), ${date}, leídas con ${model}.`,
     fieldCols: { field: "Dato", right: "Bien leído", empty: "Vacío para que usted lo llene", wrong: "Mal" },
-    fieldNames: { Service: "Qué se denegó", Reason: "Motivo", Deadline: "Fecha límite", Phone: "Teléfono" },
+    fieldNames: { Service: "Qué se denegó", Reason: "Tipo de motivo", Deadline: "Fecha límite", Phone: "Teléfono" },
     rightSteps: (right: number, total: number) => `Siguiente paso correcto sin ninguna corrección: ${right} de ${total}.`,
     secondReader: (confirmed: number, correct: number, caught: number, wrong: number) =>
       `Segundo lector: confirmó ${confirmed} de ${correct} fechas límite y teléfonos bien leídos${wrong ? ` y señaló ${caught} de ${wrong} mal leídos` : ""}.`,
     misses: "En qué se equivocó",
     caveat:
-      "Estas cartas de prueba son más limpias que el correo real. Las instrucciones de lectura se ajustaron después de pruebas anteriores con las cartas L01–L12, así que esos números son el mejor caso. Las cartas reservadas (L13–L18) se escribieron después de terminar las instrucciones y nunca se usaron para ajustarlas, pero vienen del mismo autor que las instrucciones, y ninguna es todavía una foto real de teléfono. En la vida real la precisión será menor; por eso toda carta que usted sube pasa por la pantalla de revisión.",
+      "Estas cartas de prueba son más limpias que el correo real. Las instrucciones de lectura se ajustaron después de pruebas anteriores con las cartas L01–L12, así que esos números son el mejor caso. Las cartas reservadas (L13–L18) se escribieron después de terminar las instrucciones y nunca se usaron para ajustarlas, pero vienen del mismo autor que las instrucciones, y ninguna es todavía una foto real de teléfono. Todavía no se ha medido cómo funciona con fotos reales; por eso toda carta que usted sube pasa por la pantalla de revisión.",
     wontTitle: "Lo que no hace",
     wont: "Comunicarse con su aseguradora, presentar nada, predecir si va a ganar, dar consejo médico o legal, ni guardar su foto o sus respuestas.",
     limitsTitle: "Límites",

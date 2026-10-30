@@ -1,5 +1,5 @@
-// The three demo letters (fictional, from test-letters/). Their readings in public/samples/readings.json are real
-// model answers captured ahead of time by scripts/capture-samples.mjs, so a sample never spends neurons and always works.
+// The demo letters (fictional, from test-letters/). Their readings in public/samples/readings.json are real
+// model answers captured ahead of time by scripts/capture-samples.mjs, so a sample never spends neurons and keeps working when the free allowance runs out.
 // Their labels are in i18n.ts (form.samples).
 import type { Answers, Reading } from "../shared/types";
 
@@ -11,10 +11,14 @@ export interface Sample {
 export const SAMPLES: Sample[] = [
   { id: "L01", answers: { plan: "job", careHappened: false, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" } },
   { id: "L02", answers: { plan: "marketplace", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" } },
+  { id: "L04", answers: { plan: "marketplace", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", state: "MO" } },
   { id: "L03", answers: { plan: "job", careHappened: false, doctorSaysHarm: "yes", officeResubmitted: "no", state: "AR" } },
   { id: "L09", answers: { plan: "medicare", careHappened: false, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR" } },
   { id: "L12", answers: { plan: "job", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "dont_know", state: "AR" } },
 ];
+
+/** The sample "Just looking, or judging?" opens: a saved reading where the AI picked the fax number, so the check has something to catch. */
+export const JUDGE_SAMPLE = "L04";
 
 export interface CapturedReading {
   reading: Reading;

@@ -114,5 +114,28 @@
     },
     "model": "@cf/google/gemma-4-26b-a4b-it",
     "capturedAt": "2026-10-29"
+  },
+  "L04": {
+    "reading": {
+      "isDenial": true,
+      "planName": "Example Bronze 2026 (Marketplace plan)",
+      "memberName": "Morgan Example",
+      "memberId": "EMH-22-71530",
+      "letterDate": "October 14, 2026",
+      "reference": "C-26-0101452",
+      "deniedServices": [
+        "Cardiology follow-up office visit, September 30, 2026"
+      ],
+      "service": "Cardiology follow-up office visit",
+      "reasonQuote": "The provider is not in your plan's network. Your plan does not cover non-emergency services from out-of-network providers.",
+      "category": "out_of_network",
+      "deadlineQuote": "You have 180 days from the date you receive this notice to ask for an appeal.",
+      "appealPhone": "(479) 555-0178",
+      "expeditedPhone": null,
+      "appealAddress": "Example Marketplace Health Appeals, PO Box 0002, Example City, AR 00000, or fax it to (479) 555-0178",
+      "provider": "Example Heart Specialists"
+    },
+    "model": "@cf/google/gemma-4-26b-a4b-it",
+    "capturedAt": "2026-10-30"
   }
 }

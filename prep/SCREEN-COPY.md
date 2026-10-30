@@ -13,7 +13,13 @@ Every word on every screen, written before the build so the 48 hours go to build
 
 **Headline:** Got a health insurance denial? Find your next step.
 
-**Subhead:** Take a photo of the letter and answer 5 questions. You'll get one next step, who to call, and the deadline printed on your letter.
+**Subhead:** Fix the paperwork, appeal, or ask for an urgent review? Which comes first depends on your letter. Take a photo, answer 5 quick questions, and get one next step, who to call, and the deadline printed on your letter.
+
+**Judge card (above the photo):** **Just looking, or judging?** Open a fictional letter the AI has already read, with nothing to upload. On this one, the AI picked the fax number as the number to call. See the check warn about it.
+- Button: Open the sample letter (opens L04)
+- Link: Or pick another sample
+
+**On a sample's check screen:** Sample letter: read ahead of time ([date]), no AI used just now. *Read it live with the AI* (sends the sample through the real reader). L04 adds: "This saved reading is a real one where the AI picked the fax number as the number to call, as it did in both test runs on this letter. The second reader warns about it below: compare the phone number with the letter, and fix it."
 
 **Photo**
 - Label: Photo of your letter
@@ -91,7 +97,7 @@ Every result has, in order: the headline, one sentence on why, the steps, the **
 
 **Headline:** Next step: ask your doctor's office to fix and resubmit
 
-**Why:** Your plan didn't turn down the care itself. Something the office sends is missing: [plain reason].
+**Why:** The reason on your letter is paperwork: something the office sends is missing or needs correcting.
 
 **Steps**
 1. Call [provider, or "your doctor's office"] and read this:

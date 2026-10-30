@@ -1,4 +1,4 @@
-# User test: 15 minutes per person
+# User test: about 17 minutes per person
 
 Goal: watch 2–3 people use AppealPath without help, and write down what they say and where they get stuck. You're testing the app, not them.
 
@@ -19,17 +19,22 @@ Read each task out loud, exactly as written.
 
 Watch for: Do they find the photo button? Do they answer all 5 questions? On "Check what we read," do they look at the deadline and reason, or tap straight through? Do they find **Show me**? On the result, can they tell you the deadline and who to send the appeal to?
 
-**Task 2: urgent care (about 3 minutes).** Have them go back to the first screen.
+**Task 2: spot the mistake (about 2 minutes).** Have them go back to the first screen.
+> "Tap 'Open the sample letter'. Is anything on this screen wrong? What would you do about it?"
+
+Watch for: Do they notice the warning on the phone number by themselves? Do they open the letter to compare? Do they fix it, or tap straight through? This is the most important thing to count: "2 of 3 people found the wrong number without help" is real evidence that the check works.
+
+**Task 3: urgent care (about 3 minutes).** Have them go back to the first screen.
 > "Now pretend your mom's rehab stay is next week, it was denied, and her doctor says waiting could hurt her. Tap the sample called 'Rehab after a stroke: urgent.' What does the app tell you to do, and how soon?"
 
 Watch for: Do they get that it's *today*? Can they find the number to call?
 
-**Task 3: Medicare (about 2 minutes).** Back to the first screen.
+**Task 4: Medicare (about 2 minutes).** Back to the first screen.
 > "Your grandma has Medicare and got a denial letter. What does the app tell her?"
 
 Watch for: Do they understand why it won't read the letter, and who to call?
 
-**Optional, if they read Spanish:** have them tap **Español** and repeat Task 2.
+**Optional, if they read Spanish:** have them tap **Español** and repeat Task 3.
 
 ## After (about 3 minutes)
 
@@ -46,8 +51,9 @@ Person: ________ (first name or "a parent") · Date: ________ · Their phone: iP
 | Task | Finished? | Where they got stuck | Exact words |
 |---|---|---|---|
 | 1. Own letter (L02) | yes / no | | |
-| 2. Urgent sample | yes / no | | |
-| 3. Medicare | yes / no | | |
+| 2. Spot the mistake (L04) | found it / didn't | | |
+| 3. Urgent sample | yes / no | | |
+| 4. Medicare | yes / no | | |
 | Spanish (optional) | yes / no | | |
 
 | Question | Exact words |

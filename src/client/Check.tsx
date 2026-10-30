@@ -91,6 +91,7 @@ export function Check(props: {
   capturedAt?: string;
   onConfirm: () => void;
   onBack: () => void;
+  onReadLive?: () => void;
 }) {
   const all = useT();
   const t = all.check;
@@ -167,7 +168,21 @@ export function Check(props: {
     <main class="wrap wide" id="main">
       <h1>{manual ? t.titleManual : t.titleAi}</h1>
       <p class="lede">{manual ? t.ledeManual : t.ledeAi}</p>
-      {props.source === "sample" && <p class="sample-tag">{t.sampleTag(props.capturedAt)}</p>}
+      {props.source === "sample" && (
+        <p class="sample-tag">
+          {t.sampleTag(props.capturedAt)}{" "}
+          {props.onReadLive && (
+            <button class="linkish" type="button" onClick={props.onReadLive}>
+              {t.readLive}
+            </button>
+          )}
+        </p>
+      )}
+      {props.source === "sample" && props.photo?.sampleId && t.sampleNotes[props.photo.sampleId] && (
+        <div class="notice">
+          <p>{t.sampleNotes[props.photo.sampleId]}</p>
+        </div>
+      )}
       {answersLine && (
         <p class="answers-line">
           <strong>{t.answersLabel}</strong> {answersLine}{" "}

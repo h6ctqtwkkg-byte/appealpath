@@ -11,6 +11,7 @@ import { chromium } from "playwright-core";
 const BASE = process.env.APP_URL ?? "https://appealpath.7zhvt4rjzh.workers.dev";
 const OUT = "demo";
 const PHOTO = "test-letters/phone-like/L04.jpg"; // Marketplace, out of network, Missouri member
+const RIGHT_PHONE = "4795550177"; // L04's number to call; its fax, (479) 555-0178, is printed in the same sentence
 const { voice, rate, scenes } = JSON.parse(await readFile("scripts/demo/narration.json", "utf8"));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -128,12 +129,15 @@ await scene("check", async () => {
   await wait(1200);
   await smoothTo(app.locator("#reason"), "start");
 });
-// The live read decides the next line: type a deadline the reader couldn't find, fix a fax number the second reader
-// flagged, or show the check itself when everything matched.
+// The live read decides the next line: type a deadline the reader couldn't find, fix a wrong phone number the second
+// reader warned about, or show the check itself. The warning on L04's fax says "couldn't find" rather than "fax",
+// because that number wraps onto a second line, so the phone itself decides.
 const missing = (await app.locator("#deadline-typed").count()) > 0;
 const phoneFlag = ((await app.locator("#phone-check").textContent().catch(() => "")) ?? "").toLowerCase();
-const flagged = !missing && phoneFlag.includes("fax");
-console.log(missing ? "reader found no deadline" : flagged ? "second reader flagged the phone as a fax number" : `phone check: ${phoneFlag || "none"}`);
+const phoneRead = (await app.locator("#phone").inputValue()).replace(/\D/g, "");
+const flagged = !missing && phoneRead !== RIGHT_PHONE && !!phoneFlag && !phoneFlag.includes("matches");
+console.log(missing ? "reader found no deadline" : flagged ? `second reader warned about a wrong phone (${phoneRead})` : `phone ${phoneRead}, check: ${phoneFlag || "none"}`);
+if (!missing && !flagged && phoneRead !== RIGHT_PHONE) throw new Error("wrong phone with no warning: no narration fits this take, so record again");
 await scene(missing ? "correctMissing" : flagged ? "correctFax" : "correctOk", async () => {
   if (missing) {
     await smoothTo(app.locator("#deadline-typed"), "center");
@@ -146,9 +150,19 @@ await scene(missing ? "correctMissing" : flagged ? "correctFax" : "correctOk", a
   await smoothTo(app.locator("#phone"), "center");
   await wait(800);
   if (flagged) {
-    await tap(app.locator("p.second:has(#phone-check) .linkish"));
-    await wait(3500);
-    await tap(app.getByRole("button", { name: "Close" }));
+    // "Show me" when the second reader found the number; otherwise open the whole letter to compare.
+    const showMe = app.locator("p.second:has(#phone-check) .linkish");
+    if (await showMe.count()) {
+      await tap(showMe);
+      await wait(3500);
+      await tap(app.getByRole("button", { name: "Close" }));
+    } else {
+      await smoothTo(app.locator("details summary").first(), "start");
+      await tap(app.locator("details summary").first());
+      await wait(3500);
+      await tap(app.locator("details summary").first());
+      await smoothTo(app.locator("#phone"), "center");
+    }
     await app.locator("#phone").click({ clickCount: 3 });
     await app.locator("#phone").pressSequentially("(479) 555-0177", { delay: 90 });
     await wait(800);
@@ -169,6 +183,18 @@ await scene("appeal", async () => {
   await wait(2200);
   await smoothTo(app.locator(".appeal-letter"), "start");
 });
+// The fax mistake is the one that matters most, so show the saved sample where the AI made it, unless this take's
+// live read just showed it.
+if (!flagged) {
+  await scene("sampleFax", async () => {
+    await open("/?sample=L04");
+    await secondReaderDone();
+    await wait(800);
+    await smoothTo(app.locator("#phone"), "center");
+    await point(app.locator("#phone-check"));
+    await wait(1500);
+  });
+}
 await scene("fix", async () => {
   await open("/?sample=L01&result");
   await wait(1800);

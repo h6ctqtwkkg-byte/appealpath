@@ -4,7 +4,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 
 const base = process.env.BASE ?? "http://127.0.0.1:8792";
-const ids = process.argv.slice(2).length ? process.argv.slice(2) : ["L01", "L02", "L03", "L09", "L12"];
+const ids = process.argv.slice(2).length ? process.argv.slice(2) : ["L01", "L02", "L03", "L04", "L09", "L12"];
 const out = JSON.parse(await readFile("public/samples/readings.json", "utf8").catch(() => "{}"));
 for (const id of ids) {
   const image = (await readFile(`public/samples/${id}.jpg`)).toString("base64");

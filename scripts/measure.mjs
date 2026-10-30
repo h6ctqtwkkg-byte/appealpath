@@ -104,6 +104,7 @@ for (const file of files) {
     }
   };
   score("Service", norm(r.service).includes(want.service), !r.service, `denied service read as "${r.service}"`);
+  // "Reason" scores the kind of reason (the category that picks the next step), not the reason quote; the How page says so.
   if (want.category) score("Reason", r.category === want.category, false, `reason read as ${r.category} (should be ${want.category})`);
   const deadlineRight = want.deadline === null ? r.deadlineQuote === null : norm(r.deadlineQuote) === norm(want.deadline);
   score(

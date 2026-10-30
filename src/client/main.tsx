@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { decide } from "../shared/rules";
 import { EMPTY_READING, type Answers, type Decision, type ReadResponse, type Reading } from "../shared/types";
 import { Check, type OcrState } from "./Check";
-import { Form, missingAnswers, type Draft } from "./Form";
+import { Form, isGuardPlan, missingAnswers, type Draft } from "./Form";
 import { How } from "./How";
 import { initialLang, LangContext, saveLang, STRINGS, type Lang } from "./i18n";
-import type { Photo } from "./image";
+import { prepare, type Photo } from "./image";
 import { readWords } from "./ocr";
 import { Result } from "./Result";
 import { SAMPLES, sampleReading } from "./samples";
@@ -133,12 +133,12 @@ function App() {
     setScreen("form");
   }
 
-  async function read() {
-    if (photo?.sampleId) {
+  async function read(image = photo?.base64) {
+    if (photo?.sampleId && !image) {
       await openSample(photo.sampleId, draft);
       return;
     }
-    if (!photo?.base64) return;
+    if (!image) return;
     setNotice(null);
     setEarly(false);
     setScreen("reading");
@@ -146,7 +146,7 @@ function App() {
       const res = await fetch("/api/read", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ image: photo.base64 }),
+        body: JSON.stringify({ image }),
       });
       const body = (await res.json()) as ReadResponse;
       if (!body.ok) {
@@ -163,6 +163,20 @@ function App() {
     }
   }
 
+  // A sample letter sent through the real reader, so anyone can watch the AI read without a letter of their own.
+  async function readLive() {
+    if (!photo?.sampleId) return;
+    try {
+      const blob = await fetch(photo.preview).then((r) => r.blob());
+      const live = await prepare(new File([blob], `${photo.sampleId}.jpg`, { type: blob.type }));
+      setPhoto(live);
+      await read(live.base64 ?? undefined);
+    } catch {
+      setNotice("unavailable");
+      setScreen("form");
+    }
+  }
+
   function manual() {
     setNotice(null);
     setEarly(false);
@@ -172,6 +186,18 @@ function App() {
   }
 
   async function openSample(id: string, answers: Draft): Promise<Reading | null> {
+    // Medicare, Medicaid and "not sure" read nothing, samples included: straight to "call your plan", as from the form.
+    if (isGuardPlan(answers)) {
+      setNotice(null);
+      setDraft(answers);
+      setPhoto({ preview: `/samples/${id}.jpg`, base64: null, sampleId: id });
+      setReading(EMPTY_READING);
+      setSource("sample");
+      setEarly(true);
+      setDecision(decide(answers as Answers, EMPTY_READING));
+      setScreen("result");
+      return EMPTY_READING;
+    }
     const captured = await sampleReading(id);
     if (!captured) {
       setNotice("samples");
@@ -253,7 +279,7 @@ function App() {
           setDraft={setDraft}
           photo={photo}
           setPhoto={setPhoto}
-          onRead={read}
+          onRead={() => read()}
           onManual={manual}
           onGuard={planGuard}
           onSample={(id) => openSample(id, SAMPLES.find((s) => s.id === id)?.answers ?? {})}
@@ -272,6 +298,7 @@ function App() {
           capturedAt={capturedAt}
           onConfirm={confirm}
           onBack={() => setScreen("form")}
+          onReadLive={source === "sample" ? readLive : undefined}
         />
       )}
       {screen === "result" && decision && (
@@ -279,7 +306,7 @@ function App() {
           decision={decision}
           reading={reading}
           answers={draft as Answers}
-          sample={source === "sample"}
+          sample={source === "sample" && !early}
           early={early}
           onEdit={() => setScreen(early ? "form" : "check")}
           onRestart={restart}

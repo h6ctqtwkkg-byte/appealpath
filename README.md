@@ -4,13 +4,13 @@
 
 *Prototype, not medical or legal advice.* Built solo for DSH Hacks V2 (AI × Healthcare). All test letters are fictional.
 
-**Try it:** https://appealpath.7zhvt4rjzh.workers.dev · Five fictional samples, one per rule: [Fix & resubmit](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L01&result) · [Appeal](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02&result) · [Urgent review](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L03&result) · [Medicare: call your plan](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L09&result) · [No clear reason](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L12&result) · [check screen with the second reader](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02) · [how it decides](https://appealpath.7zhvt4rjzh.workers.dev/#how)
+**Try it:** https://appealpath.7zhvt4rjzh.workers.dev · [See the AI pick a fax number and the check warn about it](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L04) · One fictional sample per rule: [Fix & resubmit](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L01&result) · [Appeal](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02&result) · [Urgent review](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L03&result) · [Medicare: call your plan](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L09&result) · [No clear reason](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L12&result) · [how it decides](https://appealpath.7zhvt4rjzh.workers.dev/#how). Samples show readings saved ahead of time; **Read it live with the AI** sends one through the real reader.
 
-**DSH theme fit:** Faster care. A denial stops care the doctor already ordered, and AppealPath gets it moving again. It doesn't diagnose anything.
+**DSH problem statement B, Faster care.** Different denials need different first steps: the office fixes the paperwork, you appeal, or you ask for an urgent review today. Of the denial reasons HealthCare.gov insurers reported for 2024, only 5% were a lack of medical necessity; 25% were administrative and 9% a missing prior authorization or referral ([KFF](https://www.kff.org/patient-consumer-protections/claims-denials-and-appeals-in-aca-marketplace-plans-in-2024/)). AppealPath helps people find the right first step before the deadline passes. It doesn't diagnose anything.
 
-| Your letter | Check what we read | Second reader | Next step |
-|---|---|---|---|
-| ![Form](docs/screenshots/1-form.jpg) | ![Check](docs/screenshots/2-check.jpg) | ![Highlight](docs/screenshots/2b-second-reader.jpg) | ![Appeal](docs/screenshots/3-result-appeal.jpg) |
+![AppealPath: the AI picks a fax number, the second reader warns, and the result is one next step with the deadline as printed](docs/gallery/1-cover.png)
+
+More screens: [how it works](docs/gallery/2-how-it-works.png) · [the check](docs/gallery/3-check.png) · [appeal](docs/gallery/4-appeal.png) · [the other next steps, and Spanish](docs/gallery/5-urgent-and-guard.png) · [results](docs/gallery/6-results.png)
 
 ## How it works
 
@@ -40,7 +40,7 @@ flowchart LR
 | 6 held-out letters (L13–L18, never used for tuning), clean images | **6 / 6** | Confirmed 10 of 11 correct values; 1 wrong value (an over-long deadline quote) not flagged |
 | 6 held-out letters, simulated phone-like images | **6 / 6** | Confirmed 10 of 12 correct values; no wrong values |
 
-Known misses: on 2–3 letters the AI picked the fax number as the phone, and the second reader flagged every one. On one letter it read "out of network" as "not covered", which leads to the same next step. The reading instructions were tuned on L01–L12, so treat those numbers as a best case. The held-out letters were written afterward and never used for tuning, but they come from the same author, and there are only 6. The second reader can't yet join a phone number that wraps onto a second line (L18). Real phone photos haven't been measured yet. Details: `public/accuracy.json`, `prep/READER-TEST.md`.
+Known misses: on 4 images of 3 letters the AI picked the fax number as the phone, and the second reader flagged every one. On one letter it read "out of network" as "not covered", which leads to the same next step. The reading instructions were tuned on L01–L12, so treat those numbers as a best case. The held-out letters were written afterward and never used for tuning, but they come from the same author, and there are only 6. The second reader can't yet join a phone number that wraps onto a second line (L18). Real phone photos haven't been measured yet. **The full method, every miss and how to rerun it: [EVALUATION.md](EVALUATION.md).**
 
 ## Accessibility
 
@@ -53,9 +53,9 @@ Checked against WCAG 2.1 AA (`prep/ACCESSIBILITY.md`): 7 issues found and fixed.
 | Local dev (builds the app, then `wrangler dev` on :8792) | `npm run dev` |
 | Rebuild the app on change | `npm run dev:watch` |
 | Typecheck (Worker + app) | `npm run typecheck` |
-| Tests (rules on all 18 letters, reader output, second-reader matching, printed dates) | `npm test` |
+| Tests (rules on all 18 letters, the samples' saved readings, reader output, second-reader matching, printed dates) | `npm test` |
 | Deploy to workers.dev (typecheck, tests, build, then `wrangler deploy`) | `npm run deploy` |
-| Re-capture the 5 sample readings (dev server running; about 80 neurons) | `node scripts/capture-samples.mjs` |
+| Re-capture the sample readings (dev server running; about 15 neurons each) | `node scripts/capture-samples.mjs [L01 …]` |
 | Make the clean test images (macOS) | `bash scripts/render-letters.sh` |
 | Make the phone-like test images (macOS) | `bash scripts/phone-like.sh` |
 | Measure a folder of images (dev server running; about 14 neurons each). Held-out letters become their own run; every reading is saved in `test-letters/runs/` | `node scripts/measure.mjs photos "phone photos"` |

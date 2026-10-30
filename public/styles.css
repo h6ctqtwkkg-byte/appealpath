@@ -284,7 +284,10 @@ footer.foot p { margin-bottom: 6px; }
 .top-links { display: flex; align-items: center; gap: 16px; font-size: 15px; }
 .lang { font-size: 15px; }
 .review-note { display: block; font-size: 13px; opacity: .85; margin-top: 2px; }
-.try-top { font-size: 15px; color: var(--ink-2); margin: -10px 0 20px; }
+.try-card { background: var(--surface); border: 1px solid var(--rule); border-left: 4px solid var(--primary); border-radius: var(--radius); padding: 14px 16px; margin: -6px 0 22px; }
+.try-card p { font-size: 15px; color: var(--ink-2); margin: 0 0 12px; }
+.try-card p strong { color: var(--ink); }
+.try-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; font-size: 15px; }
 .skip { position: absolute; left: 8px; top: -60px; background: var(--surface); color: var(--primary); padding: 10px 14px; border-radius: 8px; z-index: 10; }
 .skip:focus { top: 8px; }
 .error-text { color: var(--urgent); margin-top: 8px; }

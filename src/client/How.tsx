@@ -75,6 +75,9 @@ function RunTable({ run }: { run: Run }) {
   );
 }
 
+// The held-out letters are the fairer test, so they come first.
+const heldOutFirst = (run: Run) => (run.images.startsWith("held-out") ? 0 : 1);
+
 export function How() {
   const t = useT().how;
   const [runs, setRuns] = useState<Run[] | null | undefined>(undefined);
@@ -141,7 +144,7 @@ export function How() {
       <h2>{t.accuracyTitle}</h2>
       {runs === undefined && <p class="muted">{t.loading}</p>}
       {runs === null && <p>{t.notMeasured}</p>}
-      {runs?.map((run) => <RunTable key={run.images} run={run} />)}
+      {runs && [...runs].sort((a, b) => heldOutFirst(a) - heldOutFirst(b)).map((run) => <RunTable key={run.images} run={run} />)}
       {runs && <p class="muted small">{t.caveat}</p>}
 
       <h2>{t.wontTitle}</h2>

@@ -33,20 +33,20 @@
 <body>
   <h1>AppealPath</h1>
   <p class="tag"><strong>From a confusing health insurance denial letter to the right next step.</strong></p>
-  <p class="meta">DSH Hacks V2 · AI × Healthcare · <strong>Faster care</strong>: gets denied care moving again · built solo by Noah · English and Spanish</p>
+  <p class="meta">DSH Hacks V2 · AI × Healthcare · <strong>Problem statement B, Faster care</strong> · built solo by Noah · English and Spanish</p>
   <div class="banner"><strong>Prototype.</strong> Not medical or legal advice. All letters shown or tested are fictional; no real patient data was used.</div>
 
   <div class="cols">
     <div>
       <h2>The problem</h2>
-      <p>When a health plan denies care, the letter is full of codes, policy names and fine print. People don't know whether to call their doctor's office, file an appeal, or ask for an urgent review, and the deadline is easy to miss. The care the doctor already ordered just waits. A denial is a barrier to <em>access</em>, not a diagnosis problem.</p>
+      <p>In 2024, HealthCare.gov insurers denied 19% of in-network claims; fewer than 1% were appealed. Of the reasons reported, only 5% were medical necessity; 25% were administrative and 9% no prior authorization or referral (KFF). So the first step differs: the office fixes the paperwork, you appeal, or you ask for an urgent review today. The letter says which, in fine print, with an easy-to-miss deadline.</p>
       <h2>Who it's for</h2>
-      <p>Patients and caregivers on job-based or Marketplace plans holding a denial letter, often on a phone and stressed.</p>
+      <p>Patients and caregivers on job-based or Marketplace plans, often reading on a phone.</p>
       <h2>How it works</h2>
       <ol>
-        <li>Take a photo of the letter and answer 5 questions (plan type, has the care happened, does your doctor say waiting could seriously harm you, has the office resubmitted, your state).</li>
+        <li>Take a photo of the letter and answer 5 questions: plan type, has the care happened, does your doctor say waiting could seriously harm you, has the office resubmitted, your state.</li>
         <li>An AI vision model (Gemma 4 on Cloudflare Workers AI) copies the key facts: what was denied, why, the deadline, who to call. It also suggests the kind of reason.</li>
-        <li>A <strong>second reader</strong> (Tesseract, running on the user's own device) looks for the deadline, reason and phone on the photo, highlights where they're printed, and flags any it can't find, including fax numbers picked as phone numbers.</li>
+        <li>A <strong>second reader</strong> (Tesseract, on the user's own device) finds the deadline, reason and phone on the photo, highlights them, and flags any it can't find, or a fax number picked as the phone.</li>
         <li>The user checks and corrects the deadline and the reason. Then fixed rules, each with a source or labeled a design choice, pick one next step:</li>
       </ol>
       <div class="three">
@@ -54,7 +54,10 @@
         <div class="appeal"><b>Appeal</b>Not medically necessary, not covered, out of network</div>
         <div class="urgent"><b>Urgent review today</b>Care is still ahead and waiting could cause harm</div>
       </div>
-      <p>Results give free help (Arkansas contacts), a call script (fix, urgent) or a printable appeal letter filled with the letter's own words (appeal), and a calendar reminder when a date is printed. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess. Five sample letters, one for each rule, open from direct links (<code>?sample=L01</code> … <code>L12</code>).</p>
+      <p>Results add free help, a call script or a printable appeal letter in the letter's own words, and a calendar reminder only when a real date is printed. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess. No upload needed: <code>?sample=L04</code> shows the AI picking a fax number and the check warning about it; <em>Read it live</em> sends a sample through the real AI.</p>
+
+      <h2>What it won't do</h2>
+      <p>Contact insurers, file anything, predict whether an appeal will win, diagnose, give legal advice, or store photos or answers.</p>
     </div>
     <div>
       <h2>What makes it different</h2>
@@ -67,17 +70,15 @@
       <h2>How well it works</h2>
       <table>
         <tr><th>Test images (fictional letters)</th><th>Right next step</th><th>Second reader (deadline, phone)</th></tr>
-        <tr><td>12 clean digital images</td><td><strong>12 / 12</strong></td><td>21/21 correct values confirmed; 2/2 wrong ones flagged</td></tr>
-        <tr><td>14 simulated phone photos (tilted, blurred, shadowed, compressed)</td><td><strong>14 / 14</strong></td><td>22/24 confirmed; 2/2 wrong ones flagged</td></tr>
-        <tr><td>6 held-out letters, never tuned on (12 images)</td><td><strong>12 / 12</strong></td><td>20/23 confirmed; 1 long quote missed</td></tr>
+        <tr><td><strong>6 held-out letters</strong>, never tuned on: clean and simulated phone</td><td><strong>6 / 6 on both</strong></td><td>20/23 confirmed; 1 over-long quote passed</td></tr>
+        <tr><td>12 development letters, clean</td><td><strong>12 / 12</strong></td><td>21/21 confirmed; 2/2 wrong ones flagged</td></tr>
+        <tr><td>14 simulated phone photos of those (tilted, blurred, shadowed, compressed)</td><td><strong>14 / 14</strong></td><td>22/24 confirmed; 2/2 wrong ones flagged</td></tr>
       </table>
-      <p style="font-size: 9pt">Misses: fax numbers picked as the phone, all flagged. Instructions were tuned on the first 12 letters; the held-out 6 came later, same author. Real accuracy will be lower, so every upload goes through the check screen.</p>
-      <h2>What it won't do</h2>
-      <p>Contact insurers, file anything, predict whether an appeal will win, diagnose, give legal advice, or store photos or answers.</p>
+      <p style="font-size: 9pt">Misses: fax numbers picked as the phone, all flagged. Instructions were tuned on the first 12 letters; the held-out 6 came later, same author. Real phone photos haven't been measured yet, so every upload goes through the check screen. Method and every miss: EVALUATION.md.</p>
       <h2>Built with</h2>
-      <p>Cloudflare Workers and Workers AI on the free plan (Gemma 4; Llama 4 Scout as backup); Tesseract.js in the browser; Preact; TypeScript; 55 automated tests; WCAG 2.1 AA check (7 issues fixed). AI coding tools were used during the build, as DSH allows.</p>
+      <p>Cloudflare Workers and Workers AI on the free plan (Gemma 4; Llama 4 Scout as backup); Tesseract.js in the browser; Preact; TypeScript; 66 automated tests; WCAG 2.1 AA check (7 issues fixed). AI coding tools were used during the build, as DSH allows.</p>
       <h2>Sources</h2>
-      <p style="font-size: 9pt">Healthcare.gov (internal appeals; external review) · Arkansas Insurance Department (consumer services; external review) · U.S. Department of Labor (EBSA)</p>
+      <p style="font-size: 9pt">KFF (Marketplace claims denials and appeals, 2024) · Healthcare.gov (internal appeals; external review) · Arkansas Insurance Department (consumer services; external review) · U.S. Department of Labor (EBSA)</p>
     </div>
   </div>
 

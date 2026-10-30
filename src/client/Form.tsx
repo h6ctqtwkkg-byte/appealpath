@@ -5,7 +5,7 @@ import { GUARD_PLANS } from "../shared/rules";
 import type { Answers } from "../shared/types";
 import { useT, type GuardPlan, type Strings } from "./i18n";
 import { prepare, type Photo } from "./image";
-import { SAMPLES } from "./samples";
+import { JUDGE_SAMPLE, SAMPLES } from "./samples";
 import { STATES } from "./states";
 import { Choice } from "./ui";
 
@@ -64,20 +64,27 @@ export function Form(props: {
     <main class="wrap" id="main">
       <h1>{f.title}</h1>
       <p class="lede">{f.lede}</p>
-      <p class="try-top">
-        {f.tryTop}{" "}
-        <a
-          href="#samples"
-          onClick={(e) => {
-            e.preventDefault();
-            const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-            document.getElementById("samples")?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "center" });
-            (document.querySelector("#samples .chip") as HTMLElement | null)?.focus({ preventScroll: true });
-          }}
-        >
-          {f.tryTopLink}
-        </a>
-      </p>
+      <div class="try-card">
+        <p>
+          <strong>{f.tryTop}</strong> {f.tryText}
+        </p>
+        <div class="try-actions">
+          <button class="btn secondary" type="button" onClick={() => props.onSample(JUDGE_SAMPLE)}>
+            {f.tryButton}
+          </button>
+          <a
+            href="#samples"
+            onClick={(e) => {
+              e.preventDefault();
+              const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+              document.getElementById("samples")?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "center" });
+              (document.querySelector("#samples .chip") as HTMLElement | null)?.focus({ preventScroll: true });
+            }}
+          >
+            {f.tryTopLink}
+          </a>
+        </div>
+      </div>
 
       {props.notice && (
         <div class="notice error" role="alert">
