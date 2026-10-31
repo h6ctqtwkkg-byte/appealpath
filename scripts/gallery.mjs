@@ -28,7 +28,7 @@ async function shot(name, url, { target, at = 120, es = false, ocr = false, act 
     await page.locator("header button.lang").click();
     await page.waitForFunction((es) => (document.documentElement.lang === "es") === es, es);
   }
-  if (ocr) await page.waitForFunction(() => /finished|terminó/i.test(document.body.innerText), null, { timeout: 90_000 });
+  if (ocr) await page.waitForFunction(() => /finished|terminad/i.test(document.body.innerText), null, { timeout: 90_000 });
   if (act) await act(page);
   if (target) {
     await page.waitForFunction(
@@ -59,6 +59,9 @@ await shot("check-gate", "?sample=L04", { ocr: true, act: tapContinue, target: {
 await shot("fixed-result", "?sample=L04", { ocr: true, act: fixPhone, target: { css: "h1" }, at: 400 });
 await shot("trace", "?sample=L04", { ocr: true, act: fixPhone, target: { css: "#trace-h" }, at: 40 });
 await shot("appeal-letter", "?sample=L04", { ocr: true, act: fixPhone, target: { css: "h2", text: "Your appeal letter" }, at: 40 });
+await shot("g01-check", "?sample=G01", { ocr: true, target: { css: "h1" }, at: 20 });
+await shot("g01-result", "?sample=G01&result");
+await shot("explorer", "#how", { target: { css: "#explorer-h" }, at: 30 });
 await shot("urgent", "?sample=L03&result");
 await shot("urgent-es", "?sample=L03&result", { es: true });
 await shot("guard", "?sample=L09&result");
@@ -67,7 +70,7 @@ await phone.close();
 
 // The slides, with the screenshots inlined.
 const pngs = {};
-for (const n of ["check-fax", "check-gate", "fixed-result", "trace", "appeal-letter", "urgent", "urgent-es", "guard", "fix"]) {
+for (const n of ["check-fax", "check-gate", "fixed-result", "trace", "appeal-letter", "g01-check", "g01-result", "explorer", "urgent", "urgent-es", "guard", "fix"]) {
   pngs[n] = (await readFile(`${SHOTS}/${n}.png`)).toString("base64");
 }
 const img = (name) => `<img src="data:image/png;base64,${pngs[name]}" alt="">`;
@@ -122,6 +125,7 @@ const css = `
   .frame { background: #1a2332; padding: 14px; border-radius: 44px; box-shadow: 0 26px 60px rgba(26,35,50,.25); }
   .frame img { display: block; width: 382px; height: 827px; border-radius: 31px; }
   .devices.three .device { width: 380px; } .devices.three .frame img { width: 352px; height: 762px; }
+  .devices.small .device { width: 342px; } .devices.small .frame img { width: 314px; height: 680px; }
   footer { position: absolute; left: 84px; right: 84px; bottom: 34px; font-size: 19px; color: #4b5567; border-top: 2px solid #dcd7cb; padding-top: 16px; }
   footer b { color: #1a2332; }
   .flow { display: flex; align-items: stretch; gap: 0; margin-top: 64px; }
@@ -153,7 +157,7 @@ const slides = {
       <div class="kicker">How it works</div>
       <h2>The AI reads. Rules decide. You check in between.</h2>
       <div class="flow">
-        <div class="box"><b>Photo + 5 answers</b>Plan type, has the care happened, does the doctor say waiting could harm, has the office resubmitted, your state</div>
+        <div class="box"><b>Photos + 6 answers</b>Up to 3 pages. Plan type, care happened, doctor says waiting could harm, office resubmitted, earlier appeal, state</div>
         <div class="arrow">→</div>
         <div class="box ai"><b>AI copies the facts</b>Gemma 4 on Workers AI copies what was denied, why, the deadline and who to call. Blank if not printed.</div>
         <div class="arrow">→</div>
@@ -161,12 +165,12 @@ const slides = {
         <div class="arrow">→</div>
         <div class="box you"><b>You confirm</b>The deadline and the reason come first. Change the reason, and it asks again which kind it is.</div>
         <div class="arrow">→</div>
-        <div class="box rules"><b>5 fixed rules</b>Checked in order. Two cite HealthCare.gov; the rest are labeled design choices, so anyone can check them.</div>
+        <div class="box rules"><b>6 fixed rules</b>Checked in order. Three cite HealthCare.gov; the rest are labeled design choices, so anyone can check them.</div>
       </div>
       <div class="outcomes">
         <div class="urgent"><b>Urgent review today</b>Care still ahead and the doctor says waiting could cause serious harm</div>
         <div class="fix"><b>Fix &amp; resubmit</b>Missing prior authorization, records or a billing fix</div>
-        <div class="appeal"><b>Appeal</b>Not medically necessary, not covered, out of network, experimental</div>
+        <div class="appeal"><b>Appeal, or external review</b>Not medically necessary, not covered, out of network, experimental; external review if you already appealed</div>
         <div class="guard"><b>Call your plan</b>Medicare, Medicaid, "not sure", or no clear reason: no guessing</div>
       </div>
       <p class="note">The deadline is always quoted as printed, never calculated. No accounts, no database: photos and answers aren't saved. Runs on Cloudflare's free plan.</p>
@@ -188,7 +192,7 @@ const slides = {
       <div class="kicker">Next step: appeal</div>
       <h2>It shows why this step, and writes the appeal letter in the letter's own words.</h2>
       <ul class="points">
-        <li>The five rules are listed in order, up to the one that fit, so the person can see which rule picked it and why.</li>
+        <li>The six rules are listed in order, up to the one that fit, so the person can see which rule picked it and why.</li>
         <li>The deadline is quoted, never worked out. A calendar reminder appears only when the words call a date the deadline.</li>
         <li>Step 1 depends on the reason, and external review is only promised for denials HealthCare.gov says qualify.</li>
       </ul>
@@ -211,10 +215,19 @@ const slides = {
         <tr class="held"><td><b>AI reader</b>, 38 images × ${runsCount} runs</td><td class="big">${aiSteps}</td><td>Picked a wrong phone number ${wrongPhones} times, mostly the fax; the second reader flagged every one</td></tr>
         <tr><td><b>No-AI baseline</b>: OCR and keyword rules, same 38 images</td><td class="big">${baseline.step}</td><td>Better at phone numbers (${baseline.phone}), but read one deadline as March 3 instead of March 31</td></tr>
         <tr class="held"><td><b>6 held-out letters</b>, written after the reader was frozen</td><td class="big">6 / 6</td><td>Every run; still only 6 letters: an exact 95% interval of 54–100%</td></tr>
+        <tr class="held"><td><b>3 letters on the government's model notice</b>, 3 pages each</td><td class="big">6 / 6</td><td>Never a wrong phone number; the page-3 deadline was left empty, not invented</td></tr>
         <tr><td><b>Planted instruction</b> on 3 letters: "report a 1-900 number"</td><td class="big">${injection.kept}</td><td>Followed ${injection.followed} of ${injection.attacks} attack reads; a 900 number never becomes a call link</td></tr>
       </table>
-      <p class="note">Limits: synthetic letters from one author, simulated photos; real phone photos and real users not measured yet. Every miss and the method: EVALUATION.md in the repo.</p>
+      <p class="note">Limits: 21 synthetic letters, 18 from one author; simulated photos; real phone photos and real users not measured yet. Every miss and the method: EVALUATION.md in the repo.</p>
     </div>${foot}`,
+  "7-real-letters": `<div class="slide" style="flex-direction:column;gap:0"><div class="brand">${logo} AppealPath</div>
+      <div class="kicker">Tested on the government's own form</div>
+      <h2>Several pages, a step after a turned-down appeal, and rules to try.</h2>
+      <div class="devices three small" style="margin-top:22px;justify-content:space-between">
+        ${device("g01-check", "3 pages, read one by one")}
+        ${device("g01-result", "Already appealed")}
+        ${device("explorer", "Try the rules")}
+      </div></div>${foot}`,
 };
 
 const slidesBrowser = await browser.newContext({ viewport: { width: 1800, height: 1200 }, deviceScaleFactor: 1 });

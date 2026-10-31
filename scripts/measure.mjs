@@ -16,14 +16,15 @@ import { createWorker } from "tesseract.js";
 // The same rules and matching the app runs, bundled on the fly so this script needs no TypeScript loader.
 const bundled = await esbuild.build({
   stdin: {
-    contents: 'export { decide } from "./src/shared/rules.ts"; export { FOUND, findPhone, findQuote, wordsFromBlocks } from "./src/shared/match.ts";',
+    contents:
+      'export { decide } from "./src/shared/rules.ts"; export { mergeReadings } from "./src/shared/merge.ts"; export { FOUND, findPhone, findQuote, wordsFromBlocks } from "./src/shared/match.ts";',
     resolveDir: process.cwd(),
   },
   bundle: true,
   format: "esm",
   write: false,
 });
-const { decide, FOUND, findPhone, findQuote, wordsFromBlocks } = await import(
+const { decide, mergeReadings, FOUND, findPhone, findQuote, wordsFromBlocks } = await import(
   `data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString("base64")}`
 );
 
@@ -33,7 +34,14 @@ if (!dir || !label) {
   process.exit(1);
 }
 const key = JSON.parse(await readFile("test-letters/answer-key.json", "utf8")).letters;
-const files = (await readdir(dir)).filter((f) => /^L\d\d.*\.(jpe?g|png)$/i.test(f)).sort();
+// A letter of several pages is one file per page, G01-p1.jpg, G01-p2.jpg…: each page is read on its own and the
+// readings are joined the way the app joins them (src/shared/merge.ts).
+const letterFiles = new Map();
+for (const f of (await readdir(dir)).filter((f) => /^[LG]\d\d.*\.(jpe?g|png)$/i.test(f)).sort()) {
+  const name = f.replace(/-p\d+(?=\.)/i, "");
+  letterFiles.set(name, [...(letterFiles.get(name) ?? []), f]);
+}
+const files = [...letterFiles.keys()];
 const ocr = await createWorker("eng", 1, { langPath: "node_modules/@tesseract.js-data/eng/4.0.0_best_int", gzip: true, cacheMethod: "none" });
 
 async function readOnce(image) {
@@ -55,9 +63,10 @@ const norm = (s) => (s ?? "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"'
 const digits = (s) => (s ?? "").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
 // One run per group, so the held-out letters (L13–L18, ANSWER-KEY.md) never mix into the numbers for L01–L12.
 const groups = new Map();
-function group(heldOut) {
-  if (!groups.has(heldOut)) {
-    groups.set(heldOut, {
+// "dev" (L01–L12), "held" (L13–L18) or "gov" (G01–G03, on the government's model notice layout).
+function group(kind) {
+  if (!groups.has(kind)) {
+    groups.set(kind, {
       tally: { Service: { right: 0, empty: 0, wrong: 0 }, Reason: { right: 0, empty: 0, wrong: 0 }, Deadline: { right: 0, empty: 0, wrong: 0 }, Phone: { right: 0, empty: 0, wrong: 0 } },
       // The second reader on the two fields it checks against a known answer: confirmed = right and matched exactly,
       // caught = wrong and flagged. "correct" and "wrong" count the AI's right and wrong values it looked at.
@@ -67,7 +76,7 @@ function group(heldOut) {
       total: 0,
     });
   }
-  return groups.get(heldOut);
+  return groups.get(kind);
 }
 // Every reading, kept so a run can be checked case by case later (test-letters/runs/).
 const cases = [];
@@ -78,21 +87,33 @@ for (const file of files) {
   const id = file.slice(0, 3).toUpperCase();
   const want = key[id];
   if (!want) continue;
-  const g = group(!!want.heldOut);
+  const g = group(want.source === "government" ? "gov" : want.heldOut ? "held" : "dev");
   g.total++;
-  const path = join(dir, file);
-  const image = (await readFile(path)).toString("base64");
-  const body = await readWithRetry(image);
-  if (!body.ok) {
-    g.misses.push(`${file}: the reader failed (${body.error})`);
-    cases.push({ file, letter: id, heldOut: !!want.heldOut, error: body.error });
-    console.log(file, "FAILED", body.error);
+  const paths = letterFiles.get(file).map((f) => join(dir, f));
+  const bodies = [];
+  for (const path of paths) bodies.push(await readWithRetry((await readFile(path)).toString("base64")));
+  const failed = bodies.find((b) => !b.ok);
+  if (failed) {
+    g.misses.push(`${file}: the reader failed (${failed.error})`);
+    cases.push({ file, letter: id, heldOut: !!want.heldOut, error: failed.error });
+    console.log(file, "FAILED", failed.error);
     continue;
   }
-  const r = body.reading;
-  neurons += body.neurons ?? 0;
+  const r = mergeReadings(bodies.map((b) => b.reading));
+  const body = { model: bodies[0].model, neurons: bodies.reduce((n, b) => n + (b.neurons ?? 0), 0), ms: bodies.reduce((n, b) => n + (b.ms ?? 0), 0) };
+  neurons += body.neurons;
   model = body.model;
-  const words = wordsFromBlocks((await ocr.recognize(path, {}, { blocks: true, text: false })).data.blocks);
+  const pageWords = [];
+  for (const path of paths) pageWords.push(wordsFromBlocks((await ocr.recognize(path, {}, { blocks: true, text: false })).data.blocks));
+  const words = pageWords.flat();
+  // Like the app (src/client/checks.ts): the best quote match on any page; a phone is a fax only if it's labeled one
+  // wherever it was found.
+  const bestQuote = (text) =>
+    pageWords.map((w) => findQuote(text, w)).filter(Boolean).sort((a, b) => Number(b.exact) - Number(a.exact) || b.score - a.score)[0] ?? null;
+  const anyPhone = (text) => {
+    const found = pageWords.map((w) => findPhone(text, w)).filter(Boolean);
+    return found.find((p) => !p.fax) ?? found[0] ?? null;
+  };
 
   const scores = {};
   const score = (field, ok, empty, note) => {
@@ -120,7 +141,7 @@ for (const file of files) {
 
   const checks = {};
   if (r.deadlineQuote) {
-    const m = findQuote(r.deadlineQuote, words);
+    const m = bestQuote(r.deadlineQuote);
     const exact = !!m && m.score >= FOUND && m.exact;
     checks.deadline = exact ? "confirmed" : "flagged";
     if (deadlineRight) {
@@ -132,7 +153,7 @@ for (const file of files) {
     }
   }
   if (r.appealPhone) {
-    const p = findPhone(r.appealPhone, words);
+    const p = anyPhone(r.appealPhone);
     const ok = !!p && !p.fax;
     checks.phone = ok ? "confirmed" : p?.fax ? "flagged as fax" : "flagged";
     if (phoneRight) {
@@ -147,15 +168,15 @@ for (const file of files) {
   const outcome = decide(want.answers, r).outcome;
   if (outcome === want.outcome) g.right++;
   else g.misses.push(`${file}: next step would be ${outcome} without fixes (should be ${want.outcome})`);
-  cases.push({ file, letter: id, heldOut: !!want.heldOut, model: body.model, neurons: body.neurons, ms: body.ms, ocrWords: words.length, reading: r, scores, secondReader: checks, outcome, expected: want.outcome });
+  cases.push({ file, pages: paths.length, letter: id, heldOut: !!want.heldOut, model: body.model, neurons: body.neurons, ms: body.ms, ocrWords: words.length, reading: r, scores, secondReader: checks, outcome, expected: want.outcome });
   console.log(file.padEnd(16), outcome === want.outcome ? "ok  " : "MISS", outcome.padEnd(14), `${body.neurons?.toFixed(1)} neurons`, `${body.ms} ms`, `${words.length} OCR words`);
 }
 await ocr.terminate();
 
 const measuredOn = new Date().toISOString().slice(0, 10);
-const newRuns = [...groups].map(([heldOut, g]) => ({
+const newRuns = [...groups].map(([kind, g]) => ({
   measuredOn,
-  images: heldOut ? `held-out letters L13–L18, ${label}` : label,
+  images: kind === "held" ? `held-out letters L13–L18, ${label}` : kind === "gov" ? `government model notice letters G01–G03, ${label}` : label,
   model: model.replace("@cf/", ""),
   photos: g.total,
   fields: Object.entries(g.tally).map(([name, t]) => ({ name, ...t })),

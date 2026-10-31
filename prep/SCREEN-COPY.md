@@ -13,7 +13,7 @@ Every word on every screen, written before the build so the 48 hours go to build
 
 **Headline:** Got a health insurance denial? Find your next step.
 
-**Subhead:** Fix the paperwork, appeal, or ask for an urgent review? Which comes first depends on your letter. Take a photo, answer 5 quick questions, and get one next step, who to call, and the deadline printed on your letter.
+**Subhead:** Fix the paperwork, appeal, or ask for an urgent review? Which comes first depends on your letter. Take a photo, answer 6 quick questions, and get one next step, who to call, and the deadline printed on your letter.
 
 **Judge card (above the photo):** **Just looking, or judging?** Open a fictional letter the AI has already read, with nothing to upload. On this one, the AI picked the fax number as the number to call. See the check warn about it.
 - Button: Open the sample letter (opens L04)
@@ -192,6 +192,17 @@ Every result has, in order: the headline, one sentence on why, the steps, the **
 
 ---
 
+### Added Oct 31, 2026 (the exact wording lives in `src/client/i18n.ts`)
+
+- **Question 5 (state moves to 6):** Is this letter about an appeal you already filed? No, it's the first denial · Yes, my appeal was turned down · Not sure.
+- **External review result (rule 3):** "Next step: ask for an independent external review." Why: "You already appealed and the plan said no again. Next, a reviewer outside the plan can look at the decision." Step 1 follows the letter's instructions and HealthCare.gov's 4-month window when the denial involves medical judgment or an experimental treatment; otherwise it says to ask whether this denial can get one. With no deadline found, it gives the 4-month rule and says to call to confirm.
+- **"Not sure" about an earlier appeal:** Fix, Appeal and No-clear-reason results add: "If this letter calls itself a final decision on your appeal, change that answer: your next step would be an external review."
+- **Call your plan:** adds the fast ("expedited") appeal line for Medicare health plans and Medicaid managed care.
+- **Every result:** Listen · Send to someone helping you. "Read aloud and sent from your phone only. Nothing is saved." Then "Why this next step": the rules in order, answered yes or no.
+- **Medical-necessity and experimental denials (Appeal and External review):** "A note for your doctor": a printable request for a letter of medical necessity, in English.
+- **Photos:** "In English, up to 3 pages: start with the page that has the reason." · Add another page.
+- **How page:** "Try the rules": the six answers and the kind of reason as menus, with the next step and the rule trace updating as you change them.
+
 ## 4. Errors and edge cases
 
 | Situation | Message |
@@ -209,7 +220,7 @@ Every result has, in order: the headline, one sentence on why, the steps, the **
 
 **Headline:** How AppealPath decides
 
-1. **The AI reads; the rules decide.** An AI model reads your letter: what was denied, why, the deadline, and who to call. It's told to copy text exactly as printed, and you can fix anything it gets wrong. Fixed rules, not the AI, pick your next step from what it read and your 5 answers.
+1. **The AI reads; the rules decide.** An AI model reads your letter: what was denied, why, the deadline, and who to call. It's told to copy text exactly as printed, and you can fix anything it gets wrong. Fixed rules, not the AI, pick your next step from what it read and your 6 answers.
 2. **You check before it decides.** You always check the deadline and the reason against your letter before you get a next step. AI readers can sound sure and still be wrong: in our tests, the model said it was 100% sure about a sentence it had copied with a word missing.
 3. **It never makes up a deadline.** It shows the one printed on your letter. If there isn't one, it says so.
 4. **The rules** *(table from ROUTING.md, with sources).*

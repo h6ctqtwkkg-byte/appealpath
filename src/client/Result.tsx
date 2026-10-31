@@ -1,13 +1,15 @@
 // Screen 3: one next step. Wording in i18n.ts; the outcome comes from src/shared/rules.ts.
 import type { JSX } from "preact";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { deadlineEvent, printedDate } from "../shared/dates";
-import { explain } from "../shared/rules";
 import { distinctServices } from "../shared/services";
 import { EXTERNAL_REVIEW, type Answers, type Decision, type Reading } from "../shared/types";
 import type { CheckedField } from "./checks";
 import { helpFor } from "./help";
 import { STRINGS, useLang, useT } from "./i18n";
 import { REASON_INFO } from "./reasons";
+import { canSpeak, plainText, speak, stopSpeaking } from "./speak";
+import { Trace } from "./Trace";
 import { Phone } from "./ui";
 
 /** "Physical therapy" reads wrong mid-sentence; "MRI of the spine" must keep its capitals. */
@@ -130,35 +132,9 @@ function Deadline({ r, decision, unconfirmed }: { r: Reading; decision: Decision
     <div class="deadline">
       <span class="from">{t.deadlineNoneLabel}</span>
       <p style="margin: 6px 0 0">
-        {t.deadlineNone} <CallLine phone={r.appealPhone} fallback={t.yourPlan} /> {t.deadlineNoneEnd}
+        {decision.outcome === "external" ? t.deadlineNoneExternal : t.deadlineNone} <CallLine phone={r.appealPhone} fallback={t.yourPlan} /> {t.deadlineNoneEnd}
       </p>
     </div>
-  );
-}
-
-/** The five rules, checked in order up to the one that picked this step, so the user can see why. */
-function Trace({ answers, reading, decision }: { answers: Answers; reading: Reading; decision: Decision }) {
-  const all = useT();
-  const t = all.result.trace;
-  const tests = explain(answers, reading);
-  return (
-    <section class="trace" aria-labelledby="trace-h">
-      <h2 id="trace-h">{t.title}</h2>
-      <p class="small muted">{t.intro}</p>
-      <ol>
-        {t.rules.slice(0, decision.rule).map((question, i) => (
-          <li key={i} class={tests[i] ? "hit" : undefined}>
-            {question}{" "}
-            {i < 4 && <strong>{tests[i] ? t.yes : t.no}</strong>}
-            {tests[i] && <strong> → {all.result.kicker[decision.outcome]}</strong>}
-            {i === 2 && <span class="small muted"> {t.kind(all.categories[reading.category])}</span>}
-          </li>
-        ))}
-      </ol>
-      <p class="small muted">
-        <a href="#how">{all.result.seeHow}</a>
-      </p>
-    </section>
   );
 }
 
@@ -208,9 +184,89 @@ function AppealLetter({ r }: { r: Reading }) {
   );
 }
 
-/** Prints only the letter: a standalone copy at the top of the page, so the hidden rest of the app takes no space. */
-function printLetter() {
-  const letter = document.getElementById("appeal-letter");
+/** For a medical-judgment denial: a request the patient hands to their doctor. Always in English, like the appeal letter. */
+function DoctorNote({ r }: { r: Reading }) {
+  const blank = (v: string | null) => v ?? <span class="blank">&nbsp;</span>;
+  return (
+    <div class="appeal-letter" id="doctor-note" lang="en">
+      <p>Dear Dr. {blank(null)},</p>
+      <p>
+        My health plan{r.planName ? `, ${r.planName},` : ""} denied {r.service ? inSentence(r.service) : blank(null)}.
+        {r.reasonQuote ? ` The plan's letter gives this reason: "${r.reasonQuote}"` : ""}
+      </p>
+      <p>
+        I am appealing this decision. Could you write a letter explaining why I need this care? It helps the plan's reviewer to see my diagnosis, the
+        treatments I have already tried and how they worked, why this is the right next step for me, and what could happen without it.
+      </p>
+      {r.deadlineQuote && <p>The plan's letter gives this deadline: "{r.deadlineQuote}"</p>}
+      <p>Please send the letter to me{r.appealAddress ? `, or to the plan at ${mailingAddress(r.appealAddress)}` : ""}. Thank you.</p>
+      <p>
+        Sincerely,
+        <br />
+        {blank(r.memberName)}
+        <br />
+        Member ID {blank(r.memberId)}
+      </p>
+    </div>
+  );
+}
+
+/** Listen, and send to someone helping you: the headline, why, deadline and steps, read or shared from the phone. */
+function Tools() {
+  const t = useT().result.tools;
+  const lang = useLang();
+  const [speaking, setSpeaking] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const toolsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => () => void stopSpeaking(), []);
+  const parts = () => [...(toolsRef.current?.closest("main")?.querySelectorAll(".verdict, .emergency, .deadline, ol.next") ?? [])];
+
+  function listen() {
+    if (speaking) {
+      stopSpeaking();
+      setSpeaking(false);
+      return;
+    }
+    setSpeaking(true);
+    speak(parts(), lang, () => setSpeaking(false));
+  }
+
+  async function send() {
+    const text = `${plainText(parts())}
+
+${t.from} ${location.origin}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "AppealPath", text });
+        return;
+      }
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+    } catch {
+      // The share sheet was closed, or the clipboard isn't allowed: nothing to undo.
+    }
+  }
+
+  return (
+    <div class="result-tools" ref={toolsRef}>
+      {canSpeak() && (
+        <button class="btn secondary" type="button" aria-pressed={speaking} onClick={listen}>
+          {speaking ? t.stop : t.listen}
+        </button>
+      )}
+      <button class="btn secondary" type="button" onClick={send}>
+        {t.share}
+      </button>
+      <p class="small muted" role="status">
+        {copied ? t.copied : t.note}
+      </p>
+    </div>
+  );
+}
+
+/** Prints only one letter: a standalone copy at the top of the page, so the hidden rest of the app takes no space. */
+function printLetter(id = "appeal-letter") {
+  const letter = document.getElementById(id);
   if (!letter) return;
   const root = document.createElement("div");
   root.id = "print-root";
@@ -317,6 +373,23 @@ export function Result(props: {
         <li key="3">{t.urgent.step3}</li>,
       ];
       break;
+    case "external":
+      headline = t.external.headline;
+      why = t.external.why;
+      steps = [
+        <li key="1">
+          {EXTERNAL_REVIEW.includes(r.category) ? t.external.stepEligible : t.external.stepAsk}{" "}
+          {r.appealPhone && (
+            <>
+              (<Phone number={r.appealPhone} />)
+            </>
+          )}
+        </li>,
+        <li key="2">{t.external.step2}</li>,
+        <li key="3">{t.external.step3}</li>,
+        <li key="4">{t.external.step4}</li>,
+      ];
+      break;
     case "guard_plan":
       headline = t.guardPlan.headline;
       why = t.guardPlan.why;
@@ -349,6 +422,7 @@ export function Result(props: {
         <h1 id="verdict-h">{headline}</h1>
         <p>{why}</p>
       </section>
+      <Tools />
 
       {d.outcome === "urgent" && <p class="emergency">{t.urgent.emergency}</p>}
       {props.unconfirmed.includes("phone") && r.appealPhone && (
@@ -375,7 +449,12 @@ export function Result(props: {
           <p>{t.askDoctor}</p>
         </div>
       )}
-      {(d.outcome === "appeal" || d.outcome === "urgent") && <Deadline r={r} decision={d} unconfirmed={props.unconfirmed.includes("deadline")} />}
+      {(d.outcome === "fix" || d.outcome === "appeal" || d.outcome === "guard_unclear") && answers.earlierAppeal === "not_sure" && (
+        <div class="notice">
+          <p>{t.earlierNote}</p>
+        </div>
+      )}
+      {(d.outcome === "appeal" || d.outcome === "urgent" || d.outcome === "external") && <Deadline r={r} decision={d} unconfirmed={props.unconfirmed.includes("deadline")} />}
 
       <h2>{t.whatToDo}</h2>
       <ol class="next">{steps}</ol>
@@ -409,8 +488,21 @@ export function Result(props: {
           {r.reasonQuote && props.unconfirmed.includes("reason") && <p class="small error-text">{t.unconfirmedReasonLetter}</p>}
           <AppealLetter r={r} />
           <div class="row-actions">
-            <button class="btn" type="button" onClick={printLetter}>
+            <button class="btn" type="button" onClick={() => printLetter()}>
               {t.appeal.print}
+            </button>
+          </div>
+        </>
+      )}
+
+      {(d.outcome === "appeal" || d.outcome === "external") && EXTERNAL_REVIEW.includes(r.category) && (
+        <>
+          <h2>{t.doctor.title}</h2>
+          <p class="muted small">{t.doctor.note}</p>
+          <DoctorNote r={r} />
+          <div class="row-actions">
+            <button class="btn secondary" type="button" onClick={() => printLetter("doctor-note")}>
+              {t.doctor.print}
             </button>
           </div>
         </>

@@ -7,7 +7,7 @@ import { payPerCall } from "../shared/phones";
 import { GUARD_PLANS } from "../shared/rules";
 import { distinctServices } from "../shared/services";
 import { CATEGORIES, type Answers, type Category, type Reading } from "../shared/types";
-import { phoneVerdict, quoteVerdict, unconfirmed, type OcrState, type Verdict } from "./checks";
+import { phoneVerdict, quoteVerdict, unconfirmed, type Found, type OcrState } from "./checks";
 import { useT } from "./i18n";
 import type { Photo } from "./image";
 import { STATES } from "./states";
@@ -19,13 +19,13 @@ export type { OcrState } from "./checks";
 /** Enough rows to show a copied sentence without scrolling inside the box on a phone. */
 const rowsFor = (text: string | null) => Math.min(8, Math.max(2, Math.ceil((text?.length ?? 0) / 32)));
 
-function SecondCheck(props: { id: string; ocr: OcrState; result: { verdict: Verdict; boxes: Box[] } | null; onShow: (boxes: Box[]) => void; active: boolean }) {
+function SecondCheck(props: { id: string; ocr: OcrState; result: Found | null; onShow: (boxes: Box[], page: number) => void; active: boolean }) {
   const t = useT().second;
   if (props.ocr.status === "none") return null;
   if (props.ocr.status === "running") return <p class="second running" id={props.id}>{t.running}</p>;
   if (props.ocr.status === "failed") return <p class="second warn" id={props.id}>{t.failed}</p>;
   if (!props.result) return null;
-  const { verdict, boxes } = props.result;
+  const { verdict, boxes, page } = props.result;
   const ok = verdict === "exact";
   return (
     <p class={ok ? "second ok" : "second warn"}>
@@ -34,7 +34,7 @@ function SecondCheck(props: { id: string; ocr: OcrState; result: { verdict: Verd
       </span>
       <span id={props.id}>{t[verdict]}</span>
       {boxes.length > 0 && (
-        <button class="linkish" type="button" aria-pressed={props.active} onClick={() => props.onShow(boxes)}>
+        <button class="linkish" type="button" aria-pressed={props.active} onClick={() => props.onShow(boxes, page)}>
           {props.active ? t.shown : t.show}
         </button>
       )}
@@ -71,6 +71,7 @@ export function Check(props: {
   reading: Reading;
   setReading: (r: Reading) => void;
   photo: Photo | null;
+  morePages: Photo[];
   ocr: OcrState;
   answers: Partial<Answers>;
   source: Source;
@@ -89,33 +90,36 @@ export function Check(props: {
   const a = props.answers;
   const parts = t.answerParts;
   const answersLine =
-    a.plan && a.careHappened !== undefined && a.doctorSaysHarm && a.officeResubmitted && a.state
+    a.plan && a.careHappened !== undefined && a.doctorSaysHarm && a.officeResubmitted && a.earlierAppeal && a.state
       ? [
           parts.plan[a.plan],
           parts.care[a.careHappened ? "yes" : "no"],
           parts.harm[a.doctorSaysHarm],
           parts.resubmitted[a.officeResubmitted],
+          parts.earlier[a.earlierAppeal],
           STATES.find(([code]) => code === a.state)?.[1] ?? a.state,
         ].join(" · ")
       : null;
   // Decided once, so typing a deadline into the "not found" box doesn't swap the box out from under the cursor.
   const [deadlineFound] = useState(r.deadlineQuote !== null);
-  const [highlight, setHighlight] = useState<{ field: string; boxes: Box[] } | null>(null);
+  const [highlight, setHighlight] = useState<{ field: string; boxes: Box[]; page: number } | null>(null);
   const [letterOpen, setLetterOpen] = useState(typeof window !== "undefined" && window.innerWidth >= 760);
   const letterRef = useRef<HTMLDetailsElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [zoomBoxes, setZoomBoxes] = useState<Box[]>([]);
+  const [zoom, setZoom] = useState<{ boxes: Box[]; page: number }>({ boxes: [], page: 0 });
   // The kind of reason decides the next step, so after the user edits the AI's reason, or picks a different service,
   // they confirm the kind still fits.
   const [kindStale, setKindStale] = useState<"reason" | "service" | null>(null);
   const [kindNudge, setKindNudge] = useState(false);
   // Values the second reader couldn't confirm: the user says they compared them before going on.
   const [gate, setGate] = useState(false);
-  const ocrSize = ocr.status === "done" ? { width: ocr.result.width, height: ocr.result.height } : {};
+  const pages = props.photo ? [props.photo, ...props.morePages] : [];
+  /** Each page's own size, so its highlight boxes land in the right place. */
+  const sizeOf = (i: number) => (ocr.status === "done" && ocr.pages[i] ? { width: ocr.pages[i]!.width, height: ocr.pages[i]!.height } : {});
 
   /** The whole letter at full width, with the highlight scrolled into view. */
-  function openFull(boxes: Box[]) {
-    setZoomBoxes(boxes);
+  function openFull(boxes: Box[], page: number) {
+    setZoom({ boxes, page });
     dialogRef.current?.showModal();
     requestAnimationFrame(() => dialogRef.current?.querySelector(".hl")?.scrollIntoView({ block: "center" }));
   }
@@ -157,14 +161,14 @@ export function Check(props: {
     props.onConfirm();
   }
 
-  function show(field: string, boxes: Box[]) {
-    setHighlight({ field, boxes });
+  function show(field: string, boxes: Box[], page: number) {
+    setHighlight({ field, boxes, page });
     setLetterOpen(true);
-    openFull(boxes);
+    openFull(boxes, page);
   }
 
-  const second = (field: string, result: { verdict: Verdict; boxes: Box[] } | null) => (
-    <SecondCheck id={`${field}-check`} ocr={ocr} result={result} active={highlight?.field === field} onShow={(boxes) => show(field, boxes)} />
+  const second = (field: string, result: Found | null) => (
+    <SecondCheck id={`${field}-check`} ocr={ocr} result={result} active={highlight?.field === field} onShow={(boxes, page) => show(field, boxes, page)} />
   );
 
   return (
@@ -213,9 +217,11 @@ export function Check(props: {
         {props.photo && (
           <details class="letter-view" open={letterOpen} ref={letterRef} onToggle={(e) => setLetterOpen((e.currentTarget as HTMLDetailsElement).open)}>
             <summary>{t.showLetter}</summary>
-            <button class="letter-open" type="button" aria-label={t.openFull} onClick={() => openFull(highlight?.boxes ?? [])}>
-              <LetterImage src={props.photo.preview} alt="" boxes={highlight?.boxes} {...ocrSize} />
-            </button>
+            {pages.map((p, i) => (
+              <button key={p.preview} class="letter-open" type="button" aria-label={pages.length > 1 ? t.openFullPage(i + 1) : t.openFull} onClick={() => openFull(highlight?.page === i ? highlight.boxes : [], i)}>
+                <LetterImage src={p.preview} alt="" boxes={highlight?.page === i ? highlight.boxes : undefined} {...sizeOf(i)} />
+              </button>
+            ))}
           </details>
         )}
         {props.photo && (
@@ -232,7 +238,9 @@ export function Check(props: {
               </button>
             </div>
             <div class="dialog-body">
-              <LetterImage src={props.photo.preview} alt={t.fullTitle} boxes={zoomBoxes} {...ocrSize} />
+              {pages.map((p, i) => (
+                <LetterImage key={p.preview} src={p.preview} alt={pages.length > 1 ? `${t.fullTitle} (${i + 1}/${pages.length})` : t.fullTitle} boxes={zoom.page === i ? zoom.boxes : []} {...sizeOf(i)} />
+              ))}
             </div>
           </dialog>
         )}

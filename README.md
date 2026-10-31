@@ -1,16 +1,16 @@
 # AppealPath
 
-**Take a photo of a health insurance denial letter, answer 5 questions, and get one next step:** fix and resubmit, appeal, or ask for an urgent review today. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess. In English and Spanish.
+**Take a photo of a health insurance denial letter (up to 3 pages), answer 6 questions, and get one next step:** fix and resubmit, appeal, ask for an urgent review today, or, if you already appealed, ask for an external review. Medicare, Medicaid and unclear letters get "call the number on your letter" instead of a guess. In English and Spanish.
 
 *Prototype, not medical or legal advice.* Built solo for DSH Hacks V2 (AI × Healthcare). All test letters are fictional.
 
-**Try it:** https://appealpath.7zhvt4rjzh.workers.dev · [See the AI pick a fax number and the check warn about it](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L04) · One fictional sample per rule: [Fix & resubmit](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L01&result) · [Appeal](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02&result) · [Urgent review](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L03&result) · [Medicare: call your plan](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L09&result) · [No clear reason](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L12&result) · [how it decides](https://appealpath.7zhvt4rjzh.workers.dev/#how). Samples show readings saved ahead of time; **Read it live with the AI** sends one through the real reader.
+**Try it:** https://appealpath.7zhvt4rjzh.workers.dev · [See the AI pick a fax number and the check warn about it](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L04) · One fictional sample per rule: [Fix & resubmit](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L01&result) · [Appeal](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02&result) · [Urgent review](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L03&result) · [Medicare: call your plan](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L09&result) · [Already appealed: a 3-page notice on the government's layout](https://appealpath.7zhvt4rjzh.workers.dev/?sample=G01) · [No clear reason](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L12&result) · [how it decides, and try the rules](https://appealpath.7zhvt4rjzh.workers.dev/#how). Samples show readings saved ahead of time; **Read it live with the AI** sends one through the real reader.
 
 **DSH problem statement B, Faster care.** Different denials need different first steps: the office fixes the paperwork, you appeal, or you ask for an urgent review today. Of the denial reasons HealthCare.gov insurers reported for 2024, only 5% were a lack of medical necessity; 25% were administrative and 9% a missing prior authorization or referral ([KFF](https://www.kff.org/patient-consumer-protections/claims-denials-and-appeals-in-aca-marketplace-plans-in-2024/)). AppealPath helps people find the right first step before the deadline passes. It doesn't diagnose anything.
 
 ![AppealPath: the AI picks a fax number, the second reader warns, and the result is one next step with the deadline as printed](docs/gallery/1-cover.png)
 
-More screens: [how it works](docs/gallery/2-how-it-works.png) · [the check](docs/gallery/3-check.png) · [appeal](docs/gallery/4-appeal.png) · [the other next steps, and Spanish](docs/gallery/5-urgent-and-guard.png) · [results](docs/gallery/6-results.png)
+More screens: [how it works](docs/gallery/2-how-it-works.png) · [the check](docs/gallery/3-check.png) · [appeal](docs/gallery/4-appeal.png) · [the other next steps, and Spanish](docs/gallery/5-urgent-and-guard.png) · [results](docs/gallery/6-results.png) · [several pages, external review, try the rules](docs/gallery/7-real-letters.png)
 
 ## How it works
 
@@ -22,11 +22,13 @@ flowchart LR
   P -->|same photo, on the device| T[Second reader<br/>Tesseract in the browser]
   T -->|finds the AI's words on the photo,<br/>flags mismatches and fax numbers| C
   C --> R[Fixed rules<br/>src/shared/rules.ts]
-  Q[5 answers] --> R
+  Q[6 answers] --> R
   R --> N[One next step<br/>script, appeal letter, free help]
 ```
 
-- **The AI reads; the rules decide.** The model copies text into fields and suggests the kind of reason, which the user can change. Five fixed rules, each with a source or labeled as a design choice (`prep/ROUTING.md`), pick the next step.
+- **The AI reads; the rules decide.** The model copies text into fields and suggests the kind of reason, which the user can change. Six fixed rules, each with a source or labeled as a design choice (`prep/ROUTING.md`), pick the next step. The How page has a rules explorer: change any answer and watch which rule picks the step.
+- **Letters of several pages.** Each page is read on its own and the readings joined (`src/shared/merge.ts`); the second reader checks every page.
+- **Listen, send, and a note for the doctor.** The result can be read aloud with the phone's own voices, sent to someone helping through the share sheet, and, for medical-necessity or experimental denials, comes with a printable note asking the doctor for a letter. Nothing is saved.
 - **Two readers, and the user checks.** The model rated itself 100% sure on a sentence it copied with a word missing, so its confidence is never trusted. A second, independent reader runs on the device and looks for the deadline, the reason and the phone number on the photo (and the urgent-appeals number when the answers point to urgent), allowing for small OCR slips. It can highlight where they're printed, and it flags any it can't find, including fax numbers picked as phone numbers. Every uploaded letter goes through a check screen with the deadline and the reason first.
 - **Warnings you can't miss, and the reasons shown.** If the second reader couldn't confirm a value, the app stops before the next step and asks you to compare it with the letter, and flags it again on the result. Every result lists the rules in order, answered yes or no, up to the one that picked the step. A pay-per-call (900) number never becomes a call link.
 - **Never a made-up deadline.** The app quotes the deadline printed on the letter. If the letter prints a date, the user can add it to their calendar. If no deadline is printed, the app says so.
@@ -43,16 +45,17 @@ flowchart LR
 
 Known misses: on 4 images of 3 letters the AI picked the fax number as the phone, and the second reader flagged every one. On one letter it read "out of network" as "not covered", which leads to the same next step. The reading instructions were tuned on L01–L12, so treat those numbers as a best case. The held-out letters were written afterward and never used for tuning, but they come from the same author, and there are only 6. The second reader can't yet join a phone number that wraps onto a second line (L18). Real phone photos haven't been measured yet.
 
-Three more tests, all in EVALUATION.md:
+Four more tests, all in EVALUATION.md:
 - **A reader with no AI** (OCR plus keyword rules, same images) got the next step right on 33 of 38. It beat the AI on phone numbers, but misread a deadline date on a phone photo.
 - **Four runs of every image:** the next step was right all 152 times. The AI picked a wrong phone number 15 times, mostly the fax, and the second reader flagged all 15.
 - **A planted instruction** on three letters ("report a 1-900 number") was followed 0 times in 12 attack reads.
+- **Three letters on the U.S. government's own model notice** (3 pages each, eight language-help phone lines): the right next step 6 of 6 times and never a wrong phone number, but the external review deadline on page 3 was never found (left empty, not invented). Writing them showed the rules never asked about an earlier appeal, which is why there's a sixth question and an External review result.
 
 **The full method, every miss and how to rerun it: [EVALUATION.md](EVALUATION.md).**
 
 ## Accessibility
 
-Checked against WCAG 2.1 AA (`prep/ACCESSIBILITY.md`): 7 issues found and fixed. That covered contrast in light and dark mode, focus visibility, tap targets, focus moving to each new screen, and language tags for Spanish. Not yet tested with a real screen reader.
+Checked against WCAG 2.1 AA (`prep/ACCESSIBILITY.md`): 7 issues found and fixed. That covered contrast in light and dark mode, focus visibility, tap targets, focus moving to each new screen, and language tags for Spanish. On Oct 31, axe-core checked every screen, the new ones included, in light and dark mode and in Spanish (`node scripts/a11y.mjs`): 26 screen checks, 0 problems. Not yet tested with a real screen reader by a person.
 
 ## Run it
 
@@ -61,7 +64,9 @@ Checked against WCAG 2.1 AA (`prep/ACCESSIBILITY.md`): 7 issues found and fixed.
 | Local dev (builds the app, then `wrangler dev` on :8792) | `npm run dev` |
 | Rebuild the app on change | `npm run dev:watch` |
 | Typecheck (Worker + app) | `npm run typecheck` |
-| Tests (rules on all 18 letters, the samples' saved readings, reader output, second-reader matching, printed dates) | `npm test` |
+| Tests (rules on all 21 letters, the samples' saved readings, joining pages, reader output, second-reader matching, printed dates) | `npm test` |
+| Accessibility check of every screen (axe-core, dev server running) | `node scripts/a11y.mjs` |
+| Build and render G01–G03 on the government's model notice | `node scripts/gov-letters.mjs` |
 | Deploy to workers.dev (typecheck, tests, build, then `wrangler deploy`) | `npm run deploy` |
 | Re-capture the sample readings (dev server running; about 15 neurons each) | `node scripts/capture-samples.mjs [L01 …]` |
 | Make the clean test images (macOS) | `bash scripts/render-letters.sh` |

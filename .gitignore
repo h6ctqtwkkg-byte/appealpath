@@ -9,3 +9,5 @@ test-letters/renders/
 public/ocr/
 test-letters/phone-like/
 /demo/
+test-letters/gov-renders/
+test-letters/gov-phone-like/

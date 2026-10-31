@@ -111,7 +111,7 @@ await scene("upload", async () => {
   await point(app.locator("label.btn").first());
   await app.locator('input[type="file"]').setInputFiles(PHOTO);
   await wait(700);
-  for (const [name, value] of [["plan", "marketplace"], ["care", "yes"], ["harm", "no"], ["resubmitted", "no"]]) {
+  for (const [name, value] of [["plan", "marketplace"], ["care", "yes"], ["harm", "no"], ["resubmitted", "no"], ["earlier", "no"]]) {
     await tap(app.locator(`input[name="${name}"][value="${value}"]`).locator("xpath=.."));
   }
   await smoothTo(app.locator("#state"), "center");

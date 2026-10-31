@@ -2,6 +2,7 @@
 import { render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { decide } from "../shared/rules";
+import { mergeReadings } from "../shared/merge";
 import { EMPTY_READING, type Answers, type Decision, type ReadResponse, type Reading } from "../shared/types";
 import { Check, type OcrState } from "./Check";
 import { unconfirmed } from "./checks";
@@ -11,7 +12,7 @@ import { initialLang, LangContext, saveLang, STRINGS, type Lang } from "./i18n";
 import { prepare, type Photo } from "./image";
 import { readWords } from "./ocr";
 import { Result } from "./Result";
-import { SAMPLES, sampleReading } from "./samples";
+import { SAMPLES, sampleImages, sampleReading } from "./samples";
 import { Banner, Footer, Header, Steps } from "./ui";
 
 type Screen = "form" | "reading" | "check" | "result";
@@ -50,6 +51,8 @@ function App() {
   const [screen, setScreen] = useState<Screen>("form");
   const [draft, setDraft] = useState<Draft>({});
   const [photo, setPhoto] = useState<Photo | null>(null);
+  // Pages 2 and 3 of a longer letter. A new first photo or a sample starts over with one page.
+  const [morePages, setMorePages] = useState<Photo[]>([]);
   const [ocr, setOcr] = useState<OcrState>({ status: "none" });
   const [reading, setReading] = useState<Reading>(EMPTY_READING);
   const [source, setSource] = useState<Source>("ai");
@@ -89,13 +92,18 @@ function App() {
     if (!photo) return setOcr({ status: "none" });
     let current = true;
     setOcr({ status: "running" });
-    readWords(photo.preview)
-      .then((result) => current && setOcr({ status: "done", result }))
+    // One page at a time: Tesseract runs a single worker.
+    (async () => {
+      const pages = [];
+      for (const p of [photo, ...morePages]) pages.push(await readWords(p.preview));
+      return pages;
+    })()
+      .then((pages) => current && setOcr({ status: "done", result: pages[0]!, pages }))
       .catch(() => current && setOcr({ status: "failed" }));
     return () => {
       current = false;
     };
-  }, [photo]);
+  }, [photo, morePages]);
 
   // Direct links for judges and the README: ?sample=L02 opens a sample on the check screen; add &result to skip ahead.
   const urlReady = useRef(!new URLSearchParams(location.search).has("sample"));
@@ -134,32 +142,39 @@ function App() {
     setScreen("form");
   }
 
-  async function read(image = photo?.base64) {
-    if (photo?.sampleId && !image) {
+  /** Reads each page on its own, in order, and joins what was read (src/shared/merge.ts). */
+  async function read(images = [photo, ...morePages].map((p) => p?.base64).filter((b): b is string => !!b)) {
+    if (photo?.sampleId && !images.length) {
       await openSample(photo.sampleId, draft);
       return;
     }
-    if (!image) return;
+    if (!images.length) return;
     setNotice(null);
     setEarly(false);
     setScreen("reading");
     // The Worker gives up within about 40 seconds; past that the network is stuck, so stop and offer the other ways in.
     const stop = new AbortController();
-    const timer = setTimeout(() => stop.abort(), 60_000);
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const res = await fetch("/api/read", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ image }),
-        signal: stop.signal,
-      });
-      const body = (await res.json()) as ReadResponse;
-      if (!body.ok) {
-        setNotice(body.error);
-        setScreen("form");
-        return;
+      const readings: Reading[] = [];
+      for (const image of images) {
+        clearTimeout(timer);
+        timer = setTimeout(() => stop.abort(), 60_000);
+        const res = await fetch("/api/read", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ image }),
+          signal: stop.signal,
+        });
+        const body = (await res.json()) as ReadResponse;
+        if (!body.ok) {
+          setNotice(body.error);
+          setScreen("form");
+          return;
+        }
+        readings.push(body.reading);
       }
-      setReading(body.reading);
+      setReading(mergeReadings(readings));
       setSource("ai");
       setScreen("check");
     } catch {
@@ -170,14 +185,25 @@ function App() {
     }
   }
 
+  /** A sample's pages on screen; nothing is read here. */
+  function showSample(id: string) {
+    const [first, ...rest] = sampleImages(id).map((preview) => ({ preview, base64: null, sampleId: id }));
+    setPhoto(first!);
+    setMorePages(rest);
+  }
+
   // A sample letter sent through the real reader, so anyone can watch the AI read without a letter of their own.
   async function readLive() {
     if (!photo?.sampleId) return;
     try {
-      const blob = await fetch(photo.preview).then((r) => r.blob());
-      const live = await prepare(new File([blob], `${photo.sampleId}.jpg`, { type: blob.type }));
-      setPhoto(live);
-      await read(live.base64 ?? undefined);
+      const live = [];
+      for (const src of sampleImages(photo.sampleId)) {
+        const blob = await fetch(src).then((r) => r.blob());
+        live.push(await prepare(new File([blob], src.split("/").pop()!, { type: blob.type })));
+      }
+      setPhoto(live[0]!);
+      setMorePages(live.slice(1));
+      await read(live.map((p) => p.base64).filter((b): b is string => !!b));
     } catch {
       setNotice("unavailable");
       setScreen("form");
@@ -197,7 +223,7 @@ function App() {
     if (isGuardPlan(answers)) {
       setNotice(null);
       setDraft(answers);
-      setPhoto({ preview: `/samples/${id}.jpg`, base64: null, sampleId: id });
+      showSample(id);
       setReading(EMPTY_READING);
       setSource("sample");
       setEarly(true);
@@ -213,7 +239,7 @@ function App() {
     setNotice(null);
     setEarly(false);
     setDraft(answers);
-    if (photo?.sampleId !== id) setPhoto({ preview: `/samples/${id}.jpg`, base64: null, sampleId: id });
+    if (photo?.sampleId !== id) showSample(id);
     setReading(captured.reading);
     setCapturedAt(captured.capturedAt);
     setSource("sample");
@@ -243,6 +269,7 @@ function App() {
   function restart() {
     setDraft({});
     setPhoto(null);
+    setMorePages([]);
     setReading(EMPTY_READING);
     setDecision(null);
     setNotice(null);
@@ -285,7 +312,12 @@ function App() {
           draft={draft}
           setDraft={setDraft}
           photo={photo}
-          setPhoto={setPhoto}
+          setPhoto={(p) => {
+            setPhoto(p);
+            setMorePages([]);
+          }}
+          morePages={morePages}
+          setMorePages={setMorePages}
           onRead={() => read()}
           onManual={manual}
           onGuard={planGuard}
@@ -299,6 +331,7 @@ function App() {
           reading={reading}
           setReading={setReading}
           photo={photo}
+          morePages={morePages}
           ocr={ocr}
           answers={draft}
           source={source}

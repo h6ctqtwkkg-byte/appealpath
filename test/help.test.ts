@@ -4,7 +4,7 @@ import { helpFor } from "../src/client/help";
 import { STRINGS } from "../src/client/i18n";
 import type { Answers } from "../src/shared/types";
 
-const answers = (plan: Answers["plan"], state: string): Answers => ({ plan, state, careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no" });
+const answers = (plan: Answers["plan"], state: string): Answers => ({ plan, state, careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", earlierAppeal: "no" });
 const hrefs = (plan: Answers["plan"], state: string) => helpFor(answers(plan, state), "guard_plan", STRINGS.en).map((h) => h.href);
 
 describe("help for plans AppealPath doesn't cover", () => {

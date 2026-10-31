@@ -63,12 +63,15 @@
 ### Screen-reader walkthrough (Oct 28, via the accessibility tree)
 Playwright's ARIA snapshot (the same names and roles a screen reader gets) on the form, check and result screens:
 - **Right:**
-  - Radios read by their label ("Through a job"); each question is a group named by the question; the state picker is named "5. What state do you live in?"
+  - Radios read by their label ("Through a job"); each question is a group named by the question; the state picker is named "5. What state do you live in?" (it's question 6 since Oct 31)
   - Text boxes are named by their labels; focus moves to the new heading on every screen change.
   - Result steps, the phone script and phone links all read in order.
 - **Fixed:**
   - The second reader's result appeared silently. Now one spoken status ("Second check finished: 3 of 3 match your photo") plays, and each field is described by its own result ("Matches your photo").
   - The "What this means" box was named with its whole paragraph instead of its heading.
+
+### Automated recheck of the newer screens (Oct 31, 2026)
+`node scripts/a11y.mjs` runs axe-core 4.10.3 (WCAG 2.0 and 2.1, levels A and AA) on nine screens: the first screen, the check screen, the stop before unconfirmed values, a three-page sample, four kinds of result (with the rule trace, Listen and Send, and the doctor note) and the How page with the rules explorer. It ran in light mode in English and Spanish, and in dark mode in English: **26 screen checks, 0 problems.** An automated tool catches only part of what a person would; the "Not tested" list below still stands.
 
 ### Not tested
 - **Real VoiceOver or NVDA by a person.** The accessibility tree is right, but nobody has listened to it yet. Do a 5-minute VoiceOver pass on an iPhone before demo day.

@@ -1,4 +1,4 @@
-// Screen 1: the letter photo and the five questions. Medicare, Medicaid and "not sure" only need the state: rule 1 sends
+// Screen 1: the letter photo and the six questions. Medicare, Medicaid and "not sure" only need the state: rule 1 sends
 // them to "call your plan" whatever the letter says, so they see that right away and nothing is read.
 import { useState, type Dispatch, type StateUpdater } from "preact/hooks";
 import { GUARD_PLANS } from "../shared/rules";
@@ -11,7 +11,7 @@ import { Choice } from "./ui";
 
 export type Draft = Partial<Answers>;
 
-const ORDER: (keyof Answers)[] = ["plan", "careHappened", "doctorSaysHarm", "officeResubmitted", "state"];
+const ORDER: (keyof Answers)[] = ["plan", "careHappened", "doctorSaysHarm", "officeResubmitted", "earlierAppeal", "state"];
 const GUARD_ORDER: (keyof Answers)[] = ["plan", "state"];
 
 export const isGuardPlan = (draft: Draft) => !!draft.plan && GUARD_PLANS.includes(draft.plan);
@@ -25,6 +25,8 @@ export function Form(props: {
   setDraft: Dispatch<StateUpdater<Draft>>;
   photo: Photo | null;
   setPhoto: (p: Photo | null) => void;
+  morePages: Photo[];
+  setMorePages: (p: Photo[]) => void;
   onRead: () => void;
   onManual: () => void;
   onGuard: () => void;
@@ -48,6 +50,20 @@ export function Form(props: {
       props.setPhoto(await prepare(file));
     } catch {
       props.setPhoto(null);
+      setPhotoError(true);
+    }
+  }
+
+  /** Page 2 or 3 of a longer letter. */
+  async function addPage(e: Event) {
+    const input = e.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file) return;
+    setPhotoError(false);
+    try {
+      props.setMorePages([...props.morePages, await prepare(file)]);
+    } catch {
       setPhotoError(true);
     }
   }
@@ -107,10 +123,19 @@ export function Form(props: {
           <strong id="photo-title">{photo?.sampleId ? f.sampleTitle(photo.sampleId) : f.photoTitle}</strong>
           <p class="hint">{photo ? f.photoHintHas : f.photoHintEmpty}</p>
           {!photo?.sampleId && <p class="hint demo-only">{f.photoDemo}</p>}
-          <label class="btn secondary">
-            {photo ? f.photoChange : f.photoPick}
-            <input class="visually-hidden" type="file" accept="image/*" aria-describedby="photo-title" onChange={pick} />
-          </label>
+          {photo && !photo.sampleId && props.morePages.length > 0 && <p class="hint pages-count">{f.pagesCount(props.morePages.length + 1)}</p>}
+          <div class="photo-actions">
+            <label class="btn secondary">
+              {photo ? f.photoChange : f.photoPick}
+              <input class="visually-hidden" type="file" accept="image/*" aria-describedby="photo-title" onChange={pick} />
+            </label>
+            {photo && !photo.sampleId && props.morePages.length < 2 && (
+              <label class="btn secondary">
+                {f.addPage}
+                <input class="visually-hidden" type="file" accept="image/*" aria-describedby="photo-title" onChange={addPage} />
+              </label>
+            )}
+          </div>
         </div>
       </div>
       {photoError && (
@@ -170,11 +195,22 @@ export function Form(props: {
               { value: "dont_know", label: f.dontKnow },
             ]}
           />
+          <Choice
+            name="earlier"
+            legend={<><span class="n">5.</span>{f.qEarlier}</>}
+            value={draft.earlierAppeal}
+            onChange={(v) => set("earlierAppeal", v)}
+            options={[
+              { value: "no", label: f.earlierNo },
+              { value: "yes", label: f.earlierYes },
+              { value: "not_sure", label: f.notSure },
+            ]}
+          />
         </>
       )}
       <div class="question">
         <label for="state" class="q-label">
-          <span class="n">{guard ? "2." : "5."}</span>
+          <span class="n">{guard ? "2." : "6."}</span>
           {f.q5}
         </label>
         <select id="state" value={draft.state ?? ""} onChange={(e) => set("state", (e.currentTarget as HTMLSelectElement).value)}>

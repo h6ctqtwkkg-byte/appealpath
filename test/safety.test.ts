@@ -4,15 +4,16 @@ import { payPerCall } from "../src/shared/phones";
 import { decide, explain } from "../src/shared/rules";
 import type { Answers } from "../src/shared/types";
 
-const job = (over: Partial<Answers> = {}): Answers => ({ plan: "job", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", state: "AR", ...over });
+const job = (over: Partial<Answers> = {}): Answers => ({ plan: "job", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", earlierAppeal: "no", state: "AR", ...over });
 
 describe("explain", () => {
   it("lists every rule's test in order, and decide() takes the first that's true", () => {
     const urgentPaperwork = job({ careHappened: false, doctorSaysHarm: "yes" });
-    expect(explain(urgentPaperwork, { category: "prior_auth_missing" })).toEqual([false, true, true, true, true]);
+    expect(explain(urgentPaperwork, { category: "prior_auth_missing" })).toEqual([false, true, false, true, true, true]);
     expect(decide(urgentPaperwork, { category: "prior_auth_missing", deadlineQuote: null }).rule).toBe(2);
     expect(explain(job({ plan: "medicaid" }), { category: "unclear" })[0]).toBe(true);
-    expect(explain(job(), { category: "unclear" })).toEqual([false, false, false, false, true]);
+    expect(explain(job(), { category: "unclear" })).toEqual([false, false, false, false, false, true]);
+    expect(decide(job({ earlierAppeal: "yes" }), { category: "not_covered", deadlineQuote: null })).toMatchObject({ outcome: "external", rule: 3 });
   });
 
   it("agrees with decide() for every plan, answer and kind of reason", () => {
@@ -21,8 +22,9 @@ describe("explain", () => {
       for (const careHappened of [true, false])
         for (const doctorSaysHarm of ["yes", "no", "not_asked"] as const)
           for (const officeResubmitted of ["yes", "no", "dont_know"] as const)
+            for (const earlierAppeal of ["no", "yes", "not_sure"] as const)
             for (const category of categories) {
-              const answers = job({ plan, careHappened, doctorSaysHarm, officeResubmitted });
+              const answers = job({ plan, careHappened, doctorSaysHarm, officeResubmitted, earlierAppeal });
               expect(decide(answers, { category, deadlineQuote: "x" }).rule).toBe(explain(answers, { category }).indexOf(true) + 1);
             }
   });

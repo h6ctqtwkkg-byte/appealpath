@@ -6,7 +6,7 @@ Everything measured so far, how it was measured, and what it doesn't show. Every
 
 ## 1. The question
 
-AppealPath's AI copies facts from a photo of a denial letter, and fixed rules turn those facts plus five answers into one next step. So the questions are:
+AppealPath's AI copies facts from a photo of a denial letter, and fixed rules turn those facts plus six answers into one next step. So the questions are:
 
 1. **Does it pick the right next step?** (fix and resubmit, appeal, urgent review today, or call your plan)
 2. **Does it copy the facts a person acts on correctly?** The service denied, the kind of reason, the deadline and the phone number to call.
@@ -18,7 +18,7 @@ AppealPath's AI copies facts from a photo of a denial letter, and fixed rules tu
 |---|---|
 | Reader | Gemma 4 26B (`@cf/google/gemma-4-26b-a4b-it`) on Cloudflare Workers AI, with the instructions and JSON schema in `src/read.ts` as of commit `79021a8` |
 | Second reader | Tesseract.js 7 (English, LSTM), with the matching in `src/shared/match.ts` as of commit `9245184` |
-| Rules | `decide()` in `src/shared/rules.ts`, five rules checked in order |
+| Rules | `decide()` in `src/shared/rules.ts`, five rules checked in order (six since Oct 31: see §7.5) |
 
 ## 3. Test set
 
@@ -43,7 +43,7 @@ These are not real phone photos. That test is planned (section 8).
 
 ## 4. Method
 
-`scripts/measure.mjs` sends each image once through the running app (`/api/read`), runs the rules with that letter's five answers from the answer key, and runs the second reader on the same image. Each field is scored against the answer key:
+`scripts/measure.mjs` sends each image once through the running app (`/api/read`), runs the rules with that letter's answers from the answer key, and runs the second reader on the same image. Each field is scored against the answer key:
 
 - **Right / left empty / wrong:**
   - The service counts as right if the expected words appear.
@@ -84,7 +84,7 @@ The kind of reason isn't scored on L09, the Medicare letter, because rule 1 answ
 
 ### 7.1 Would a reader with no AI do as well?
 
-`scripts/baseline.mjs` reads the same 38 images with Tesseract OCR alone, then applies keyword rules: the first matching keyword list picks the kind of reason, the first sentence with "appeal" and a number of days or a date is the deadline, and the first phone number in an appeal sentence that doesn't follow the word "fax" is the number to call. It then runs the same five rules. Its keyword lists were written once, before its first run, and not changed afterward. It needs no AI.
+`scripts/baseline.mjs` reads the same 38 images with Tesseract OCR alone, then applies keyword rules: the first matching keyword list picks the kind of reason, the first sentence with "appeal" and a number of days or a date is the deadline, and the first phone number in an appeal sentence that doesn't follow the word "fax" is the number to call. It then runs the same rules. Its keyword lists were written once, before its first run, and not changed afterward. It needs no AI.
 
 | Same 38 images | No-AI baseline | AI reader (run 1) |
 |---|---|---|
@@ -136,6 +136,28 @@ What would happen if one did: the second reader only proves a number is printed 
 
 **Which model.** On those 4 letters, Gemma picked the right next step 4 times out of 4 at about 16 neurons per read. Scout got 3 of 4 at about 94, reading a billing error as "not medically necessary", which would have sent someone to Appeal instead of Fix. This was one read per letter in a throwaway script that isn't in the repo, so treat it as a pilot, not a result.
 
+### 7.5 Letters on the government's own layout
+
+L01–L18 were all written by one person. To get letters from outside AppealPath, `scripts/gov-letters.mjs` builds three on the U.S. government's [Model Notice of Final Internal Adverse Benefit Determination](https://www.cms.gov/cciio/resources/files/downloads/final_iabd_model_notice_1.pdf) (CMS, revised 11/21/2025). The notice's wording and three-page layout are kept, and the brackets a health plan would fill are filled with fictional details:
+
+- **G01:** a job-based plan, an MRI not medically necessary, with an external review deadline printed on page 3.
+- **G02:** a Marketplace plan, a treatment called experimental before it happens, with no deadline printed.
+- **G03:** a job-based plan, hearing aids excluded, with a deadline printed on page 3.
+
+Every page carries the model notice's eight language-help lines with a phone number, plus a help line, an external review line, an urgent line, a fax line and the U.S. Department of Labor's line. Each page was read on its own and the readings joined (`src/shared/merge.ts`, the same code the app uses), once as clean images and once as simulated phone photos. They were never used to change the reader or the matcher.
+
+**What writing them found first.** This notice goes to someone who has *already* appealed. Its next step is an external review, not another internal appeal, but AppealPath's rules never asked about an earlier appeal. Under the old rules, all three letters would have gone to "Appeal" again (`test/rules.test.ts` keeps that check). So the form gained a question, "Is this letter about an appeal you already filed?", and the rules a new rule 3 that sends "Yes" to **External review** (`prep/ROUTING.md`). "Not sure" counts as No, and those results say what to change if the letter calls itself a final decision on an appeal.
+
+| G01–G03, one read each | Right next step | Service | Kind of reason | Deadline | Phone | Second reader |
+|---|---|---|---|---|---|---|
+| Clean (3 letters, 9 pages) | **3 / 3** | 3 / 3 | 3 / 3 | 1 / 3 (2 left empty) | 2 / 3 (1 left empty) | confirmed 2 of 2 |
+| Simulated phone (3 letters, 9 pages) | **3 / 3** | 3 / 3 | 3 / 3 | 1 / 3 (2 left empty) | 2 / 3 (1 left empty) | confirmed 1 of 2 (1 false alarm) |
+
+- **No wrong values.** Among eight language lines, an urgent line, a fax and the Department of Labor's number, the AI never picked a wrong phone number. Twice it left the phone empty, which the check screen marks as missing.
+- **The external review deadline on page 3 was never found** (0 of the 4 times it was printed). It was left empty, never made up. The only "right" deadline is G02's, where none is printed. When no deadline is found, the External review result gives HealthCare.gov's rule (ask within 4 months of the final decision) and says to call to confirm. The reader's instructions look for an appeal deadline, and on these letters it sits on a page of its own with no denial on it. Changing the instructions would mean new held-out letters, so it's recorded here instead.
+- **About 32 neurons a letter**, about 11 a page; the one-page letters took about 14.
+- **Limits:** three letters, one read each, on one government layout filled in by the same person who wrote L01–L18, so the layout is independent but the fill-ins aren't. Every reading: `test-letters/runs/2026-10-31-*.json`; the How page shows the two runs.
+
 ## 8. Limits
 
 - **Small and synthetic.** 18 letters, all written by the same person who wrote the reading instructions. Real denial letters are longer, messier and more varied.
@@ -159,6 +181,8 @@ REPEAT=2 node scripts/measure.mjs test-letters/renders "…"   # a repeat: saved
 node scripts/repeats-summary.mjs              # the run-to-run table
 node scripts/baseline.mjs                     # the no-AI baseline (no dev server, no neurons)
 node scripts/injection.mjs                    # the planted-instruction test (about 250 neurons)
+node scripts/gov-letters.mjs                  # G01–G03 on the government's model notice → test-letters/gov-renders/, gov-phone-like/
+node scripts/measure.mjs test-letters/gov-renders "clean digital images of the printed pages, not phone photos"
 npm test                                      # includes the rules run on all 18 answer keys
 ```
 

@@ -1,0 +1,171 @@
+{
+  "measuredOn": "2026-10-31",
+  "images": "clean digital images of the printed pages, not phone photos",
+  "readerInstructions": "src/read.ts at 79021a8",
+  "neurons": 97,
+  "runs": [
+    {
+      "measuredOn": "2026-10-31",
+      "images": "government model notice letters G01–G03, clean digital images of the printed pages, not phone photos",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 3,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 3,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 3,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Deadline",
+          "right": 1,
+          "empty": 2,
+          "wrong": 0
+        },
+        {
+          "name": "Phone",
+          "right": 2,
+          "empty": 1,
+          "wrong": 0
+        }
+      ],
+      "results": {
+        "right": 3,
+        "total": 3
+      },
+      "secondReader": {
+        "confirmed": 2,
+        "correct": 2,
+        "caught": 0,
+        "wrong": 0
+      },
+      "misses": []
+    }
+  ],
+  "cases": [
+    {
+      "file": "G01.jpg",
+      "pages": 3,
+      "letter": "G01",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 32.24545383453369,
+      "ms": 13212,
+      "ocrWords": 1280,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Valley Health Plan",
+        "memberName": "Casey Example",
+        "memberId": "EVH-4410-2271",
+        "letterDate": "October 20, 2026",
+        "reference": "Claim #: 26-7731-0042 · ID Number: EVH-4410-2271",
+        "deniedServices": [
+          "MRI of the right knee without contrast"
+        ],
+        "service": "MRI of the right knee without contrast",
+        "reasonQuote": "Not medically necessary (Clinical Policy IMG-114)",
+        "category": "not_medically_necessary",
+        "deadlineQuote": null,
+        "appealPhone": "(479) 555-0230",
+        "expeditedPhone": null,
+        "appealAddress": null,
+        "provider": "Example Imaging Center"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "empty",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "phone": "confirmed"
+      },
+      "outcome": "external",
+      "expected": "external"
+    },
+    {
+      "file": "G02.jpg",
+      "pages": 3,
+      "letter": "G02",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 33.418182373046875,
+      "ms": 11722,
+      "ocrWords": 1228,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Prairie Insurance Company",
+        "memberName": "Robin Example",
+        "memberId": "EPI-2207-8135",
+        "letterDate": "October 27, 2026",
+        "reference": "Claim #: Prior authorization PA-26-00915 · ID Number: EPI-2207-8135",
+        "deniedServices": [
+          "Transcranial magnetic stimulation (TMS), 36 sessions, for chronic migraine"
+        ],
+        "service": "Transcranial magnetic stimulation (TMS)",
+        "reasonQuote": "Experimental or investigational (Medical Policy NEU-031)",
+        "category": "experimental",
+        "deadlineQuote": null,
+        "appealPhone": "(870) 555-0240",
+        "expeditedPhone": "(870) 555-0247",
+        "appealAddress": "Example Prairie Insurance Company, Appeals Department, PO Box 0246, Example City, AR 00000",
+        "provider": "Example Neurology Clinic"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "right",
+        "Phone": "right"
+      },
+      "secondReader": {
+        "phone": "confirmed"
+      },
+      "outcome": "external",
+      "expected": "external"
+    },
+    {
+      "file": "G03.jpg",
+      "pages": 3,
+      "letter": "G03",
+      "heldOut": false,
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons": 31.27272605895996,
+      "ms": 14319,
+      "ocrWords": 1240,
+      "reading": {
+        "isDenial": true,
+        "planName": "Example Lakeshore Health Insurance",
+        "memberName": "Jordan Example",
+        "memberId": "ELH-5530-1964",
+        "letterDate": "October 23, 2026",
+        "reference": "Claim #: 26-4420-1187 · ID Number: ELH-5530-1964",
+        "deniedServices": [
+          "Hearing aids, both ears (pair)"
+        ],
+        "service": "Hearing aids, both ears (pair)",
+        "reasonQuote": "Not a covered benefit (Certificate of Coverage, Section: 7 Exclusions)",
+        "category": "not_covered",
+        "deadlineQuote": null,
+        "appealPhone": null,
+        "expeditedPhone": "(501) 555-0257",
+        "appealAddress": "Example Lakeshore Health Insurance, Member Appeals Unit, PO Box 0256, Example City, AR 00000",
+        "provider": "Example Hearing Center"
+      },
+      "scores": {
+        "Service": "right",
+        "Reason": "right",
+        "Deadline": "empty",
+        "Phone": "empty"
+      },
+      "secondReader": {},
+      "outcome": "external",
+      "expected": "external"
+    }
+  ]
+}

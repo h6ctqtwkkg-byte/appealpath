@@ -1,6 +1,9 @@
-// "How it decides": the rules, their sources, measured accuracy (public/accuracy.json) and the limits.
+// "How it decides": the rules, their sources, a place to try them, measured accuracy (public/accuracy.json) and the limits.
 import { useEffect, useState } from "preact/hooks";
+import { decide } from "../shared/rules";
+import { CATEGORIES, type Answers, type Category } from "../shared/types";
 import { useT } from "./i18n";
+import { Trace } from "./Trace";
 
 interface Run {
   measuredOn: string;
@@ -16,6 +19,7 @@ interface Run {
 const RULE_SOURCES = [
   "",
   "https://www.healthcare.gov/appeal-insurance-company-decision/internal-appeals/",
+  "https://www.healthcare.gov/appeal-insurance-company-decision/external-review/",
   "",
   "https://www.healthcare.gov/appeal-insurance-company-decision/internal-appeals/",
   "",
@@ -73,6 +77,68 @@ function RunTable({ run }: { run: Run }) {
           </ul>
         </>
       )}
+    </section>
+  );
+}
+
+/** Change any answer or the kind of reason and watch which rule picks the next step. Nothing is read or sent. */
+function Explorer() {
+  const all = useT();
+  const f = all.form;
+  const t = all.how.explorer;
+  const [a, setA] = useState<Answers>({ plan: "job", careHappened: true, doctorSaysHarm: "no", officeResubmitted: "no", earlierAppeal: "no", state: "AR" });
+  const [category, setCategory] = useState<Category>("prior_auth_missing");
+  const decision = decide(a, { category, deadlineQuote: "x" });
+  type Choice = "plan" | "doctorSaysHarm" | "officeResubmitted" | "earlierAppeal";
+  const pick = <K extends Choice>(k: K, label: string, options: [Answers[K], string][]) => (
+    <label class="explore-field">
+      <span>{label}</span>
+      <select value={a[k]} onChange={(e) => {
+          const value = (e.currentTarget as HTMLSelectElement).value as Answers[K];
+          setA((prev) => ({ ...prev, [k]: value }));
+        }}>
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>
+            {l}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+  return (
+    <section class="explorer" aria-labelledby="explorer-h">
+      <h2 id="explorer-h">{t.title}</h2>
+      <p class="muted small">{t.note}</p>
+      <div class="explore-grid">
+        {pick("plan", f.q1, (["job", "marketplace", "medicare", "medicaid", "not_sure"] as const).map((v) => [v, f.plans[v]]))}
+        <label class="explore-field">
+          <span>{f.q2}</span>
+          <select value={a.careHappened ? "yes" : "no"} onChange={(e) => {
+              const happened = (e.currentTarget as HTMLSelectElement).value === "yes";
+              setA((prev) => ({ ...prev, careHappened: happened }));
+            }}>
+            <option value="yes">{f.yes}</option>
+            <option value="no">{f.careNo}</option>
+          </select>
+        </label>
+        {pick("doctorSaysHarm", f.q3, [["yes", f.yes], ["no", f.no], ["not_asked", f.notAsked]])}
+        {pick("officeResubmitted", f.q4, [["yes", f.yes], ["no", f.no], ["dont_know", f.dontKnow]])}
+        {pick("earlierAppeal", f.qEarlier, [["no", f.earlierNo], ["yes", f.earlierYes], ["not_sure", f.notSure]])}
+        <label class="explore-field">
+          <span>{t.kind}</span>
+          <select value={category} onChange={(e) => setCategory((e.currentTarget as HTMLSelectElement).value as Category)}>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {all.categories[c]}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <p class="explore-result" aria-live="polite">
+        {t.result} <strong>{all.result.kicker[decision.outcome]}</strong>
+      </p>
+      <Trace answers={a} reading={{ category }} decision={decision} title={false} />
     </section>
   );
 }
@@ -141,6 +207,7 @@ export function How() {
             ))}
           </tbody>
         </table>
+      <Explorer />
       </div>
 
       <h2>{t.accuracyTitle}</h2>

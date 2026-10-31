@@ -2,13 +2,14 @@
 
 Checked live on Oct 28, 2026. Each rule says whether it comes from an official source or is a design decision of ours. The app quotes the deadline printed on the letter and never calculates one.
 
-## The 5 questions
+## The 6 questions
 
 1. **What kind of plan is it?** Through a job · Marketplace · Medicare · Medicaid · Not sure
 2. **Has the care already happened?** Yes · No, it's still scheduled or needed
 3. **Has your doctor said waiting could seriously harm your health?** Yes · No · I haven't asked
 4. **Has your doctor's office already resubmitted or sent more information?** Yes · No · Don't know
-5. **What state do you live in?**
+5. **Is this letter about an appeal you already filed?** No, it's the first denial · Yes, my appeal was turned down · Not sure (added Oct 31, 2026)
+6. **What state do you live in?**
 
 The AI reads these from the photo: service denied, denial reason (word for word), reason category, deadline (word for word, or none), appeal phone, expedited phone, address or fax for appeals, letter date, member name, and reference or claim number.
 
@@ -23,9 +24,10 @@ The AI reads these from the photo: service denied, denial reason (word for word)
 |---|---|---|---|
 | 1 | Plan is Medicare, Medicaid or not sure | **Guard:** this prototype covers job and Marketplace plans; call the number on your letter | Design decision. Medicare and Medicaid run separate appeal systems that v1 doesn't model. The form shows this as soon as one of these plans is picked, before any letter is read. Because the form skips the urgency questions for these plans, the result always adds: if the care is still ahead and waiting could seriously harm your health, say so and ask for a fast ("expedited") appeal. Sources: [Medicare.gov](https://www.medicare.gov/providers-services/claims-appeals-complaints/appeals/medicare-health-plans) (Medicare health plans: fast appeal, 72 hours) and [42 CFR 438.410](https://www.law.cornell.edu/cfr/text/42/438.410) (Medicaid managed care: expedited appeals), checked Oct 29, 2026. |
 | 2 | Care hasn't happened **and** the doctor says waiting could seriously harm your health | **Urgent review today** | [Healthcare.gov, internal appeals](https://www.healthcare.gov/appeal-insurance-company-decision/internal-appeals/): you can ask for an expedited appeal if the standard timeline would seriously jeopardize your life or health or your ability to regain maximum function, and in urgent cases you can request external review at the same time as the internal appeal. |
-| 3 | Fix-type reason **and** the office hasn't resubmitted (or "Don't know") | **Fix & resubmit** | Design decision. These denials are about something the provider sends or corrects, and the letters themselves say the provider may submit or resubmit. |
-| 4 | Appeal-type reason, **or** fix-type and the office already resubmitted | **Appeal** | [Healthcare.gov, internal appeals](https://www.healthcare.gov/appeal-insurance-company-decision/internal-appeals/): file within 180 days of receiving the denial notice. |
-| 5 | Unclear reason | **Guard:** call and ask why it was denied and what the deadline is | Design decision. |
+| 3 | You already appealed, and this letter is the plan's answer (question 5: Yes) | **External review:** follow the letter's external review instructions; HealthCare.gov says to ask within 4 months of the final decision. Denials that involve medical judgment or call a treatment experimental qualify; for others, ask whether yours can, and if not, the state insurance department or the U.S. Department of Labor may help. | [Healthcare.gov, external review](https://www.healthcare.gov/appeal-insurance-company-decision/external-review/). Found by testing on the government's [Model Notice of Final Internal Adverse Benefit Determination](https://www.cms.gov/cciio/resources/files/downloads/final_iabd_model_notice_1.pdf) (revised 11/21/2025): before this rule, all three letters on that layout went to "Appeal" again. "Not sure" counts as No, and the result says what to change if the letter calls itself a final decision on an appeal. |
+| 4 | Fix-type reason **and** the office hasn't resubmitted (or "Don't know") | **Fix & resubmit** | Design decision. These denials are about something the provider sends or corrects, and the letters themselves say the provider may submit or resubmit. |
+| 5 | Appeal-type reason, **or** fix-type and the office already resubmitted | **Appeal** | [Healthcare.gov, internal appeals](https://www.healthcare.gov/appeal-insurance-company-decision/internal-appeals/): file within 180 days of receiving the denial notice. |
+| 6 | Unclear reason | **Guard:** call and ask why it was denied and what the deadline is | Design decision. |
 
 "I haven't asked" on question 3 counts as **No**. The result then adds: *If you think waiting could harm your health, ask your doctor today.*
 

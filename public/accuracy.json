@@ -180,6 +180,92 @@
         "wrong": 0
       },
       "misses": []
+    },
+    {
+      "measuredOn": "2026-10-31",
+      "images": "government model notice letters G01–G03, clean digital images of the printed pages, not phone photos",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 3,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 3,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 3,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Deadline",
+          "right": 1,
+          "empty": 2,
+          "wrong": 0
+        },
+        {
+          "name": "Phone",
+          "right": 2,
+          "empty": 1,
+          "wrong": 0
+        }
+      ],
+      "results": {
+        "right": 3,
+        "total": 3
+      },
+      "secondReader": {
+        "confirmed": 2,
+        "correct": 2,
+        "caught": 0,
+        "wrong": 0
+      },
+      "misses": []
+    },
+    {
+      "measuredOn": "2026-10-31",
+      "images": "government model notice letters G01–G03, simulated phone-like images: tilted, slightly blurred, shadowed and heavily compressed",
+      "model": "google/gemma-4-26b-a4b-it",
+      "photos": 3,
+      "fields": [
+        {
+          "name": "Service",
+          "right": 3,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Reason",
+          "right": 3,
+          "empty": 0,
+          "wrong": 0
+        },
+        {
+          "name": "Deadline",
+          "right": 1,
+          "empty": 2,
+          "wrong": 0
+        },
+        {
+          "name": "Phone",
+          "right": 2,
+          "empty": 1,
+          "wrong": 0
+        }
+      ],
+      "results": {
+        "right": 3,
+        "total": 3
+      },
+      "secondReader": {
+        "confirmed": 1,
+        "correct": 2,
+        "caught": 0,
+        "wrong": 0
+      },
+      "misses": []
     }
   ]
 }

@@ -1,6 +1,6 @@
 # AppealPath: notes for Claude Code
 
-AppealPath is Noah's solo entry in DSH Hacks V2 (AI × Healthcare, problem statement B "Faster care"). A photo of a health-insurance denial letter goes in, the AI (Gemma 4 on Workers AI) copies the facts, a second reader (Tesseract in the browser) checks them against the photo, the user confirms, and five fixed rules (`src/shared/rules.ts`) pick one next step. One Cloudflare Worker on the free plan, with a static Preact app. It shares a Cloudflare account, and so the free 10,000 Workers AI neurons a day, with SnapList. Status and results: `README.md`, `EVALUATION.md`. Write-up: `prep/DEVPOST.md`.
+AppealPath is Noah's solo entry in DSH Hacks V2 (AI × Healthcare, problem statement B "Faster care"). A photo of a health-insurance denial letter goes in, the AI (Gemma 4 on Workers AI) copies the facts, a second reader (Tesseract in the browser) checks them against the photo, the user confirms, and six fixed rules (`src/shared/rules.ts`) pick one next step. One Cloudflare Worker on the free plan, with a static Preact app. It shares a Cloudflare account, and so the free 10,000 Workers AI neurons a day, with SnapList. Status and results: `README.md`, `EVALUATION.md`. Write-up: `prep/DEVPOST.md`.
 
 ## Rules
 

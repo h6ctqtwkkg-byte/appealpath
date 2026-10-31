@@ -38,7 +38,7 @@ export function helpFor(answers: Answers, outcome: Outcome, t: Strings): HelpIte
     return ar ? [aidConsumer] : [otherState];
   }
   const items = [ar ? aidConsumer : otherState];
-  if (outcome === "appeal" && ar) items.push(aidExternal);
+  if ((outcome === "appeal" || outcome === "external") && ar) items.push(aidExternal);
   if (answers.plan === "job" && outcome !== "guard_unclear") items.push(ebsa);
   return items;
 }

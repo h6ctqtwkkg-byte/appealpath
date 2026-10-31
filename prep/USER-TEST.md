@@ -17,7 +17,7 @@ Read each task out loud, exactly as written.
 **Task 1: your own letter (about 6 minutes).** Hand them printed **L02**.
 > "Pretend this letter came in the mail for you. Use the app to figure out what you should do next."
 
-Watch for: Do they find the photo button? Do they answer all 5 questions? On "Check what we read," do they look at the deadline and reason, or tap straight through? Do they find **Show me**? On the result, can they tell you the deadline and who to send the appeal to?
+Watch for: Do they find the photo button? Do they answer all 6 questions? On "Check what we read," do they look at the deadline and reason, or tap straight through? Do they find **Show me**? On the result, can they tell you the deadline and who to send the appeal to?
 
 **Task 2: spot the mistake (about 2 minutes).** Have them go back to the first screen.
 > "Tap 'Open the sample letter'. Is anything on this screen wrong? What would you do about it?"

@@ -5,29 +5,37 @@ import type { Answers, Category, Outcome } from "../src/shared/types";
 
 type Case = [letter: string, category: Category, deadline: string | null, answers: Answers, outcome: Outcome, rule: number];
 
-const a = (plan: Answers["plan"], careHappened: boolean, doctorSaysHarm: Answers["doctorSaysHarm"], officeResubmitted: Answers["officeResubmitted"], state = "AR"): Answers => ({
+const a = (
+  plan: Answers["plan"],
+  careHappened: boolean,
+  doctorSaysHarm: Answers["doctorSaysHarm"],
+  officeResubmitted: Answers["officeResubmitted"],
+  state = "AR",
+  earlierAppeal: Answers["earlierAppeal"] = "no",
+): Answers => ({
   plan,
   careHappened,
   doctorSaysHarm,
   officeResubmitted,
+  earlierAppeal,
   state,
 });
 
 const D180 = "You have 180 days from the date you receive this notice to file an appeal.";
 
 const CASES: Case[] = [
-  ["L01", "prior_auth_missing", D180, a("job", false, "no", "no"), "fix", 3],
-  ["L02", "not_medically_necessary", "Your appeal must be received by April 19, 2027.", a("marketplace", true, "no", "no"), "appeal", 4],
+  ["L01", "prior_auth_missing", D180, a("job", false, "no", "no"), "fix", 4],
+  ["L02", "not_medically_necessary", "Your appeal must be received by April 19, 2027.", a("marketplace", true, "no", "no"), "appeal", 5],
   ["L03", "not_medically_necessary", "You may appeal this decision within 180 days of the date you receive this notice.", a("job", false, "yes", "no"), "urgent", 2],
-  ["L04", "out_of_network", "You have 180 days from the date you receive this notice to ask for an appeal.", a("marketplace", true, "no", "no", "MO"), "appeal", 4],
-  ["L05", "billing_error", "You may file an appeal within 180 days of the date of this statement.", a("job", true, "no", "no"), "fix", 3],
-  ["L06", "missing_info", "You may file an appeal within 180 days after you receive this notice.", a("job", true, "no", "yes"), "appeal", 4],
-  ["L07", "not_covered", "Your appeal must be received within 180 days of the date of this notice.", a("marketplace", false, "no", "no"), "appeal", 4],
+  ["L04", "out_of_network", "You have 180 days from the date you receive this notice to ask for an appeal.", a("marketplace", true, "no", "no", "MO"), "appeal", 5],
+  ["L05", "billing_error", "You may file an appeal within 180 days of the date of this statement.", a("job", true, "no", "no"), "fix", 4],
+  ["L06", "missing_info", "You may file an appeal within 180 days after you receive this notice.", a("job", true, "no", "yes"), "appeal", 5],
+  ["L07", "not_covered", "Your appeal must be received within 180 days of the date of this notice.", a("marketplace", false, "no", "no"), "appeal", 5],
   ["L08", "prior_auth_missing", D180, a("job", false, "yes", "no"), "urgent", 2],
   ["L09", "not_medically_necessary", "If you want to appeal, you must ask within 65 days of the date of this notice.", a("medicare", false, "no", "no"), "guard_plan", 1],
-  ["L10", "not_medically_necessary", null, a("job", false, "not_asked", "no"), "appeal", 4],
-  ["L11", "out_of_network", "You may file an appeal within 180 days of receiving this statement.", a("job", true, "yes", "no"), "appeal", 4],
-  ["L12", "unclear", "You may file an appeal within 180 days of the date of this statement.", a("job", true, "no", "dont_know"), "guard_unclear", 5],
+  ["L10", "not_medically_necessary", null, a("job", false, "not_asked", "no"), "appeal", 5],
+  ["L11", "out_of_network", "You may file an appeal within 180 days of receiving this statement.", a("job", true, "yes", "no"), "appeal", 5],
+  ["L12", "unclear", "You may file an appeal within 180 days of the date of this statement.", a("job", true, "no", "dont_know"), "guard_unclear", 6],
 ];
 
 describe("answer key", () => {
@@ -49,12 +57,12 @@ describe("answer key", () => {
 
 // L13–L18, written after the reading instructions were finished (ANSWER-KEY.md, "The held-out set").
 const HELD_OUT: Case[] = [
-  ["L13", "prior_auth_missing", "You must file your appeal no later than 180 calendar days after the date you receive this letter.", a("marketplace", false, "no", "no"), "fix", 3],
-  ["L14", "not_medically_necessary", "Your appeal must be postmarked by March 31, 2027.", a("job", true, "no", "no"), "appeal", 4],
-  ["L15", "experimental", "You have 180 days from the date of this notice to request an internal appeal.", a("marketplace", false, "no", "no", "MO"), "appeal", 4],
+  ["L13", "prior_auth_missing", "You must file your appeal no later than 180 calendar days after the date you receive this letter.", a("marketplace", false, "no", "no"), "fix", 4],
+  ["L14", "not_medically_necessary", "Your appeal must be postmarked by March 31, 2027.", a("job", true, "no", "no"), "appeal", 5],
+  ["L15", "experimental", "You have 180 days from the date of this notice to request an internal appeal.", a("marketplace", false, "no", "no", "MO"), "appeal", 5],
   ["L16", "not_medically_necessary", "You may request an appeal within 180 days after you get this letter.", a("job", false, "yes", "no"), "urgent", 2],
-  ["L17", "missing_info", "Appeals must be filed within 180 days of the statement date shown above.", a("job", true, "no", "dont_know"), "fix", 3],
-  ["L18", "billing_error", "To appeal, contact us within 180 days of the date of this notice.", a("marketplace", true, "not_asked", "yes"), "appeal", 4],
+  ["L17", "missing_info", "Appeals must be filed within 180 days of the statement date shown above.", a("job", true, "no", "dont_know"), "fix", 4],
+  ["L18", "billing_error", "To appeal, contact us within 180 days of the date of this notice.", a("marketplace", true, "not_asked", "yes"), "appeal", 5],
 ];
 
 describe("held-out answer key", () => {
@@ -62,6 +70,26 @@ describe("held-out answer key", () => {
     const d = decide(answers, { category, deadlineQuote: deadline });
     expect(d.outcome).toBe(outcome);
     expect(d.rule).toBe(rule);
+  });
+});
+
+// G01–G03, on the government's model notice of a final internal denial (scripts/gov-letters.mjs): the person already
+// appealed, so the next step is external review whatever the reason.
+const GOVERNMENT: Case[] = [
+  ["G01", "not_medically_necessary", "You must file your request for external review within four months after you receive this notice.", a("job", true, "no", "no", "AR", "yes"), "external", 3],
+  ["G02", "experimental", null, a("marketplace", false, "no", "no", "AR", "yes"), "external", 3],
+  ["G03", "not_covered", "Requests for external review must be filed within 4 months of the date of this notice.", a("job", true, "no", "no", "AR", "yes"), "external", 3],
+];
+
+describe("government model notice answer key", () => {
+  it.each(GOVERNMENT)("%s → %s", (_letter, category, deadline, answers, outcome, rule) => {
+    const d = decide(answers, { category, deadlineQuote: deadline });
+    expect(d.outcome).toBe(outcome);
+    expect(d.rule).toBe(rule);
+  });
+
+  it("would have sent all three to another internal appeal before the earlier-appeal question", () => {
+    for (const [, category, deadline, answers] of GOVERNMENT) expect(decide({ ...answers, earlierAppeal: "no" }, { category, deadlineQuote: deadline }).outcome).toBe("appeal");
   });
 });
 

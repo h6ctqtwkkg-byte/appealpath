@@ -22,12 +22,14 @@ export const APPEAL_TYPE: readonly Category[] = ["not_medically_necessary", "not
 /** Healthcare.gov (external review): denials that involve medical judgment, or call a treatment experimental, can go to external review. */
 export const EXTERNAL_REVIEW: readonly Category[] = ["not_medically_necessary", "experimental"];
 
-/** The five questions on the form. */
+/** The six questions on the form. */
 export interface Answers {
   plan: PlanType;
   careHappened: boolean;
   doctorSaysHarm: "yes" | "no" | "not_asked";
   officeResubmitted: "yes" | "no" | "dont_know";
+  /** Is this letter the plan's answer to an appeal already filed? Then the next step is external review. */
+  earlierAppeal: "no" | "yes" | "not_sure";
   /** Two-letter state code. */
   state: string;
 }
@@ -69,12 +71,12 @@ export const EMPTY_READING: Reading = {
   provider: null,
 };
 
-export type Outcome = "fix" | "appeal" | "urgent" | "guard_plan" | "guard_unclear";
+export type Outcome = "fix" | "appeal" | "urgent" | "external" | "guard_plan" | "guard_unclear";
 
 export interface Decision {
   outcome: Outcome;
-  /** Which rule fired, 1 to 5, in the order ROUTING.md lists them. */
-  rule: 1 | 2 | 3 | 4 | 5;
+  /** Which rule fired, 1 to 6, in the order ROUTING.md lists them. */
+  rule: 1 | 2 | 3 | 4 | 5 | 6;
   /** The user answered "I haven't asked" to the harm question. */
   askDoctor: boolean;
   /** No deadline was printed (or found) on the letter. */
