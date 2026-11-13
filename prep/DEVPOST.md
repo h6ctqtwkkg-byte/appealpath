@@ -3,7 +3,7 @@
 Paste each section below into the matching box on the Devpost submission form. Redrafted Oct 29, 2026, shorter, after a second judging review. Every number comes from the sources table at the bottom.
 
 **Before you paste**
-- Fill the `[[ ]]` spots: the video link, one sentence on what you did yourself, and the real-photo results once you measure them.
+- Fill the two `[[ ]]` spots: one sentence on what you did yourself, and the video link. The step-by-step submission list is `prep/SUBMIT.md`.
 - If you measure real phone photos first, add that row to the results table here, on the one-pager and in `EVALUATION.md`.
 - If the form asks which prizes to enter, also pick **Best Research-Oriented Project (YRI)**. `EVALUATION.md` is written for that prize. Unverified: the Devpost page doesn't say how that prize is judged.
 - Read it out loud once and change anything that doesn't sound like you. Judges can ask about any line, so cut the ones you can't explain.
@@ -84,7 +84,7 @@ What I found:
 - **The government's own form found a gap in my rules.** Its notice goes to people who already appealed, and their next step is an external review, but AppealPath never asked about an earlier appeal and would have sent all three to "Appeal" again. That's why there's now a sixth question and an External review result. On those letters the AI also never found the external review deadline on page 3; it left it empty instead of guessing, and the result gives HealthCare.gov's 4-month rule.
 - **The second reader checks words, not meaning.** On held-out L13 the AI copied the deadline plus two extra sentences, every run, and the second reader passed it, since every word is on the page.
 
-**Limits:** 21 synthetic letters, 18 of them from one author and 3 on a government layout I filled in, and simulated photos. Perfect scores on small sets still leave wide room: 6 of 6 held-out letters is consistent with a true rate anywhere from 54% to 100%. [[Add the real-photo results here once measured.]] Every miss, the method and how to rerun it are in [`EVALUATION.md`](https://github.com/h6ctqtwkkg-byte/appealpath/blob/main/EVALUATION.md).
+**Limits:** 21 synthetic letters, 18 of them from one author and 3 on a government layout I filled in, and simulated photos. Perfect scores on small sets still leave wide room: 6 of 6 held-out letters is consistent with a true rate anywhere from 54% to 100%. Real phone photos of printed letters haven't been measured yet. Every miss, the method and how to rerun it are in [`EVALUATION.md`](https://github.com/h6ctqtwkkg-byte/appealpath/blob/main/EVALUATION.md).
 
 ### Challenges I ran into
 
@@ -131,12 +131,11 @@ Upload these from `docs/gallery/` in this order. They're 3:2, the shape Devpost 
 
 ## Files to attach
 
-- `prep/AppealPath-one-pager.pdf`, re-rendered after the video link is added (steps in `prep/ONE-PAGER.md`).
-- A zip of the code, made right before submitting. An old DSH update asked for one, and nothing has said it's no longer needed:
+DSH asks for a one-page PDF and a "Github Repository / Code PDF". `prep/SUBMIT.md` has the steps; everything is in `submission/`:
 
-```bash
-git -C /Users/nbrew/AppealPath archive --format=zip -o AppealPath-source.zip HEAD
-```
+- `AppealPath-one-pager.pdf`, re-rendered after the video link is added (steps in `prep/ONE-PAGER.md`).
+- `AppealPath-code.pdf`, every source file with line numbers (`node scripts/code-pdf.mjs`).
+- `AppealPath-source.zip`, in case the form asks for a zip (`git archive --format=zip -o submission/AppealPath-source.zip HEAD`).
 
 ---
 
