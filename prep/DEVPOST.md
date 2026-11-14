@@ -3,7 +3,7 @@
 Paste each section below into the matching box on the Devpost submission form. Redrafted Oct 29, 2026, shorter, after a second judging review. Every number comes from the sources table at the bottom.
 
 **Before you paste**
-- Check the one `[[ ]]` spot: a drafted sentence on what you did yourself. Make sure it's true and in your words, then delete the brackets. The step-by-step submission list is `prep/SUBMIT.md`.
+- The sentence on what you did yourself was confirmed by Noah on Nov 14. The step-by-step submission list is `prep/SUBMIT.md`.
 - If you measure real phone photos first, add that row to the results table here, on the one-pager and in `EVALUATION.md`.
 - If the form asks which prizes to enter, also pick **Best Research-Oriented Project (YRI)**. `EVALUATION.md` is written for that prize. Unverified: the Devpost page doesn't say how that prize is judged.
 - Read it out loud once and change anything that doesn't sound like you. Judges can ask about any line, so cut the ones you can't explain.
@@ -63,7 +63,7 @@ It won't contact your insurer, file anything, predict whether an appeal will win
 - **The rules** are one small function (`src/shared/rules.ts`). Rules 2, 3 and 5 cite Healthcare.gov; rules 1, 4 and 6 are labeled design choices, and rule 1's fast-appeal note cites Medicare.gov and the federal Medicaid rule (`prep/ROUTING.md`). The free-help contacts come from the Arkansas Insurance Department, Arkansas DHS, Medicaid.gov and the U.S. Department of Labor.
 - **The app** is Preact and TypeScript. It has 82 automated tests. An Oct 28 check against WCAG 2.1 AA found 7 issues, all fixed, and on Oct 31 axe-core checked every screen, the new ones included, in light and dark mode and in Spanish: 26 screen checks, 0 problems. A screen reader test by a person is still to do.
 
-Claude Code, an AI coding assistant, wrote most of the code, the fictional test letters and the measurement scripts, and Codex (another AI) did outside reviews; DSH's rules allow AI. [[Draft from your own messages; make sure it's true, put it in your words, then delete the brackets: My part was directing it: I set the goal, asked for outside reviews and deeper testing, decided which fixes to make, and decided when each version went live.]]
+Claude Code, an AI coding assistant, wrote most of the code, the fictional test letters and the measurement scripts, and Codex (another AI) did outside reviews; DSH's rules allow AI. My part was directing it: I set the goal, asked for outside reviews and deeper testing, decided which fixes to make, and decided when each version went live.
 
 ### How I tested it
 
