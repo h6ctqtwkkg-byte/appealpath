@@ -3,7 +3,7 @@
 Paste each section below into the matching box on the Devpost submission form. Redrafted Oct 29, 2026, shorter, after a second judging review. Every number comes from the sources table at the bottom.
 
 **Before you paste**
-- Fill the two `[[ ]]` spots: one sentence on what you did yourself, and the video link. The step-by-step submission list is `prep/SUBMIT.md`.
+- Check the one `[[ ]]` spot: a drafted sentence on what you did yourself. Make sure it's true and in your words, then delete the brackets. The step-by-step submission list is `prep/SUBMIT.md`.
 - If you measure real phone photos first, add that row to the results table here, on the one-pager and in `EVALUATION.md`.
 - If the form asks which prizes to enter, also pick **Best Research-Oriented Project (YRI)**. `EVALUATION.md` is written for that prize. Unverified: the Devpost page doesn't say how that prize is judged.
 - Read it out loud once and change anything that doesn't sound like you. Judges can ask about any line, so cut the ones you can't explain.
@@ -53,7 +53,7 @@ Every result shows **why**: the rules in order, each answered yes or no, up to t
 
 It won't contact your insurer, file anything, predict whether an appeal will win, give legal advice, or save your photo or answers. **It's a prototype, not medical or legal advice, and every letter in it is fictional.**
 
-**Try it without uploading anything:** [the AI picks a fax number and the check warns about it](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L04) · [Fix & resubmit](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L01&result) · [Appeal](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02&result) · [Urgent review](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L03&result) · [Medicare](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L09&result) · [Already appealed: a 3-page notice on the government's layout](https://appealpath.7zhvt4rjzh.workers.dev/?sample=G01) · [No clear reason](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L12&result) · [Try the rules](https://appealpath.7zhvt4rjzh.workers.dev/#how). The samples show readings saved ahead of time; **Read it live with the AI** on any sample except Medicare (which reads nothing) sends it through the real reader.
+**Try it without uploading anything:** [the AI picks a fax number and the check warns about it](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L04) · [Fix & resubmit](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L01&result) · [Appeal](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L02&result) · [Urgent review](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L03&result) · [Medicare](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L09&result) · [Already appealed: a 3-page notice on the government's layout](https://appealpath.7zhvt4rjzh.workers.dev/?sample=G01) · [No clear reason](https://appealpath.7zhvt4rjzh.workers.dev/?sample=L12&result) · [Try the rules](https://appealpath.7zhvt4rjzh.workers.dev/#how). The samples show readings saved ahead of time; **Read it live with the AI** on any sample except Medicare (which reads nothing) sends it through the real reader. **[Watch the 3-minute demo](https://appealpath.7zhvt4rjzh.workers.dev/video)**.
 
 ### How I built it
 
@@ -61,9 +61,9 @@ It won't contact your insurer, file anything, predict whether an appeal will win
 - **The reader** is Gemma 4 (26B), told to answer in a strict JSON schema and to copy only what's printed. Missing or invalid fields come back empty instead of guessed. If Gemma fails or stalls for 15 seconds, Llama 4 Scout takes over.
 - **The second reader** is Tesseract.js in the browser. OCR on a phone photo misreads letters, so it matches the AI's quotes word by word with some tolerance, and phone numbers digit by digit, including the area code. It looks for the word "fax" printed just before a number.
 - **The rules** are one small function (`src/shared/rules.ts`). Rules 2, 3 and 5 cite Healthcare.gov; rules 1, 4 and 6 are labeled design choices, and rule 1's fast-appeal note cites Medicare.gov and the federal Medicaid rule (`prep/ROUTING.md`). The free-help contacts come from the Arkansas Insurance Department, Arkansas DHS, Medicaid.gov and the U.S. Department of Labor.
-- **The app** is Preact and TypeScript. It has 79 automated tests. An Oct 28 check against WCAG 2.1 AA found 7 issues, all fixed, and on Oct 31 axe-core checked every screen, the new ones included, in light and dark mode and in Spanish: 26 screen checks, 0 problems. A screen reader test by a person is still to do.
+- **The app** is Preact and TypeScript. It has 82 automated tests. An Oct 28 check against WCAG 2.1 AA found 7 issues, all fixed, and on Oct 31 axe-core checked every screen, the new ones included, in light and dark mode and in Spanish: 26 screen checks, 0 problems. A screen reader test by a person is still to do.
 
-I used Claude Code, an AI coding assistant, for most of the code, which DSH's rules allow, and Codex (another AI) for outside reviews. [[One true sentence on what you did yourself: the decisions you made, what you tested, what you changed.]]
+Claude Code, an AI coding assistant, wrote most of the code, the fictional test letters and the measurement scripts, and Codex (another AI) did outside reviews; DSH's rules allow AI. [[Draft from your own messages; make sure it's true, put it in your words, then delete the brackets: My part was directing it: I set the goal, asked for outside reviews and deeper testing, decided which fixes to make, and decided when each version went live.]]
 
 ### How I tested it
 
@@ -123,7 +123,7 @@ cloudflare-workers, workers-ai, gemma, llama, tesseract.js, preact, typescript, 
 
 ## Video demo link
 
-[[YouTube or Vimeo link]]
+The YouTube link once it's uploaded (Devpost embeds YouTube and Vimeo links as a player). Until then, or if the box takes any link: https://appealpath.7zhvt4rjzh.workers.dev/video
 
 ## Image gallery
 
@@ -155,7 +155,7 @@ DSH asks for a one-page PDF and a "Github Repository / Code PDF". `prep/SUBMIT.m
 | axe-core: 26 screen checks, 0 problems | `node scripts/a11y.mjs`, `prep/ACCESSIBILITY.md`, Oct 31, 2026 |
 | 6 of 6 is consistent with 54–100% (exact 95% interval) | Clopper-Pearson, `EVALUATION.md` §5 |
 | Confidence 1.0, the missing word | `prep/READER-TEST.md` |
-| 79 tests | `npm test`, Oct 31, 2026 |
+| 82 tests | `npm test`, Nov 13, 2026 |
 | 10 of the first 12 letters give a relative deadline | `test-letters/ANSWER-KEY.md` |
 | The calendar fix for "within 180 days of November 1" | `src/shared/dates.ts`, `test/dates.test.ts` |
 | Which rules win in which order | `src/shared/rules.ts` |

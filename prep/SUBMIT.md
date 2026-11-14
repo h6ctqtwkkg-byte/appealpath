@@ -4,9 +4,11 @@
 
 DSH asks for four things: the project, a demo video, a one-page PDF, and the GitHub repository or a code PDF. All of the files are in `submission/` (not in git; rebuild with the commands at the bottom).
 
-## 1. Upload the video (YouTube, Unlisted)
+## 1. The video
 
-Upload `demo/AppealPath-demo.mp4` (3:14, 1080p). It's narrated by a computer voice (macOS), and the closing credits say so. If you have time to record your own voice over `demo/AppealPath-demo-silent.mp4` with `prep/DEMO-SCRIPT.md`, do it, but don't let it hold up submitting: you can swap the link on Devpost until the deadline.
+It's already online, on the app itself: **https://appealpath.7zhvt4rjzh.workers.dev/video** (3:14, the computer-voice version; it plays on iPhones too). The one-pager and the write-up link there, so nothing is blocked on YouTube.
+
+Devpost's video box embeds YouTube and Vimeo links as a player on the project page, so a YouTube copy still looks better. If you have 5 minutes, upload `demo/AppealPath-demo.mp4` to YouTube as Unlisted and put that link in the video box. If you have time to record your own voice over `demo/AppealPath-demo-silent.mp4` with `prep/DEMO-SCRIPT.md`, that's better still, but don't let it hold up submitting: you can swap the link until the deadline.
 
 - **Title:** AppealPath: from a health-insurance denial letter to one next step (DSH Hacks V2)
 - **Description:**
@@ -22,20 +24,18 @@ Upload `demo/AppealPath-demo.mp4` (3:14, 1080p). It's narrated by a computer voi
 
 - **Visibility:** Unlisted (anyone with the link can watch). Set "No, it's not made for kids".
 
-Send Claude the link. It goes into the write-up and the one-pager, and the one-pager PDF gets re-rendered.
-
 ## 2. On Devpost
 
-Sign in at https://dsh-hacks-v2.devpost.com, click **Join hackathon** if you haven't, then **Enter a submission**. Paste from `prep/DEVPOST.md`:
+Sign in at https://dsh-hacks-v2.devpost.com, click **Join hackathon** if you haven't, then **Enter a submission**. Open `submission/paste.html` in a browser: each box has a Copy button. (It's built from `prep/DEVPOST.md`.)
 
 | Devpost field | What to put |
 |---|---|
 | Project name | AppealPath |
 | Elevator pitch | The "Elevator pitch" line (179 characters; the limit is 200) |
-| About the project | Everything under "About the project", from "### Inspiration" to the end of "What's next". Devpost takes Markdown. |
+| About the project | Everything under "About the project", from "### Inspiration" to the end of "What's next". Devpost takes Markdown. First fix the one `[[ ]]` sentence about what you did yourself: it's a draft from your own messages; make it true and in your words. |
 | Built with | cloudflare-workers, workers-ai, gemma, llama, tesseract.js, preact, typescript, esbuild, vitest |
 | "Try it out" links | https://appealpath.7zhvt4rjzh.workers.dev and https://github.com/h6ctqtwkkg-byte/appealpath |
-| Video demo link | the YouTube link |
+| Video demo link | the YouTube link, or https://appealpath.7zhvt4rjzh.workers.dev/video if the box takes it |
 | Image gallery | `submission/gallery/1-cover.png` to `7-real-letters.png`, in order. The first becomes the thumbnail. |
 | One-page PDF | `submission/AppealPath-one-pager.pdf` |
 | GitHub / code PDF | the GitHub link, and upload `submission/AppealPath-code.pdf` if there's a file box |
@@ -48,7 +48,7 @@ If the submit button fails, try another browser, then email the hackathon manage
 ## Rebuilding the files
 
 ```bash
-cd /Users/nbrew/AppealPath && node scripts/code-pdf.mjs && git archive --format=zip -o submission/AppealPath-source.zip HEAD && mkdir -p submission/gallery && cp docs/gallery/*.png submission/gallery/
+cd /Users/nbrew/AppealPath && node scripts/code-pdf.mjs && node scripts/paste-sheet.mjs && git archive --format=zip -o submission/AppealPath-source.zip HEAD && mkdir -p submission/gallery && cp docs/gallery/*.png submission/gallery/
 ```
 
 The one-pager: see `prep/ONE-PAGER.md`, then copy `prep/AppealPath-one-pager.pdf` into `submission/`.

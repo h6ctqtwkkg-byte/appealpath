@@ -1,10 +1,12 @@
-// AppealPath Worker. Static files in public/ are served before this runs; only /api/* reaches it.
+// AppealPath Worker. Static files in public/ are served before this runs; only /api/* and /demo.mp4 reach it.
 // POST /api/read takes a photo of a letter and returns what the AI read. Nothing is stored: not the photo, not the answer.
 import { readError, readLetter } from "./read";
 import type { ReadResponse } from "./shared/types";
+import { serveVideo } from "./video";
 
 export interface Env {
   AI: Ai;
+  ASSETS: Fetcher;
   /** Optional so tests and odd local setups still run without it. */
   READ_LIMIT?: RateLimit;
 }
@@ -58,6 +60,7 @@ export default {
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: { allow: "POST" } });
       return handleRead(request, env);
     }
+    if (url.pathname === "/demo.mp4") return serveVideo(request, env.ASSETS);
     return new Response("Not found", { status: 404 });
   },
 } satisfies ExportedHandler<Env>;

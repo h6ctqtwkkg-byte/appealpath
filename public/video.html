@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AppealPath demo video</title>
+  <meta name="description" content="A 3-minute demo of AppealPath: from a health insurance denial letter to one next step. Prototype, not medical or legal advice.">
+  <meta name="theme-color" content="#f6f4ef">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f3f6e'/%3E%3Cpath d='M9 8h10l4 4v12H9z' fill='%23fff'/%3E%3Cpath d='M12 18h6m-2.5-3 3 3-3 3' stroke='%231f3f6e' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* The demo video, for the DSH Hacks V2 write-up and one-pager. Only this page uses these rules. */
+    .video-page { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+    .video-page h1 { margin: 0 0 6px; }
+    .video-page video { display: block; width: 100%; height: auto; margin: 16px 0; border-radius: var(--radius); background: #000; }
+    .video-page .links { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  </style>
+</head>
+<body>
+  <div class="banner" role="note"><strong>Prototype.</strong> Not medical or legal advice. If this is a medical emergency, call 911.</div>
+  <main class="video-page">
+    <h1>AppealPath demo video</h1>
+    <p>3 minutes 14 seconds. A photo of a fictional denial letter goes in, the AI reads it, a second reader checks it, and fixed rules pick one next step. The narration is a computer voice (macOS) and is shown on screen as text. Every letter in it is fictional.</p>
+    <video controls playsinline preload="metadata" poster="/demo-poster.jpg" width="1920" height="1080">
+      <source src="/demo.mp4" type="video/mp4">
+      <a href="/demo.mp4">Download the video (MP4, 17 MB)</a>
+    </video>
+    <p class="links"><a href="/">Try AppealPath</a> <a href="/?sample=L04">See the check warn about a fax number</a> <a href="https://github.com/h6ctqtwkkg-byte/appealpath">Code on GitHub</a> <a href="/demo.mp4" download>Download the video</a></p>
+  </main>
+</body>
+</html>
