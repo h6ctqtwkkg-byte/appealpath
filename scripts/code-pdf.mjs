@@ -12,13 +12,13 @@ const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer
 
 // Each part lists its files in reading order; any file that matches a part's pattern but isn't listed goes at the end of it.
 const PARTS = [
-  ["The Worker", "Receives the shrunk photo, sends it to Workers AI, and cleans up what comes back.", /^src\/[^/]+\.ts$/, ["src/worker.ts", "src/read.ts"]],
+  ["The Worker", "Receives the shrunk photo, sends it to Workers AI, and cleans up what comes back.", /^src\/[^/]+\.ts$/, ["src/worker.ts", "src/read.ts", "src/video.ts"]],
   ["Shared logic", "The six rules, deadline wording, the second reader's matching, and joining pages. Used by the Worker, the app and the tests.", /^src\/shared\//,
     ["src/shared/types.ts", "src/shared/rules.ts", "src/shared/dates.ts", "src/shared/match.ts", "src/shared/merge.ts", "src/shared/phones.ts", "src/shared/services.ts"]],
-  ["The app", "Preact screens, the second reader (Tesseract.js), Listen and Send, and every word in English and Spanish.", /^src\/client\/.*\.tsx?$|^public\/(index\.html|styles\.css)$/,
+  ["The app", "Preact screens, the second reader (Tesseract.js), Listen and Send, and every word in English and Spanish.", /^src\/client\/.*\.tsx?$|^public\/(index|video)\.html$|^public\/styles\.css$/,
     ["src/client/main.tsx", "src/client/Form.tsx", "src/client/Check.tsx", "src/client/checks.ts", "src/client/Result.tsx", "src/client/Trace.tsx", "src/client/How.tsx",
       "src/client/ui.tsx", "src/client/ocr.ts", "src/client/image.ts", "src/client/speak.ts", "src/client/reasons.ts", "src/client/help.ts", "src/client/samples.ts",
-      "src/client/states.ts", "src/client/i18n.ts", "public/index.html", "public/styles.css"]],
+      "src/client/states.ts", "src/client/i18n.ts", "public/index.html", "public/video.html", "public/styles.css"]],
   ["Tests", "Run with npm test (vitest).", /^test\//, ["test/rules.test.ts", "test/dates.test.ts", "test/match.test.ts", "test/merge.test.ts", "test/read.test.ts", "test/safety.test.ts"]],
   ["Evaluation and build scripts", "How every number in the write-up was measured, and how the gallery, video and letters were made.", /^scripts\/.*\.(mjs|sh|html)$/,
     ["scripts/measure.mjs", "scripts/repeats-summary.mjs", "scripts/baseline.mjs", "scripts/injection.mjs", "scripts/gov-letters.mjs", "scripts/a11y.mjs", "scripts/build-client.mjs"]],
