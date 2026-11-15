@@ -123,7 +123,7 @@ cloudflare-workers, workers-ai, gemma, llama, tesseract.js, preact, typescript, 
 
 ## Video demo link
 
-The YouTube link once it's uploaded (Devpost embeds YouTube and Vimeo links as a player). Until then, or if the box takes any link: https://appealpath.7zhvt4rjzh.workers.dev/video
+https://youtu.be/93o7D0WQdPE (unlisted; the same video plays at https://appealpath.7zhvt4rjzh.workers.dev/video)
 
 ## Image gallery
 
@@ -135,7 +135,8 @@ DSH asks for a one-page PDF and a "Github Repository / Code PDF". `prep/SUBMIT.m
 
 - `AppealPath-one-pager.pdf`, re-rendered after the video link is added (steps in `prep/ONE-PAGER.md`).
 - `AppealPath-code.pdf`, every source file with line numbers (`node scripts/code-pdf.mjs`).
-- `AppealPath-source.zip`, in case the form asks for a zip (`git archive --format=zip -o submission/AppealPath-source.zip HEAD`).
+- `AppealPath-submission.zip` (also in `prep/`): the one-pager, the code PDF and a README of links, for the form's single "Upload a File" box.
+- `AppealPath-source.zip`, the code itself, if anyone asks for it (`git archive --format=zip -o submission/AppealPath-source.zip HEAD`).
 
 ---
 
